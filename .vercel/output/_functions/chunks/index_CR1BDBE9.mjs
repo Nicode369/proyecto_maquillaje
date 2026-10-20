@@ -1,15 +1,15 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
 import { A as renderTemplate, N as addAttribute, T as Fragment, j as maybeRenderHead, w as renderComponent } from "./sequence_CIT0iznN.mjs";
-import { T as isInputError } from "./server_B7MgxuTj.mjs";
+import { T as isInputError } from "./server_CqV02Mh5.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_C77BD6_g.mjs";
-import { t as actions } from "./_astro_actions_D7uQ0srh.mjs";
-import { a as listCategorias, o as listProductos, t as countStockBajo } from "./productos_cVEfbOog.mjs";
-import { t as $$Button } from "./Button_BwnZMZQS.mjs";
-import { n as Pencil, t as Trash } from "./trash_Cgn35z1b.mjs";
-import { n as Search, r as Plus, t as $$LimpiarFiltros } from "./LimpiarFiltros_CP-REZhq.mjs";
-import { t as TriangleAlert } from "./triangle-alert_CPos7JwZ.mjs";
-import { t as $$Input } from "./Input_DrAWvrMZ.mjs";
+import { n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_DlSv5vm_.mjs";
+import { t as actions } from "./_astro_actions_MWJk4dVP.mjs";
+import { a as listCategorias, c as resumenStockActivo, o as listProductos, t as countStockBajo } from "./productos_DJAPQyIZ.mjs";
+import { t as $$Button } from "./Button_DF7l_wdo.mjs";
+import { n as Pencil, t as Trash } from "./trash_DO-etY5Q.mjs";
+import { n as Search, r as Plus, t as $$LimpiarFiltros } from "./LimpiarFiltros_C7XrPYYU.mjs";
+import { t as TriangleAlert } from "./triangle-alert_D4Lpcipn.mjs";
+import { t as $$Input } from "./Input_BqhAvSAl.mjs";
 import { t as $$Badge } from "./Badge_DYdURA09.mjs";
 import { t as $$EmptyState } from "./EmptyState_s9NtGM7p.mjs";
 //#region src/pages/productos/index.astro
@@ -35,7 +35,7 @@ var $$Index = createComponent(async ($$result, $$props, $$slots) => {
 		const qs = params.toString();
 		return Astro.redirect(`/productos${qs ? `?${qs}` : ""}`);
 	}
-	const [lista, categorias, totalStockBajo] = await Promise.all([
+	const [lista, categorias, totalStockBajo, stock] = await Promise.all([
 		listProductos({
 			q,
 			categoria,
@@ -43,7 +43,8 @@ var $$Index = createComponent(async ($$result, $$props, $$slots) => {
 			inactivos: verInactivos
 		}),
 		listCategorias(),
-		countStockBajo()
+		countStockBajo(),
+		resumenStockActivo()
 	]);
 	const hayFiltro = Boolean(q || categoria || soloStockBajo);
 	const errDel = eliminar?.error;
@@ -56,7 +57,7 @@ var $$Index = createComponent(async ($$result, $$props, $$slots) => {
 	}, { "default": ($$result) => renderTemplate`${renderComponent($$result, "PageHeader", $$PageHeader, {
 		"title": "Productos",
 		"description": `${lista.length} en catálogo${totalStockBajo > 0 ? ` · ${totalStockBajo} con stock bajo` : ""}`
-	}, { "default": ($$result) => renderTemplate`${totalStockBajo > 0 && renderTemplate`${maybeRenderHead($$result)}<a href="/productos?stock=bajo" class="inline-flex items-center gap-1.5 rounded-full bg-ochre/10 px-2.5 py-1 text-[13px] font-medium text-ochre">${renderComponent($$result, "TriangleAlert", TriangleAlert, { "size": 14 })}${totalStockBajo} bajo stock</a>`}${renderComponent($$result, "Button", $$Button, { "href": "/productos/nuevo" }, { "default": ($$result) => renderTemplate`${renderComponent($$result, "Plus", Plus, { "size": 15 })} Nuevo producto` })}` })}<form method="GET" action="/productos" class="mt-6 flex flex-wrap items-end gap-3">${renderComponent($$result, "Input", $$Input, {
+	}, { "default": ($$result) => renderTemplate`${totalStockBajo > 0 && renderTemplate`${maybeRenderHead($$result)}<a href="/productos?stock=bajo" class="inline-flex items-center gap-1.5 rounded-full bg-ochre/10 px-2.5 py-1 text-[13px] font-medium text-ochre">${renderComponent($$result, "TriangleAlert", TriangleAlert, { "size": 14 })}${totalStockBajo} bajo stock</a>`}${renderComponent($$result, "Button", $$Button, { "href": "/productos/nuevo" }, { "default": ($$result) => renderTemplate`${renderComponent($$result, "Plus", Plus, { "size": 15 })} Nuevo producto` })}` })}<div class="mt-6 grid grid-cols-1 divide-y divide-hairline overflow-hidden rounded-xl border border-hairline bg-surface sm:grid-cols-3 sm:divide-x sm:divide-y-0"><div class="p-5"><p class="text-xs tracking-wide text-ink-muted uppercase">Unidades en stock</p><p class="display-number mt-1 text-2xl text-ink">${stock.unidades}</p><p class="mt-1 text-[12px] text-ink-muted">en ${totalStockBajo > 0 ? `${totalStockBajo} con stock bajo` : "catálogo activo"}</p></div><div class="p-5"><p class="text-xs tracking-wide text-ink-muted uppercase">Invertido en mercancía</p><p class="display-number mt-1 text-2xl text-ink">${formatCOP(stock.invertido)}</p><p class="mt-1 text-[12px] text-ink-muted">a precio de compra</p></div><div class="p-5"><p class="text-xs tracking-wide text-ink-muted uppercase">Ganancia potencial</p><p class="display-number mt-1 text-2xl text-wine">${formatCOP(stock.ganancia)}</p><p class="mt-1 text-[12px] text-ink-muted">si vendes todo el stock</p></div></div><form method="GET" action="/productos" class="mt-6 flex flex-wrap items-end gap-3">${renderComponent($$result, "Input", $$Input, {
 		"name": "q",
 		"label": "Buscar",
 		"type": "search",
@@ -68,7 +69,7 @@ var $$Index = createComponent(async ($$result, $$props, $$slots) => {
 		"type": "submit",
 		"class": "shrink-0"
 	}, { "default": ($$result) => renderTemplate`${renderComponent($$result, "Search", Search, { "size": 15 })} Filtrar
-    ` })}<label class="flex h-9.5 cursor-pointer items-center gap-2 text-sm text-ink"><input type="checkbox" name="stock" value="bajo"${addAttribute(soloStockBajo, "checked")} class="size-4 accent-wine">Solo stock bajo</label><label class="flex h-9.5 cursor-pointer items-center gap-2 text-sm text-ink"><input type="checkbox" name="inactivos" value="1"${addAttribute(verInactivos, "checked")} class="size-4 accent-wine">Ver inactivos</label></form>${errorEliminar && renderTemplate`<div class="mt-4 rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger" role="alert">${errorEliminar}</div>`}${aviso && renderTemplate`<div class="mt-4 rounded-lg border border-ochre/30 bg-ochre/5 px-4 py-3 text-sm text-ochre" role="alert">${aviso}</div>`}<div class="mt-6 overflow-hidden rounded-md border border-hairline bg-surface">${lista.length === 0 && renderTemplate`${renderComponent($$result, "EmptyState", $$EmptyState, {
+    ` })}<label class="flex h-9.5 cursor-pointer items-center gap-2 text-sm text-ink"><input type="checkbox" name="stock" value="bajo"${addAttribute(soloStockBajo, "checked")} class="size-4 accent-wine">Solo stock bajo</label><label class="flex h-9.5 cursor-pointer items-center gap-2 text-sm text-ink"><input type="checkbox" name="inactivos" value="1"${addAttribute(verInactivos, "checked")} class="size-4 accent-wine">Ver inactivos</label></form>${errorEliminar && renderTemplate`<div class="mt-4 rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger" role="alert">${errorEliminar}</div>`}${aviso && renderTemplate`<div class="mt-4 rounded-lg border border-ochre/30 bg-ochre/5 px-4 py-3 text-sm text-ochre" role="alert">${aviso}</div>`}<div class="mt-6 overflow-hidden rounded-xl border border-hairline bg-surface">${lista.length === 0 && renderTemplate`${renderComponent($$result, "EmptyState", $$EmptyState, {
 		"title": hayFiltro ? "Sin resultados" : "Aún no hay productos",
 		"description": hayFiltro ? "Prueba con otros filtros o registra un producto nuevo." : "Registra tu inventario con precios de compra y venta."
 	}, { "default": ($$result) => renderTemplate`${hayFiltro ? renderTemplate`${renderComponent($$result, "Button", $$Button, {

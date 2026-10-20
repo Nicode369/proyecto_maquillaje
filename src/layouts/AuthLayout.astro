@@ -32,14 +32,26 @@ const { title = 'Iniciar sesión' } = Astro.props;
         </p>
       </div>
 
+      <img
+        src="/logo.svg"
+        alt=""
+        aria-hidden="true"
+        class="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 opacity-10"
+      />
       <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full border border-rose/25"></div>
       <div class="pointer-events-none absolute -right-10 top-40 h-40 w-40 rounded-full border border-white/10"></div>
     </section>
 
-    <main class="flex min-h-screen items-center justify-center px-6 py-12">
+    <main class="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-10 sm:py-12">
+      <img
+        src="/logo.svg"
+        alt=""
+        aria-hidden="true"
+        class="pointer-events-none absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 opacity-[0.055] -z-10"
+      />
       <div class="w-full max-w-[380px]">
-        <div class="mb-8 lg:hidden">
-          <Valeria variant="auth" class="text-[30px]" />
+        <div class="mb-7 text-center lg:hidden">
+          <Valeria variant="auth" class="justify-center text-[30px]" />
           <p class="mt-2 text-sm text-ink-muted">Maquillaje</p>
         </div>
 

@@ -12,6 +12,7 @@ import {
   listProductos,
   listCategorias,
   countStockBajo,
+  resumenStockActivo,
 } from '../../lib/queries/productos';
 import { formatCOP } from '../../lib/format';
 
@@ -32,10 +33,11 @@ if (eliminar && !eliminar.error) {
   return Astro.redirect(`/productos${qs ? `?${qs}` : ''}`);
 }
 
-const [lista, categorias, totalStockBajo] = await Promise.all([
+const [lista, categorias, totalStockBajo, stock] = await Promise.all([
   listProductos({ q, categoria, stockBajo: soloStockBajo, inactivos: verInactivos }),
   listCategorias(),
   countStockBajo(),
+  resumenStockActivo(),
 ]);
 
 const hayFiltro = Boolean(q || categoria || soloStockBajo);
@@ -68,6 +70,29 @@ const aviso = Astro.url.searchParams.get('aviso');
     }
     <Button href="/productos/nuevo"><Plus size={15} /> Nuevo producto</Button>
   </PageHeader>
+
+  {/* Resumen del stock: unidades, dinero invertido y ganancia esperada */}
+  <div
+    class="mt-6 grid grid-cols-1 divide-y divide-hairline overflow-hidden rounded-xl border border-hairline bg-surface sm:grid-cols-3 sm:divide-x sm:divide-y-0"
+  >
+    <div class="p-5">
+      <p class="text-xs tracking-wide text-ink-muted uppercase">Unidades en stock</p>
+      <p class="display-number mt-1 text-2xl text-ink">{stock.unidades}</p>
+      <p class="mt-1 text-[12px] text-ink-muted">
+        en {totalStockBajo > 0 ? `${totalStockBajo} con stock bajo` : 'catálogo activo'}
+      </p>
+    </div>
+    <div class="p-5">
+      <p class="text-xs tracking-wide text-ink-muted uppercase">Invertido en mercancía</p>
+      <p class="display-number mt-1 text-2xl text-ink">{formatCOP(stock.invertido)}</p>
+      <p class="mt-1 text-[12px] text-ink-muted">a precio de compra</p>
+    </div>
+    <div class="p-5">
+      <p class="text-xs tracking-wide text-ink-muted uppercase">Ganancia potencial</p>
+      <p class="display-number mt-1 text-2xl text-wine">{formatCOP(stock.ganancia)}</p>
+      <p class="mt-1 text-[12px] text-ink-muted">si vendes todo el stock</p>
+    </div>
+  </div>
 
   <form
     method="GET"
@@ -142,7 +167,7 @@ const aviso = Astro.url.searchParams.get('aviso');
     )
   }
 
-  <div class="mt-6 overflow-hidden rounded-md border border-hairline bg-surface">
+  <div class="mt-6 overflow-hidden rounded-xl border border-hairline bg-surface">
     {
       lista.length === 0 && (
         <EmptyState

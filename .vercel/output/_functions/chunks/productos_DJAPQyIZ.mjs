@@ -48,6 +48,16 @@ async function countStockBajo() {
     WHERE activo AND stock <= stock_minimo`;
 	return row.n;
 }
+async function resumenStockActivo() {
+	const [row] = await sql`
+    SELECT
+      COALESCE(SUM(stock), 0)::int AS unidades,
+      COALESCE(SUM(stock * precio_compra), 0)::float8 AS invertido,
+      COALESCE(SUM(stock * (precio_venta - precio_compra)), 0)::float8 AS ganancia
+    FROM productos
+    WHERE activo`;
+	return row;
+}
 async function createProducto(data) {
 	const [row] = await sql`
     INSERT INTO productos (nombre, marca, categoria, stock, stock_minimo, precio_compra, precio_venta, imagen)
@@ -96,4 +106,4 @@ async function listProductosParaVenta() {
     ORDER BY nombre ASC`;
 }
 //#endregion
-export { listCategorias as a, updateProducto as c, getProducto as i, createProducto as n, listProductos as o, deleteProducto as r, listProductosParaVenta as s, countStockBajo as t };
+export { listCategorias as a, resumenStockActivo as c, getProducto as i, updateProducto as l, createProducto as n, listProductos as o, deleteProducto as r, listProductosParaVenta as s, countStockBajo as t };

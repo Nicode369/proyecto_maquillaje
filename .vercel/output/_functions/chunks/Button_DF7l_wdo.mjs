@@ -22,7 +22,7 @@ var $$Valeria = createComponent(($$result, $$props, $$slots) => {
 		nombre: "text-ink",
 		apellido: "text-wine"
 	};
-	return renderTemplate`${maybeRenderHead($$result)}<span${addAttribute(["inline-flex items-center gap-2.5", className], "class:list")}><img src="/logo.svg" alt=""${addAttribute(["shrink-0", variant === "sidebar" ? "h-6 w-6" : "h-8 w-8"], "class:list")} aria-hidden="true"><span${addAttribute(["font-display italic leading-none", tono.nombre], "class:list")} style="font-variation-settings: 'opsz' 144, 'wght' 560, 'SOFT' 40, 'WONK' 1;">Valeria <span${addAttribute(tono.apellido, "class")}>Eslava</span></span></span>`;
+	return renderTemplate`${maybeRenderHead($$result)}<span${addAttribute(["inline-flex items-center gap-2.5", className], "class:list")}><img src="/logo.svg" alt=""${addAttribute(["shrink-0", variant === "sidebar" ? "h-6 w-6" : "h-9 w-9"], "class:list")} aria-hidden="true"><span${addAttribute(["font-display italic leading-none", tono.nombre], "class:list")} style="font-variation-settings: 'opsz' 144, 'wght' 560, 'SOFT' 40, 'WONK' 1;">Valeria <span${addAttribute(tono.apellido, "class")}>Eslava</span></span></span>`;
 }, "/home/nicode/Proyectos/proyecto_maquillaje/src/components/Valeria.astro", void 0);
 //#endregion
 //#region src/components/Footer.astro
@@ -42,13 +42,14 @@ var $$Button = createComponent(($$result, $$props, $$slots) => {
 	Astro.self = $$Button;
 	const { variant = "primary", size = "md", class: className = "", href, type = "button", disabled = false, ...rest } = Astro.props;
 	const classes = `inline-flex items-center justify-center gap-2 rounded-full font-medium whitespace-nowrap transition-colors disabled:opacity-50 disabled:pointer-events-none ${{
-		primary: "bg-wine text-white hover:bg-wine-hover",
+		primary: "bg-pink text-ink hover:bg-pink-hover",
 		outline: "border border-ink/15 bg-surface text-ink hover:border-ink/35",
 		ghost: "text-ink-muted hover:text-ink hover:bg-ink/5",
 		danger: "bg-danger text-white hover:bg-danger/90"
 	}[variant]} ${{
 		sm: "h-8 px-2.5 text-[13px]",
-		md: "h-9.5 px-4 text-sm"
+		md: "h-9.5 px-4 text-sm",
+		lg: "h-11 px-6 text-[15px]"
 	}[size]} ${className}`;
 	return renderTemplate`${href ? renderTemplate`${maybeRenderHead($$result)}<a${addAttribute(href, "href")}${addAttribute(classes, "class")}${spreadAttributes(rest)}>${renderSlot($$result, $$slots["default"])}</a>` : renderTemplate`<button${addAttribute(type, "type")}${addAttribute(classes, "class")}${addAttribute(disabled, "disabled")}${spreadAttributes(rest)}>${renderSlot($$result, $$slots["default"])}</button>`}`;
 }, "/home/nicode/Proyectos/proyecto_maquillaje/src/components/ui/Button.astro", void 0);

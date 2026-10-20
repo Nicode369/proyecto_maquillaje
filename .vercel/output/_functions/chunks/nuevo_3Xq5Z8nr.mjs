@@ -1,12 +1,12 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
 import { A as renderTemplate, N as addAttribute, j as maybeRenderHead, w as renderComponent } from "./sequence_CIT0iznN.mjs";
-import { T as isInputError } from "./server_B7MgxuTj.mjs";
+import { T as isInputError } from "./server_CqV02Mh5.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { n as $$DashboardLayout, t as $$PageHeader } from "./PageHeader_C77BD6_g.mjs";
-import { t as actions } from "./_astro_actions_D7uQ0srh.mjs";
-import { t as $$Button } from "./Button_BwnZMZQS.mjs";
-import { t as $$Input } from "./Input_DrAWvrMZ.mjs";
-import { n as $$Checkbox, t as $$SubirImagen } from "./SubirImagen_C71e67KV.mjs";
+import { n as $$DashboardLayout, t as $$PageHeader } from "./PageHeader_DlSv5vm_.mjs";
+import { t as actions } from "./_astro_actions_MWJk4dVP.mjs";
+import { t as $$Button } from "./Button_DF7l_wdo.mjs";
+import { t as $$Input } from "./Input_BqhAvSAl.mjs";
+import { n as $$Checkbox, t as $$SubirImagen } from "./SubirImagen_2YmUWAtT.mjs";
 //#region src/pages/productos/nuevo.astro
 var nuevo_exports = /* @__PURE__ */ __exportAll({
 	default: () => $$Nuevo,

@@ -63,6 +63,23 @@ export async function countStockBajo(): Promise<number> {
   return row.n;
 }
 
+export interface ResumenStock {
+  unidades: number;
+  invertido: number;
+  ganancia: number;
+}
+
+export async function resumenStockActivo(): Promise<ResumenStock> {
+  const [row] = await sql`
+    SELECT
+      COALESCE(SUM(stock), 0)::int AS unidades,
+      COALESCE(SUM(stock * precio_compra), 0)::float8 AS invertido,
+      COALESCE(SUM(stock * (precio_venta - precio_compra)), 0)::float8 AS ganancia
+    FROM productos
+    WHERE activo`;
+  return row as unknown as ResumenStock;
+}
+
 export async function createProducto(data: {
   nombre: string;
   marca?: string | null;

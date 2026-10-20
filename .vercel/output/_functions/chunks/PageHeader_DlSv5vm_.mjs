@@ -1,7 +1,7 @@
 import { A as renderTemplate, D as renderSlot, F as createRenderInstruction, N as addAttribute, j as maybeRenderHead, w as renderComponent, x as spreadAttributes } from "./sequence_CIT0iznN.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { t as actions } from "./_astro_actions_D7uQ0srh.mjs";
-import { i as $$BaseLayout, n as $$Footer, r as $$Valeria } from "./Button_BwnZMZQS.mjs";
+import { t as actions } from "./_astro_actions_MWJk4dVP.mjs";
+import { i as $$BaseLayout, n as $$Footer, r as $$Valeria } from "./Button_DF7l_wdo.mjs";
 //#region node_modules/astro/dist/runtime/server/render/script.js
 /**
 * Relies on the `renderScript: true` compiler option
@@ -323,6 +323,7 @@ var $$Sidebar = createComponent(($$result, $$props, $$slots) => {
 	const Astro = $$result.createAstro($$props, $$slots);
 	Astro.self = $$Sidebar;
 	const { active } = Astro.props;
+	const year = (/* @__PURE__ */ new Date()).getFullYear();
 	const items = [
 		{
 			key: "resumen",
@@ -364,7 +365,7 @@ var $$Sidebar = createComponent(($$result, $$props, $$slots) => {
 	})}${label}${active === key && renderTemplate`<span class="ml-auto h-1.5 w-1.5 rounded-full bg-rose" aria-hidden="true"></span>`}</a>`)}</nav><div class="border-t border-white/10 p-3"><form method="POST"${addAttribute(actions.auth.logout, "action")}><button type="submit" class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-espresso-muted transition-colors hover:bg-white/5 hover:text-white">${renderComponent($$result, "LogOut", LogOut, {
 		"size": 17,
 		"class": "shrink-0"
-	})}Cerrar sesión</button></form></div></aside><div id="sidebar-backdrop" data-open="false" class="pointer-events-none fixed inset-0 z-30 bg-ink/40 opacity-0 transition-opacity duration-200 lg:hidden data-[open=true]:pointer-events-auto data-[open=true]:opacity-100" aria-hidden="true"></div>${renderScript($$result, "/home/nicode/Proyectos/proyecto_maquillaje/src/components/Sidebar.astro?astro&type=script&index=0&lang.ts")}`;
+	})}Cerrar sesión</button></form><p class="px-3 pt-2 pb-1 text-[11px] text-espresso-muted">© ${year} · Desarrollado por Nicode</p></div></aside><div id="sidebar-backdrop" data-open="false" class="pointer-events-none fixed inset-0 z-30 bg-ink/40 opacity-0 transition-opacity duration-200 lg:hidden data-[open=true]:pointer-events-auto data-[open=true]:opacity-100" aria-hidden="true"></div>${renderScript($$result, "/home/nicode/Proyectos/proyecto_maquillaje/src/components/Sidebar.astro?astro&type=script&index=0&lang.ts")}`;
 }, "/home/nicode/Proyectos/proyecto_maquillaje/src/components/Sidebar.astro", void 0);
 //#endregion
 //#region src/lib/format.ts

@@ -77,7 +77,7 @@ const deltas: { label: string; valor: number; d: { pct: number | null; texto: st
 
   {/* Tira de KPIs: una sola celda dividida por hairlines */}
   <div
-    class="mt-6 grid grid-cols-1 divide-y divide-hairline overflow-hidden rounded-md border border-hairline bg-surface sm:grid-cols-2 lg:grid-cols-6 lg:divide-x lg:divide-y-0"
+    class="mt-6 grid grid-cols-1 divide-y divide-hairline overflow-hidden rounded-xl border border-hairline bg-surface sm:grid-cols-2 lg:grid-cols-6 lg:divide-x lg:divide-y-0"
   >
     {
       deltas.map(({ label, valor, d, buenSube, hero }) => (
@@ -243,7 +243,7 @@ const deltas: { label: string; valor: number; d: { pct: number | null; texto: st
   </h2>
   {
     recientes.length === 0 ? (
-      <div class="mt-4 overflow-hidden rounded-md border border-hairline bg-surface">
+      <div class="mt-4 overflow-hidden rounded-xl border border-hairline bg-surface">
         <EmptyState
           title="Sin ventas todavía"
           description="Cuando registres tu primera venta aparecerá aquí."
@@ -252,7 +252,7 @@ const deltas: { label: string; valor: number; d: { pct: number | null; texto: st
         </EmptyState>
       </div>
     ) : (
-      <div class="mt-4 overflow-hidden rounded-md border border-hairline bg-surface">
+      <div class="mt-4 overflow-hidden rounded-xl border border-hairline bg-surface">
         <ul class="divide-y divide-hairline">
           {recientes.map((v) => (
             <li>
@@ -293,29 +293,29 @@ const deltas: { label: string; valor: number; d: { pct: number | null; texto: st
           {
             label: 'Ingresos',
             data: datos.ingresos ?? [],
-            borderColor: '#a63d5c',
-            backgroundColor: 'rgba(166, 61, 92, 0.10)',
+            borderColor: '#bd3f66',
+            backgroundColor: 'rgba(189, 63, 102, 0.10)',
             fill: true,
             tension: 0.35,
             borderWidth: 2,
             pointRadius: 3,
-            pointBackgroundColor: '#a63d5c',
-            pointBorderColor: '#fffafb',
+            pointBackgroundColor: '#bd3f66',
+            pointBorderColor: '#fff9fa',
             pointBorderWidth: 1.5,
             pointHoverRadius: 5,
           },
           {
             label: 'Gastos',
             data: datos.gastos ?? [],
-            borderColor: '#3a222c',
+            borderColor: '#4c2e3d',
             backgroundColor: 'transparent',
             borderDash: [5, 4],
             fill: false,
             tension: 0.35,
             borderWidth: 1.5,
             pointRadius: 2.5,
-            pointBackgroundColor: '#3a222c',
-            pointBorderColor: '#fffafb',
+            pointBackgroundColor: '#4c2e3d',
+            pointBorderColor: '#fff9fa',
             pointBorderWidth: 1.5,
             pointHoverRadius: 5,
           },
@@ -329,9 +329,9 @@ const deltas: { label: string; valor: number; d: { pct: number | null; texto: st
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: '#3a222c',
-            titleColor: '#fffafb',
-            bodyColor: '#fffafb',
+            backgroundColor: '#4c2e3d',
+            titleColor: '#fff9fa',
+            bodyColor: '#fff9fa',
             padding: 10,
             cornerRadius: 8,
             displayColors: true,

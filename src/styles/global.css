@@ -4,25 +4,26 @@
   --font-display: "Fraunces Variable", ui-serif, Georgia, serif;
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
 
-  --color-paper: #faf4f2;
-  --color-surface: #fffafb;
+  --color-paper: #fbf3f4;
+  --color-surface: #fff9fa;
   --color-ink: #2a1b20;
   --color-ink-muted: #7a5f66;
   --color-hairline: rgba(42, 27, 32, 0.12);
 
-  --color-wine: #a63d5c;
-  --color-wine-hover: #8a2f4a;
-  --color-wine-soft: #f8e9ed;
-  --color-rose: #d98ba0;
+  --color-wine: #bd3f66;
+  --color-wine-soft: #fce8ee;
+  --color-pink: #ee8db1;
+  --color-pink-hover: #ea7fa4;
+  --color-rose: #e8a2b8;
   --color-gold: #a67c00;
 
   --color-sage: #3e6b4f;
   --color-ochre: #a1650f;
   --color-danger: #9e2b25;
 
-  --color-espresso: #3a222c;
-  --color-espresso-soft: #4e313d;
-  --color-espresso-muted: #c3a5af;
+  --color-espresso: #4c2e3d;
+  --color-espresso-soft: #5e3b4c;
+  --color-espresso-muted: #cdb4be;
 }
 
 @layer base {
@@ -124,7 +125,7 @@
   }
 
   .data-table tbody tr:hover {
-    background-color: rgba(166, 61, 92, 0.04);
+    background-color: rgba(189, 63, 102, 0.05);
   }
 
   .num {

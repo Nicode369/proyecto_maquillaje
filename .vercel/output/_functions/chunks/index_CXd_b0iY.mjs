@@ -1,14 +1,14 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
 import { A as renderTemplate, N as addAttribute, T as Fragment, j as maybeRenderHead, w as renderComponent } from "./sequence_CIT0iznN.mjs";
-import { T as isInputError } from "./server_B7MgxuTj.mjs";
+import { T as isInputError } from "./server_CqV02Mh5.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { c as mesISO, i as formatFechaCorta, n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_C77BD6_g.mjs";
-import { t as actions } from "./_astro_actions_D7uQ0srh.mjs";
+import { c as mesISO, i as formatFechaCorta, n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_DlSv5vm_.mjs";
+import { t as actions } from "./_astro_actions_MWJk4dVP.mjs";
 import { n as countClientesNuevasEsteMes, o as listClientes, t as countClientes } from "./clientes_DmH0mKyw.mjs";
-import { t as $$Button } from "./Button_BwnZMZQS.mjs";
-import { n as Pencil, t as Trash } from "./trash_Cgn35z1b.mjs";
-import { n as Search, r as Plus, t as $$LimpiarFiltros } from "./LimpiarFiltros_CP-REZhq.mjs";
-import { t as $$Input } from "./Input_DrAWvrMZ.mjs";
+import { t as $$Button } from "./Button_DF7l_wdo.mjs";
+import { n as Pencil, t as Trash } from "./trash_DO-etY5Q.mjs";
+import { n as Search, r as Plus, t as $$LimpiarFiltros } from "./LimpiarFiltros_C7XrPYYU.mjs";
+import { t as $$Input } from "./Input_BqhAvSAl.mjs";
 import { t as $$EmptyState } from "./EmptyState_s9NtGM7p.mjs";
 //#region src/pages/clientas/index.astro
 var clientas_exports = /* @__PURE__ */ __exportAll({
@@ -52,7 +52,7 @@ var $$Index = createComponent(async ($$result, $$props, $$slots) => {
     ` })}</form>${hayBusqueda && renderTemplate`${renderComponent($$result, "LimpiarFiltros", $$LimpiarFiltros, {
 		"href": "/clientas",
 		"class": "mt-3"
-	})}`}${errorEliminar && renderTemplate`<div class="mt-4 rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger" role="alert">${errorEliminar}</div>`}<div class="mt-6 overflow-hidden rounded-md border border-hairline bg-surface">${lista.length === 0 && renderTemplate`${renderComponent($$result, "EmptyState", $$EmptyState, {
+	})}`}${errorEliminar && renderTemplate`<div class="mt-4 rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger" role="alert">${errorEliminar}</div>`}<div class="mt-6 overflow-hidden rounded-xl border border-hairline bg-surface">${lista.length === 0 && renderTemplate`${renderComponent($$result, "EmptyState", $$EmptyState, {
 		"title": hayBusqueda ? "Sin resultados" : "Aún no hay clientas",
 		"description": hayBusqueda ? `No encontramos clientas que coincidan con «${q}».` : "Registra a tus clientas para llevar su historial de compras."
 	}, { "default": ($$result) => renderTemplate`${hayBusqueda ? renderTemplate`${renderComponent($$result, "Button", $$Button, {

@@ -16,6 +16,8 @@ interface Props {
 
 const { active } = Astro.props;
 
+const year = new Date().getFullYear();
+
 const items = [
   { key: 'resumen', href: '/', label: 'Resumen', icon: LayoutDashboard },
   { key: 'ventas', href: '/ventas', label: 'Ventas', icon: ShoppingBag },
@@ -76,6 +78,9 @@ const items = [
         Cerrar sesión
       </button>
     </form>
+    <p class="px-3 pt-2 pb-1 text-[11px] text-espresso-muted">
+      © {year} · Desarrollado por Nicode
+    </p>
   </div>
 </aside>
 

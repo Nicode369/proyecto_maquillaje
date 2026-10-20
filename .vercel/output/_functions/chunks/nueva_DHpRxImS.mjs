@@ -1,13 +1,13 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
 import { A as renderTemplate, D as renderSlot, N as addAttribute, P as defineScriptVars, j as maybeRenderHead, w as renderComponent, x as spreadAttributes } from "./sequence_CIT0iznN.mjs";
-import { T as isInputError } from "./server_B7MgxuTj.mjs";
+import { T as isInputError } from "./server_CqV02Mh5.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { n as $$DashboardLayout, s as hoyISO, t as $$PageHeader } from "./PageHeader_C77BD6_g.mjs";
-import { t as actions } from "./_astro_actions_D7uQ0srh.mjs";
+import { n as $$DashboardLayout, s as hoyISO, t as $$PageHeader } from "./PageHeader_DlSv5vm_.mjs";
+import { t as actions } from "./_astro_actions_MWJk4dVP.mjs";
 import { o as listClientes } from "./clientes_DmH0mKyw.mjs";
-import { s as listProductosParaVenta } from "./productos_cVEfbOog.mjs";
-import { t as $$Button } from "./Button_BwnZMZQS.mjs";
-import { t as $$Input } from "./Input_DrAWvrMZ.mjs";
+import { s as listProductosParaVenta } from "./productos_DJAPQyIZ.mjs";
+import { t as $$Button } from "./Button_DF7l_wdo.mjs";
+import { t as $$Input } from "./Input_BqhAvSAl.mjs";
 import { t as $$Textarea } from "./Textarea_Dk0Vx8FR.mjs";
 //#region src/components/ui/Select.astro
 createAstro("https://astro.build");
@@ -108,7 +108,7 @@ var $$Nueva = createComponent(async ($$result, $$props, $$slots) => {
 		"placeholder": "Observaciones de la venta…",
 		"rows": 2,
 		"error": campos.notas?.[0]
-	})}</div><div class="flex items-center justify-between rounded-md border border-hairline bg-surface px-5 py-4"><span class="text-sm text-ink-muted">Total</span><span class="display-number text-2xl text-wine" id="total-display" style="font-variation-settings: 'opsz' 90;">$ 0</span></div><div class="flex gap-2 border-t border-hairline pt-4">${renderComponent($$result, "Button", $$Button, {
+	})}</div><div class="flex items-center justify-between rounded-xl border border-hairline bg-surface px-5 py-4"><span class="text-sm text-ink-muted">Total</span><span class="display-number text-2xl text-wine" id="total-display" style="font-variation-settings: 'opsz' 90;">$ 0</span></div><div class="flex gap-2 border-t border-hairline pt-4">${renderComponent($$result, "Button", $$Button, {
 		"type": "submit",
 		"id": "btn-guardar"
 	}, { "default": ($$result) => renderTemplate`Guardar venta` })}${renderComponent($$result, "Button", $$Button, {
@@ -135,7 +135,7 @@ var $$Nueva = createComponent(async ($$result, $$props, $$slots) => {
     const idx = contador;
     const div = document.createElement('div');
     div.className =
-      'linea rounded-md border border-hairline bg-surface p-4 space-y-3';
+      'linea rounded-xl border border-hairline bg-surface p-4 space-y-3';
     div.dataset.idx = String(idx);
 
     const opciones = catalogo

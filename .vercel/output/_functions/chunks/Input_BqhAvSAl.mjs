@@ -5,11 +5,12 @@ createAstro("https://astro.build");
 var $$Input = createComponent(($$result, $$props, $$slots) => {
 	const Astro = $$result.createAstro($$props, $$slots);
 	Astro.self = $$Input;
-	const { name, label, type = "text", placeholder, value, error, required = false, class: className = "", ...rest } = Astro.props;
+	const { name, label, type = "text", placeholder, value, error, required = false, size = "md", class: className = "", ...rest } = Astro.props;
 	const inputId = name;
 	const describedBy = error ? `${name}-error` : void 0;
+	const alto = size === "lg" ? "h-11" : "h-9.5";
 	return renderTemplate`${maybeRenderHead($$result)}<div${addAttribute(["space-y-1.5", className], "class:list")}>${label && renderTemplate`<label${addAttribute(inputId, "for")} class="block text-[13px] font-medium text-ink">${label}</label>`}<input${addAttribute(inputId, "id")}${addAttribute(name, "name")}${addAttribute(type, "type")}${addAttribute(placeholder, "placeholder")}${addAttribute(value, "value")}${addAttribute(required, "required")}${addAttribute(error ? "true" : void 0, "aria-invalid")}${addAttribute(describedBy, "aria-describedby")}${addAttribute([
-		"h-9.5 w-full rounded-lg border bg-surface px-3 text-sm text-ink",
+		`${alto} w-full rounded-lg border bg-surface px-3 text-sm text-ink`,
 		"placeholder:text-ink-muted/60 transition-colors",
 		"focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15",
 		error ? "border-danger" : "border-ink/15"
