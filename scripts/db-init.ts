@@ -1,9 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { neon } from '@neondatabase/serverless';
 
-const url = process.env.NEON_DATABASE_URL;
+const url = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
 if (!url) {
-  console.error('Falta NEON_DATABASE_URL. Ejecuta: node --env-file=.env scripts/db-init.ts');
+  console.error(
+    'Falta DATABASE_URL. Ejecuta `neon env pull` y luego: node --env-file-if-exists=.env scripts/db-init.ts',
+  );
   process.exit(1);
 }
 

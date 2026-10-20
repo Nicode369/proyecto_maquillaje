@@ -1,18 +1,18 @@
 import { neon } from '@neondatabase/serverless';
-import { NEON_DATABASE_URL } from 'astro:env/server';
+import { DATABASE_URL } from 'astro:env/server';
 
 function crearCliente() {
-  return neon<false, false>(NEON_DATABASE_URL as string);
+  return neon<false, false>(DATABASE_URL as string);
 }
 
 type ClienteNeon = ReturnType<typeof crearCliente>;
 
 function sinBaseDeDatos(): never {
   throw new Error(
-    'Falta NEON_DATABASE_URL. Copia .env.example a .env, configura la URL de Neon y reinicia el servidor.',
+    'Falta DATABASE_URL. Ejecuta `neon env pull` para traer las variables de Neon y reinicia el servidor.',
   );
 }
 
-export const sql = (NEON_DATABASE_URL
+export const sql = (DATABASE_URL
   ? crearCliente()
   : sinBaseDeDatos) as ClienteNeon;

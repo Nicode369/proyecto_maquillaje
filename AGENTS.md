@@ -20,7 +20,8 @@ de una amiga. Solo el panel (sin web pública).
 - UI 100% en español; moneda COP con `src/lib/format.ts` (Intl es-CO, sin decimales)
 - Fechas: `type="date"` en YYYY-MM-DD; mostrar en es-CO
 - Env vars declaradas en `astro.config.mjs` (astro:env) y leídas desde `astro:env/server`:
-  `NEON_DATABASE_URL`, `SESSION_SECRET`, `DASHBOARD_PASSWORD`
+  `DATABASE_URL` (pooled), `SESSION_SECRET`, `DASHBOARD_PASSWORD` — las de Neon las escribe
+  `neon env pull` en `.env` (`DATABASE_URL_UNPOOLED` y `NEON_BRANCH` son del CLI)
 - Ventas `anulada = true` se excluyen de KPIs; anular restaura stock
 - Mobile-first: tablas se convierten en tarjetas en móvil; sidebar colapsa en drawer
 - Dirección visual editorial: papel crema `#F7F3EE`, tinta `#221719`, acento granate
@@ -48,7 +49,8 @@ Tablas: `clientes`, `productos`, `ventas`, `venta_items`, `gastos` (ver `db/sche
 
 - `npm run dev` (o `astro dev --background`)
 - **Verificar siempre al terminar**: `npm run astro check && npm run build`
-- `npm run db:init` / `npm run db:seed` (requieren `.env` con `NEON_DATABASE_URL`)
+- `npm run db:init` / `npm run db:seed` (requieren `.env` con `DATABASE_URL`; usan la directa)
+- Neon CLI: `neon env pull` (refresca `.env`), `neon deploy` (aplica `neon.ts`), `neon status`
 
 ## Development
 

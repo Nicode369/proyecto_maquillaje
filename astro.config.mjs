@@ -11,7 +11,7 @@ export default defineConfig({
   },
   env: {
     schema: {
-      NEON_DATABASE_URL: envField.string({
+      DATABASE_URL: envField.string({
         context: 'server',
         access: 'secret',
         optional: true,
