@@ -1,4 +1,4 @@
-import { r as createLucideIcon } from "./PageHeader_fSLQL0Sl.mjs";
+import { r as createLucideIcon } from "./PageHeader_vdNxn5rr.mjs";
 //#region node_modules/@lucide/astro/src/icons/triangle-alert.ts
 /**
 * @component @name TriangleAlert

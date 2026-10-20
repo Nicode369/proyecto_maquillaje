@@ -1,13 +1,13 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
 import { A as renderTemplate, N as addAttribute, T as Fragment, j as maybeRenderHead, w as renderComponent } from "./sequence_CIT0iznN.mjs";
-import { T as isInputError } from "./server_CLYhxG4G.mjs";
+import { T as isInputError } from "./server_BC_QTKX2.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { n as $$DashboardLayout, t as $$PageHeader } from "./PageHeader_fSLQL0Sl.mjs";
-import { t as actions } from "./_astro_actions_Cm4RM71H.mjs";
+import { n as $$DashboardLayout, t as $$PageHeader } from "./PageHeader_vdNxn5rr.mjs";
+import { t as actions } from "./_astro_actions_Dp3x56Lo.mjs";
 import { n as formatCOP, r as formatFechaCorta } from "./format_C9vTb3rb.mjs";
 import { a as listGastos, i as listCategoriasGasto, o as totalGastos } from "./gastos_uFnzIew9.mjs";
-import { n as Pencil, t as Trash } from "./trash_BPTZ09tt.mjs";
-import { n as Search, r as Plus, t as $$LimpiarFiltros } from "./LimpiarFiltros_zC7gHufP.mjs";
+import { n as Pencil, t as Trash } from "./trash_7-kuVsc8.mjs";
+import { n as Search, r as Plus, t as $$LimpiarFiltros } from "./LimpiarFiltros_C6NNfJab.mjs";
 import { t as $$Button } from "./Button_C8T8wdfZ.mjs";
 import { t as $$Input } from "./Input_BqhAvSAl.mjs";
 import { t as $$Badge } from "./Badge_DYdURA09.mjs";
