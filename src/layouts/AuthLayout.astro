@@ -1,0 +1,58 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title?: string;
+}
+
+const { title = 'Iniciar sesión' } = Astro.props;
+---
+
+<BaseLayout title={`${title} · Panel`}>
+  <div class="min-h-screen lg:grid lg:grid-cols-[1.05fr_1fr]">
+    <section class="relative hidden overflow-hidden bg-espresso px-12 py-14 lg:flex lg:flex-col">
+      <div>
+        <p
+          class="font-display text-[34px] leading-none text-[#F7F3EE]"
+          style="font-variation-settings: 'opsz' 144;"
+        >
+          Panel
+        </p>
+        <p class="mt-2 text-sm text-espresso-muted">Maquillaje</p>
+      </div>
+
+      <div class="mt-auto max-w-md">
+        <div class="h-px w-14 bg-rose/50"></div>
+        <p
+          class="mt-6 font-display text-[26px] leading-snug text-[#F7F3EE]/90"
+          style="font-variation-settings: 'opsz' 90;"
+        >
+          Ventas, inventario y gastos de tu emprendimiento en un solo lugar.
+        </p>
+        <p class="mt-4 text-sm text-espresso-muted">
+          Ingresos del mes, stock de productos y fichas de tus clientas,
+          siempre a la mano.
+        </p>
+      </div>
+
+      <div class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full border border-rose/25"></div>
+      <div class="pointer-events-none absolute -right-10 top-40 h-40 w-40 rounded-full border border-white/10"></div>
+    </section>
+
+    <main class="flex min-h-screen items-center justify-center px-6 py-12">
+      <div class="w-full max-w-[380px]">
+        <div class="mb-8 lg:hidden">
+          <p
+            class="font-display text-[30px] leading-none text-ink"
+            style="font-variation-settings: 'opsz' 144;"
+          >
+            Panel
+          </p>
+          <p class="mt-2 text-sm text-ink-muted">Maquillaje</p>
+        </div>
+
+        <slot />
+      </div>
+    </main>
+  </div>
+</BaseLayout>

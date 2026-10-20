@@ -1,8 +1,987 @@
-import { A as MissingMediaQueryDirective, F as NoMatchingImport, I as NoMatchingRenderer, M as NoClientOnlyHint, R as OnlyResponseCanBeReturned, W as ResponseSentError, Z as AstroError, o as EndpointDidNotReturnAResponse } from "./errors-data_gS1BQwyX.mjs";
 import { decodeBase64, decodeHex, encodeBase64, encodeHexUpperCase } from "@oslojs/encoding";
 import * as z from "zod/v4";
 import colors from "piccolore";
 import { clsx } from "clsx";
+import { escape } from "html-escaper";
+//#region node_modules/astro/dist/core/errors/utils.js
+function normalizeLF(code) {
+	return code.replace(/\r\n|\r(?!\n)|\n/g, "\n");
+}
+//#endregion
+//#region node_modules/astro/dist/core/errors/printer.js
+/** Generate a code frame from string and an error location */
+function codeFrame(src, loc) {
+	if (!loc || loc.line === void 0 || loc.column === void 0) return "";
+	const lines = normalizeLF(src).split("\n").map((ln) => ln.replace(/\t/g, "  "));
+	const visibleLines = [];
+	for (let n = -2; n <= 2; n++) if (lines[loc.line + n]) visibleLines.push(loc.line + n);
+	let gutterWidth = 0;
+	for (const lineNo of visibleLines) {
+		let w = `> ${lineNo}`;
+		if (w.length > gutterWidth) gutterWidth = w.length;
+	}
+	let output = "";
+	for (const lineNo of visibleLines) {
+		const isFocusedLine = lineNo === loc.line - 1;
+		output += isFocusedLine ? "> " : "  ";
+		output += `${lineNo + 1} | ${lines[lineNo]}\n`;
+		if (isFocusedLine) output += `${Array.from({ length: gutterWidth }).join(" ")}  | ${Array.from({ length: loc.column }).join(" ")}^\n`;
+	}
+	return output;
+}
+//#endregion
+//#region node_modules/astro/dist/core/errors/errors.js
+function isAstroError(e) {
+	return e != null && (e instanceof AstroError || AstroError.is(e));
+}
+var AstroError = class extends Error {
+	loc;
+	title;
+	hint;
+	frame;
+	type = "AstroError";
+	constructor(props, options) {
+		const { name, title, message, stack, location, hint, frame } = props;
+		super(message, options);
+		this.title = title;
+		this.name = name;
+		if (message) this.message = message;
+		this.stack = stack ? stack : this.stack;
+		this.loc = location;
+		this.hint = hint;
+		this.frame = frame;
+	}
+	setLocation(location) {
+		this.loc = location;
+	}
+	setName(name) {
+		this.name = name;
+	}
+	setMessage(message) {
+		this.message = message;
+	}
+	setHint(hint) {
+		this.hint = hint;
+	}
+	setFrame(source, location) {
+		this.frame = codeFrame(source, location);
+	}
+	static is(err) {
+		return err?.type === "AstroError";
+	}
+};
+//#endregion
+//#region node_modules/astro/dist/core/errors/errors-data.js
+/**
+* @docs
+* @see
+* - [Official integrations](https://docs.astro.build/en/guides/integrations/#official-integrations)
+* - [`Astro.clientAddress`](https://docs.astro.build/en/reference/api-reference/#clientaddress)
+* @description
+* The adapter you're using unfortunately does not support `Astro.clientAddress`.
+*/
+var ClientAddressNotAvailable = {
+	name: "ClientAddressNotAvailable",
+	title: "`Astro.clientAddress` is not available in current adapter.",
+	message: (adapterName) => `\`Astro.clientAddress\` is not available in the \`${adapterName}\` adapter. File an issue with the adapter to add support.`
+};
+/**
+* @docs
+* @see
+* - [On-demand rendering](https://docs.astro.build/en/guides/on-demand-rendering/)
+* - [`Astro.clientAddress`](https://docs.astro.build/en/reference/api-reference/#clientaddress)
+* @description
+* The `Astro.clientAddress` property cannot be used inside prerendered routes.
+*/
+var PrerenderClientAddressNotAvailable = {
+	name: "PrerenderClientAddressNotAvailable",
+	title: "`Astro.clientAddress` cannot be used inside prerendered routes.",
+	message: (name) => `\`Astro.clientAddress\` cannot be used inside prerendered route ${name}.`
+};
+/**
+* @docs
+* @see
+* - [Enabling SSR in Your Project](https://docs.astro.build/en/guides/on-demand-rendering/)
+* - [`Astro.clientAddress`](https://docs.astro.build/en/reference/api-reference/#clientaddress)
+* @description
+* The `Astro.clientAddress` property is only available when [Server-side rendering](https://docs.astro.build/en/guides/on-demand-rendering/) is enabled.
+*
+* To get the user's IP address in static mode, different APIs such as [Ipify](https://www.ipify.org/) can be used in a [Client-side script](https://docs.astro.build/en/guides/client-side-scripts/) or it may be possible to get the user's IP using a serverless function hosted on your hosting provider.
+*/
+var StaticClientAddressNotAvailable = {
+	name: "StaticClientAddressNotAvailable",
+	title: "`Astro.clientAddress` is not available in prerendered pages.",
+	message: "`Astro.clientAddress` is only available on pages that are server-rendered.",
+	hint: "See https://docs.astro.build/en/guides/on-demand-rendering/ for more information on how to enable SSR."
+};
+/**
+* @docs
+* @see
+* - [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)
+* @description
+* A [dynamic route](https://docs.astro.build/en/guides/routing/#dynamic-routes) was matched, but no corresponding path was found for the requested parameters. This is often caused by a typo in either the generated or the requested path.
+*/
+var NoMatchingStaticPathFound = {
+	name: "NoMatchingStaticPathFound",
+	title: "No static path found for requested path.",
+	message: (pathName) => `A \`getStaticPaths()\` route pattern was matched, but no matching static path was found for requested path \`${pathName}\`.`,
+	hint: (possibleRoutes) => `Possible dynamic routes being matched: ${possibleRoutes.join(", ")}.`
+};
+/**
+* @docs
+* @message Route returned a `RETURNED_VALUE`. Only a Response can be returned from Astro files.
+* @see
+* - [Response](https://docs.astro.build/en/guides/on-demand-rendering/#response)
+* @description
+* Only instances of [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) can be returned inside Astro files.
+* ```astro title="pages/login.astro"
+* ---
+* return new Response(null, {
+*  status: 404,
+*  statusText: 'Not found'
+* });
+*
+* // Alternatively, for redirects, `Astro.redirect()` also returns an instance of `Response`
+* return Astro.redirect('/login');
+* ---
+* ```
+*
+*/
+var OnlyResponseCanBeReturned = {
+	name: "OnlyResponseCanBeReturned",
+	title: "Invalid type returned by Astro page.",
+	message: (route, returnedValue) => `Route \`${route ? route : ""}\` returned a \`${returnedValue}\`. Only a [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) can be returned from Astro files.`,
+	hint: "See https://docs.astro.build/en/guides/on-demand-rendering/#response for more information."
+};
+/**
+* @docs
+* @see
+* - [`client:media`](https://docs.astro.build/en/reference/directives-reference/#clientmedia)
+* @description
+* A [media query](https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries/Using_media_queries) parameter is required when using the `client:media` directive.
+*
+* ```astro
+* <Counter client:media="(max-width: 640px)" />
+* ```
+*/
+var MissingMediaQueryDirective = {
+	name: "MissingMediaQueryDirective",
+	title: "Missing value for `client:media` directive.",
+	message: "Media query not provided for `client:media` directive. A media query similar to `client:media=\"(max-width: 600px)\"` must be provided."
+};
+/**
+* @docs
+* @message Unable to render `COMPONENT_NAME`. There are `RENDERER_COUNT` renderer(s) configured in your `astro.config.mjs` file, but none were able to server-side render `COMPONENT_NAME`.
+* @see
+* - [Frameworks components](https://docs.astro.build/en/guides/framework-components/)
+* - [UI Frameworks](https://docs.astro.build/en/guides/integrations/#official-integrations)
+* @description
+* None of the installed integrations were able to render the component you imported. Make sure to install the appropriate integration for the type of component you are trying to include in your page.
+*
+* For JSX / TSX files, [@astrojs/react](https://docs.astro.build/en/guides/integrations-guide/react/), [@astrojs/preact](https://docs.astro.build/en/guides/integrations-guide/preact/) or [@astrojs/solid-js](https://docs.astro.build/en/guides/integrations-guide/solid-js/) can be used. For Vue and Svelte files, the [@astrojs/vue](https://docs.astro.build/en/guides/integrations-guide/vue/) and [@astrojs/svelte](https://docs.astro.build/en/guides/integrations-guide/svelte/) integrations can be used respectively
+*/
+var NoMatchingRenderer = {
+	name: "NoMatchingRenderer",
+	title: "No matching renderer found.",
+	message: (componentName, componentExtension, plural, validRenderersCount) => `Unable to render \`${componentName}\`.
+
+${validRenderersCount > 0 ? `There ${plural ? "are" : "is"} ${validRenderersCount} renderer${plural ? "s" : ""} configured in your \`astro.config.mjs\` file,
+but ${plural ? "none were" : "it was not"} able to server-side render \`${componentName}\`.` : `No valid renderer was found ${componentExtension ? `for the \`.${componentExtension}\` file extension.` : `for this file extension.`}`}`,
+	hint: (probableRenderers) => `Did you mean to enable the ${probableRenderers} integration?\n\nSee https://docs.astro.build/en/guides/framework-components/ for more information on how to install and configure integrations.`
+};
+/**
+* @docs
+* @see
+* - [`client:only`](https://docs.astro.build/en/reference/directives-reference/#clientonly)
+* @description
+*
+* `client:only` components are not run on the server, as such Astro does not know (and cannot guess) which renderer to use and require a hint. Like such:
+*
+* ```astro
+*	<SomeReactComponent client:only="react" />
+* ```
+*/
+var NoClientOnlyHint = {
+	name: "NoClientOnlyHint",
+	title: "Missing hint on client:only directive.",
+	message: (componentName) => `Unable to render \`${componentName}\`. When using the \`client:only\` hydration strategy, Astro needs a hint to use the correct renderer.`,
+	hint: (probableRenderers) => `Did you mean to pass \`client:only="${probableRenderers}"\`? See https://docs.astro.build/en/reference/directives-reference/#clientonly for more information on \`client:only\`.`
+};
+/**
+* @docs
+* @see
+* - [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)
+* @description
+* `getStaticPaths()`'s return value must be an array of objects. In most cases, this error happens because an array of arrays was returned. Using [`.flatMap()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap) or a [`.flat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) call may be useful.
+*
+* ```ts title="pages/blog/[id].astro"
+* export async function getStaticPaths() {
+*	return [ // <-- Array
+*		{ params: { id: "blog" } }, // <-- Object
+* 		{ params: { id: "about" } }
+* 	];
+*}
+* ```
+*/
+var InvalidGetStaticPathsEntry = {
+	name: "InvalidGetStaticPathsEntry",
+	title: "Invalid entry inside `getStaticPaths()`'s return value.",
+	message: (entryType) => `Invalid entry returned by \`getStaticPaths()\`. Expected an object, got \`${entryType}\`.`,
+	hint: "If you're using a `.map` call, you might be looking for `.flatMap()` instead. See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
+};
+/**
+* @docs
+* @see
+* - [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)
+* - [`params`](https://docs.astro.build/en/reference/api-reference/#params)
+* @description
+* `getStaticPaths()`'s return value must be an array of objects.
+*
+* ```ts title="pages/blog/[id].astro"
+* export async function getStaticPaths() {
+*	return [ // <-- Array
+*		{ params: { id: "blog" } },
+* 		{ params: { id: "about" } }
+* 	];
+*}
+* ```
+*/
+var InvalidGetStaticPathsReturn = {
+	name: "InvalidGetStaticPathsReturn",
+	title: "Invalid value returned by `getStaticPaths()`.",
+	message: (returnType) => `Invalid type returned by \`getStaticPaths()\`. Expected an \`array\`, got \`${returnType}\`.`,
+	hint: "See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
+};
+/**
+* @docs
+* @see
+* - [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)
+* - [`params`](https://docs.astro.build/en/reference/api-reference/#params)
+* @description
+* Every route specified by `getStaticPaths()` requires a `params` property specifying the path parameters needed to match the route.
+*
+* For instance, the following code:
+* ```astro title="pages/blog/[id].astro"
+* ---
+* export async function getStaticPaths() {
+* 	return [
+* 		{ params: { id: '1' } }
+* 	];
+* }
+* ---
+* ```
+* Will create the following route: `site.com/blog/1`.
+*/
+var GetStaticPathsExpectedParams = {
+	name: "GetStaticPathsExpectedParams",
+	title: "Missing params property on `getStaticPaths()` route.",
+	message: "Missing or empty required `params` property on `getStaticPaths()` route.",
+	hint: "See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
+};
+/**
+* @docs
+* @see
+* - [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)
+* - [`params`](https://docs.astro.build/en/reference/api-reference/#params)
+* @description
+* Since `params` are encoded into the URL, only certain types are supported as values.
+*
+* ```astro title="/route/[id].astro"
+* ---
+* export async function getStaticPaths() {
+* 	return [
+* 		{ params: { id: '1' } } // Works
+* 		{ params: { id: 2 } } // Does not work
+* 		{ params: { id: false } } // Does not work
+* 		{ params: { id: [1, 2] } } // Does not work
+* 	];
+* }
+* ---
+* ```
+*
+* In routes using [rest parameters](https://docs.astro.build/en/guides/routing/#rest-parameters), `undefined` can be used to represent a path with no parameters passed in the URL:
+*
+* ```astro title="/route/[...id].astro"
+* ---
+* export async function getStaticPaths() {
+* 	return [
+* 		{ params: { id: '1' } } // /route/1
+* 		{ params: { id: '2' } } // /route/2
+* 		{ params: { id: undefined } } // /route/
+* 	];
+* }
+* ---
+* ```
+*/
+var GetStaticPathsInvalidRouteParam = {
+	name: "GetStaticPathsInvalidRouteParam",
+	title: "Invalid route parameter returned by `getStaticPaths()`.",
+	message: (key, value, valueType) => `Invalid \`getStaticPaths()\` route parameter for \`${key}\`. Expected a string or undefined, received \`${valueType}\` (\`${value}\`).`,
+	hint: "See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
+};
+/**
+* @docs
+* @see
+* - [Dynamic Routes](https://docs.astro.build/en/guides/routing/#dynamic-routes)
+* - [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)
+* - [Server-side rendering](https://docs.astro.build/en/guides/on-demand-rendering/)
+* @description
+* In [Static Mode](https://docs.astro.build/en/guides/routing/#static-ssg-mode), all routes must be determined at build time. As such, dynamic routes must `export` a `getStaticPaths()` function returning the different paths to generate.
+*/
+var GetStaticPathsRequired = {
+	name: "GetStaticPathsRequired",
+	title: "`getStaticPaths()` function required for dynamic routes.",
+	message: "`getStaticPaths()` function is required for dynamic routes. Make sure that you `export` a `getStaticPaths()` function from your dynamic route.",
+	hint: `See https://docs.astro.build/en/guides/routing/#dynamic-routes for more information on dynamic routes.
+
+	If you meant for this route to be server-rendered, set \`export const prerender = false;\` in the page.`
+};
+/**
+* @docs
+* @see
+* - [Named slots](https://docs.astro.build/en/basics/astro-components/#named-slots)
+* @description
+* Certain words cannot be used for slot names due to being already used internally.
+*/
+var ReservedSlotName = {
+	name: "ReservedSlotName",
+	title: "Invalid slot name.",
+	message: (slotName) => `Unable to create a slot named \`${slotName}\`. \`${slotName}\` is a reserved slot name. Please update the name of this slot.`
+};
+/**
+* @docs
+* @description
+* No import statement was found for one of the components. If there is an import statement, make sure you are using the same identifier in both the imports and the component usage.
+*/
+var NoMatchingImport = {
+	name: "NoMatchingImport",
+	title: "No import found for component.",
+	message: (componentName) => `Could not render \`${componentName}\`. No matching import has been found for \`${componentName}\`.`,
+	hint: "Please make sure the component is properly imported."
+};
+/**
+* @docs
+* @message
+* **Example error messages:**<br/>
+* InvalidComponentArgs: Invalid arguments passed to `<MyAstroComponent>` component.
+* @description
+* Astro components cannot be rendered manually via a function call, such as `Component()` or `{items.map(Component)}`. Prefer the component syntax `<Component />` or `{items.map(item => <Component {...item} />)}`.
+*/
+var InvalidComponentArgs = {
+	name: "InvalidComponentArgs",
+	title: "Invalid component arguments.",
+	message: (name) => `Invalid arguments passed to${name ? ` <${name}>` : ""} component.`,
+	hint: "Astro components cannot be rendered directly via function call, such as `Component()` or `{items.map(Component)}`."
+};
+/**
+* @docs
+* @see
+* - [Pagination](https://docs.astro.build/en/guides/routing/#pagination)
+* @description
+* The page number parameter was not found in your filepath.
+*/
+var PageNumberParamNotFound = {
+	name: "PageNumberParamNotFound",
+	title: "Page number param not found.",
+	message: (paramName) => `[paginate()] page number param \`${paramName}\` not found in your filepath.`,
+	hint: "Rename your file to `[page].astro` or `[...page].astro`."
+};
+/**
+* @docs
+* @see
+* - [Images](https://docs.astro.build/en/guides/images/)
+* - [Image component](https://docs.astro.build/en/reference/modules/astro-assets/#image-)
+* - [Image component#alt](https://docs.astro.build/en/reference/modules/astro-assets/#alt-required)
+* @description
+* The `alt` property allows you to provide descriptive alt text to users of screen readers and other assistive technologies. In order to ensure your images are accessible, the `Image` component requires that an `alt` be specified.
+*
+* If the image is merely decorative (i.e. doesn’t contribute to the understanding of the page), set `alt=""` so that screen readers know to ignore the image.
+*/
+var ImageMissingAlt = {
+	name: "ImageMissingAlt",
+	title: "Image missing required \"alt\" property.",
+	message: "Image missing \"alt\" property. \"alt\" text is required to describe important images on the page.",
+	hint: "Use an empty string (\"\") for decorative images."
+};
+/**
+* @docs
+* @see
+* - [Image Service API](https://docs.astro.build/en/reference/image-service-reference/)
+* @description
+* There was an error while loading the configured image service. This can be caused by various factors, such as your image service not properly exporting a compatible object in its default export, or an incorrect path.
+*
+* If you believe that your service is properly configured and this error is wrong, please [open an issue](https://astro.build/issues/).
+*/
+var InvalidImageService = {
+	name: "InvalidImageService",
+	title: "Error while loading image service.",
+	message: "There was an error loading the configured image service. Please see the stack trace for more information."
+};
+/**
+* @docs
+* @message
+* Missing width and height attributes for `IMAGE_URL`. When using remote images, both dimensions are required in order to avoid cumulative layout shift (CLS).
+* @see
+* - [Images](https://docs.astro.build/en/guides/images/)
+* - [Image component#width-and-height-required](https://docs.astro.build/en/reference/modules/astro-assets/#width-and-height-required-for-images-in-public)
+* @description
+* For remote images, `width` and `height` cannot automatically be inferred from the original file. To avoid cumulative layout shift (CLS), either specify these two properties, or set [`inferSize`](https://docs.astro.build/en/reference/modules/astro-assets/#infersize) to `true` to fetch a remote image's original dimensions.
+*
+* If your image is inside your `src` folder, you probably meant to import it instead. See [the Imports guide for more information](https://docs.astro.build/en/guides/imports/#other-assets).
+*/
+var MissingImageDimension = {
+	name: "MissingImageDimension",
+	title: "Missing image dimensions.",
+	message: (missingDimension, imageURL) => `Missing ${missingDimension === "both" ? "width and height attributes" : `${missingDimension} attribute`} for ${imageURL}. When using remote images, both dimensions are required in order to avoid CLS.`,
+	hint: "If your image is inside your `src` folder, you probably meant to import it instead. See [the Imports guide for more information](https://docs.astro.build/en/guides/imports/#other-assets). You can also use `inferSize={true}` for remote images to get the original dimensions."
+};
+/**
+* @docs
+* @message
+* Failed to get the dimensions for `IMAGE_URL`.
+* @description
+* Determining the remote image's dimensions failed. This is typically caused by an incorrect URL or attempting to infer the size of an image in the public folder which is not possible.
+*/
+var FailedToFetchRemoteImageDimensions = {
+	name: "FailedToFetchRemoteImageDimensions",
+	title: "Failed to retrieve remote image dimensions.",
+	message: (imageURL) => `Failed to get the dimensions for ${imageURL}.`,
+	hint: "Verify your remote image URL is accurate, and that you are not using `inferSize` with a file located in your `public/` folder."
+};
+/**
+* @docs
+* @message
+* Remote image `IMAGE_URL` is not allowed by your image configuration.
+* @description
+* The remote image URL does not match your configured `image.domains` or `image.remotePatterns`.
+*/
+var RemoteImageNotAllowed = {
+	name: "RemoteImageNotAllowed",
+	title: "Remote image is not allowed.",
+	message: (imageURL) => `Remote image ${imageURL} is not allowed by your image configuration.`,
+	hint: "Update `image.domains` or `image.remotePatterns`, or remove `inferSize` for this image."
+};
+/**
+* @docs
+* @description
+* The built-in image services do not currently support optimizing all image formats.
+*
+* For unsupported formats such as GIFs, you may be able to use an `img` tag directly:
+* ```astro
+* ---
+* import rocket from '../assets/images/rocket.gif';
+* ---
+*
+* <img src={rocket.src} width={rocket.width} height={rocket.height} alt="A rocketship in space." />
+* ```
+*/
+var UnsupportedImageFormat = {
+	name: "UnsupportedImageFormat",
+	title: "Unsupported image format.",
+	message: (format, imagePath, supportedFormats) => `Received unsupported format \`${format}\` from \`${imagePath}\`. Currently only ${supportedFormats.join(", ")} are supported by our image services.`,
+	hint: "Using an `img` tag directly instead of the `Image` component might be what you're looking for."
+};
+/**
+* @docs
+* @see
+* - [Images](https://docs.astro.build/en/guides/images/)
+* @description
+* Astro does not currently supporting converting between vector (such as SVGs) and raster (such as PNGs and JPEGs) images.
+*/
+var UnsupportedImageConversion = {
+	name: "UnsupportedImageConversion",
+	title: "Unsupported image conversion.",
+	message: "Converting between vector (such as SVGs) and raster (such as PNGs and JPEGs) images is not currently supported."
+};
+/**
+* @docs
+* @see
+* - [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)
+* - [`params`](https://docs.astro.build/en/reference/api-reference/#params)
+* @description
+* The endpoint is prerendered with an `undefined` param so the generated path will collide with another route.
+*
+* If you cannot prevent passing `undefined`, then an additional extension can be added to the endpoint file name to generate the file with a different name. For example, renaming `pages/api/[slug].ts` to `pages/api/[slug].json.ts`.
+*/
+var PrerenderDynamicEndpointPathCollide = {
+	name: "PrerenderDynamicEndpointPathCollide",
+	title: "Prerendered dynamic endpoint has path collision.",
+	message: (pathname) => `Could not render \`${pathname}\` with an \`undefined\` param as the generated path will collide during prerendering. Prevent passing \`undefined\` as \`params\` for the endpoint's \`getStaticPaths()\` function, or add an additional extension to the endpoint's filename.`,
+	hint: (filename) => `Rename \`${filename}\` to \`${filename.replace(/\.(?:js|ts)/, (m) => `.json` + m)}\``
+};
+/**
+* @docs
+* @see
+* - [Images](https://docs.astro.build/en/guides/images/)
+* @description
+* An image's `src` property is not valid. The Image component requires the `src` attribute to be either an image that has been ESM imported or a string. This is also true for the first parameter of `getImage()`.
+*
+* ```astro
+* ---
+* import { Image } from "astro:assets";
+* import myImage from "../assets/my_image.png";
+* ---
+*
+* <Image src={myImage} alt="..." />
+* <Image src="https://example.com/logo.png" width={300} height={300} alt="..." />
+* ```
+*
+* In most cases, this error happens when the value passed to `src` is undefined.
+*/
+var ExpectedImage = {
+	name: "ExpectedImage",
+	title: "Expected src to be an image.",
+	message: (src, typeofOptions, fullOptions) => `Expected \`src\` property for \`getImage\` or \`<Image />\` to be either an ESM imported image or a string with the path of a remote image. Received \`${src}\` (type: \`${typeofOptions}\`).\n\nFull serialized options received: \`${fullOptions}\`.`,
+	hint: "This error can often happen because of a wrong path. Make sure the path to your image is correct. If you're passing an async function, make sure to call and await it."
+};
+/**
+* @docs
+* @see
+* - [Images](https://docs.astro.build/en/guides/images/)
+* @description
+* `getImage()`'s first parameter should be an object with the different properties to apply to your image.
+*
+* ```ts
+* import { getImage } from "astro:assets";
+* import myImage from "../assets/my_image.png";
+*
+* const optimizedImage = await getImage({src: myImage, width: 300, height: 300});
+* ```
+*
+* In most cases, this error happens because parameters were passed directly instead of inside an object.
+*/
+var ExpectedImageOptions = {
+	name: "ExpectedImageOptions",
+	title: "Expected image options.",
+	message: (options) => `Expected \`getImage()\` parameter to be an object. Received \`${options}\`.`
+};
+/**
+* @docs
+* @see
+* - [Images](https://docs.astro.build/en/guides/images/)
+* @description
+* An ESM-imported image cannot be passed directly to `getImage()`. Instead, pass an object with the image in the `src` property.
+*
+* ```diff
+* import { getImage } from "astro:assets";
+* import myImage from "../assets/my_image.png";
+* - const optimizedImage = await getImage( myImage );
+* + const optimizedImage = await getImage({ src: myImage });
+* ```
+*/
+var ExpectedNotESMImage = {
+	name: "ExpectedNotESMImage",
+	title: "Expected image options, not an ESM-imported image.",
+	message: "An ESM-imported image cannot be passed directly to `getImage()`. Instead, pass an object with the image in the `src` property.",
+	hint: "Try changing `getImage(myImage)` to `getImage({ src: myImage })`"
+};
+/**
+* @docs
+* @see
+* - [Images](https://docs.astro.build/en/guides/images/)
+* @description
+* Only one of `densities` or `widths` can be specified. Those attributes are used to construct a `srcset` attribute, which cannot have both `x` and `w` descriptors.
+*/
+var IncompatibleDescriptorOptions = {
+	name: "IncompatibleDescriptorOptions",
+	title: "Cannot set both `densities` and `widths`.",
+	message: "Only one of `densities` or `widths` can be specified. In most cases, you'll probably want to use only `widths` if you require specific widths.",
+	hint: "Those attributes are used to construct a `srcset` attribute, which cannot have both `x` and `w` descriptors."
+};
+/**
+* @docs
+* @message Could not process image metadata for `IMAGE_PATH`.
+* @see
+* - [Images](https://docs.astro.build/en/guides/images/)
+* @description
+* Astro could not process the metadata of an image you imported. This is often caused by a corrupted or malformed image and re-exporting the image from your image editor may fix this issue.
+*/
+var NoImageMetadata = {
+	name: "NoImageMetadata",
+	title: "Could not process image metadata.",
+	message: (imagePath) => `Could not process image metadata${imagePath ? ` for \`${imagePath}\`` : ""}.`,
+	hint: "This is often caused by a corrupted or malformed image. Re-exporting the image from your image editor may fix this issue."
+};
+/**
+* @docs
+* @see
+* - [HTML streaming](https://docs.astro.build/en/guides/on-demand-rendering/#html-streaming)
+* @description
+* Making changes to the response, such as setting headers, cookies, and the status code can only be done in [page components](https://docs.astro.build/en/basics/astro-pages/).
+*/
+var ResponseSentError = {
+	name: "ResponseSentError",
+	title: "Unable to set response.",
+	message: "The response has already been sent to the browser and cannot be altered."
+};
+/**
+* @docs
+* @description
+* Thrown when the middleware does not return any data or call the `next` function.
+*
+* For example:
+* ```ts
+* import {defineMiddleware} from "astro:middleware";
+* export const onRequest = defineMiddleware((context, _) => {
+* 	// doesn't return anything or call `next`
+* 	context.locals.someData = false;
+* });
+* ```
+*/
+var MiddlewareNoDataOrNextCalled = {
+	name: "MiddlewareNoDataOrNextCalled",
+	title: "The middleware didn't return a `Response`.",
+	message: "Make sure your middleware returns a `Response` object, either directly or by returning the `Response` from calling the `next` function."
+};
+/**
+* @docs
+* @description
+* Thrown in development mode when middleware returns something that is not a `Response` object.
+*
+* For example:
+* ```ts
+* import {defineMiddleware} from "astro:middleware";
+* export const onRequest = defineMiddleware(() => {
+*   return "string"
+* });
+* ```
+*/
+var MiddlewareNotAResponse = {
+	name: "MiddlewareNotAResponse",
+	title: "The middleware returned something that is not a `Response` object.",
+	message: "Any data returned from middleware must be a valid `Response` object."
+};
+/**
+* @docs
+* @description
+* Thrown when an endpoint does not return anything or returns an object that is not a `Response` object.
+*
+* An endpoint must return either a `Response`, or a `Promise` that resolves with a `Response`. For example:
+* ```ts
+* import type { APIContext } from 'astro';
+*
+* export async function GET({ request, url, cookies }: APIContext): Promise<Response> {
+*     return Response.json({
+*         success: true,
+*         result: 'Data from Astro Endpoint!'
+*     })
+* }
+* ```
+*/
+var EndpointDidNotReturnAResponse = {
+	name: "EndpointDidNotReturnAResponse",
+	title: "The endpoint did not return a `Response`.",
+	message: "An endpoint must return either a `Response`, or a `Promise` that resolves with a `Response`."
+};
+/**
+* @docs
+* @description
+*
+* Thrown when `locals` is overwritten with something that is not an object
+*
+* For example:
+* ```ts
+* import {defineMiddleware} from "astro:middleware";
+* export const onRequest = defineMiddleware((context, next) => {
+*   context.locals = 1541;
+*   return next();
+* });
+* ```
+*/
+var LocalsNotAnObject = {
+	name: "LocalsNotAnObject",
+	title: "Value assigned to `locals` is not accepted.",
+	message: "`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.",
+	hint: "If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`."
+};
+/**
+* @docs
+* @description
+* Thrown when a value is being set as the `locals` field on the Astro global or context.
+*/
+var LocalsReassigned = {
+	name: "LocalsReassigned",
+	title: "`locals` must not be reassigned.",
+	message: "`locals` cannot be assigned directly.",
+	hint: "Set a `locals` property instead."
+};
+/**
+* @docs
+* @description
+* Thrown when a value is being set as the `headers` field on the `ResponseInit` object available as `Astro.response`.
+*/
+var AstroResponseHeadersReassigned = {
+	name: "AstroResponseHeadersReassigned",
+	title: "`Astro.response.headers` must not be reassigned.",
+	message: "Individual headers can be added to and removed from `Astro.response.headers`, but it must not be replaced with another instance of `Headers` altogether.",
+	hint: "Consider using `Astro.response.headers.add()`, and `Astro.response.headers.delete()`."
+};
+/**
+* @docs
+* @see
+* - [Images](https://docs.astro.build/en/guides/images/)
+* @description
+* When using the default image services, `Image`'s and `getImage`'s `src` parameter must be either an imported image or a URL, it cannot be a string of a filepath.
+*
+* For local images from content collections, you can use the [image() schema helper](https://docs.astro.build/en/guides/images/#images-in-content-collections) to resolve the images.
+*
+* ```astro
+* ---
+* import { Image } from "astro:assets";
+* import myImage from "../my_image.png";
+* ---
+*
+* <!-- GOOD: `src` is the full imported image. -->
+* <Image src={myImage} alt="Cool image" />
+*
+* <!-- GOOD: `src` is a URL. -->
+* <Image src="https://example.com/my_image.png" alt="Cool image" />
+*
+* <!-- BAD: `src` is an image's `src` path instead of the full image object. -->
+* <Image src={myImage.src} alt="Cool image" />
+*
+* <!-- BAD: `src` is a string filepath. -->
+* <Image src="../my_image.png" alt="Cool image" />
+* ```
+*/
+var LocalImageUsedWrongly = {
+	name: "LocalImageUsedWrongly",
+	title: "Local images must be imported.",
+	message: (imageFilePath) => `\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or a URL, it cannot be a string filepath. Received \`${imageFilePath}\`.`,
+	hint: "If you want to use an image from your `src` folder, you need to either import it or if the image is coming from a content collection, use the [image() schema helper](https://docs.astro.build/en/guides/images/#images-in-content-collections). See https://docs.astro.build/en/reference/modules/astro-assets/#src-required for more information on the `src` property."
+};
+/**
+* @docs
+* @see
+* - [Default Image Service](https://docs.astro.build/en/guides/images/#default-image-service)
+* - [Image Services API](https://docs.astro.build/en/reference/image-service-reference/)
+* @description
+* Sharp is the default image service used for `astro:assets`. When using a [strict package manager](https://pnpm.io/pnpm-vs-npm#npms-flat-tree) like pnpm, Sharp must be installed manually into your project in order to use image processing.
+*
+* If you are not using `astro:assets` for image processing, and do not wish to install Sharp, you can configure the following passthrough image service that does no processing:
+*
+* ```js
+* import { defineConfig, passthroughImageService } from "astro/config";
+* export default defineConfig({
+*  image: {
+*    service: passthroughImageService(),
+*  },
+* });
+* ```
+*/
+var MissingSharp = {
+	name: "MissingSharp",
+	title: "Could not find Sharp.",
+	message: "Could not find Sharp. Please install Sharp (`sharp`) manually into your project or migrate to another image service.",
+	hint: "See Sharp's installation instructions for more information: https://sharp.pixelplumbing.com/install. If you are not relying on `astro:assets` to optimize, transform, or process any images, you can configure a passthrough image service instead of installing Sharp. See https://docs.astro.build/en/reference/errors/missing-sharp for more information.\n\nSee https://docs.astro.build/en/guides/images/#default-image-service for more information on how to migrate to another image service."
+};
+/**
+* @docs
+* @description
+* An i18n utility tried to use the locale from a URL path that does not contain one. You can prevent this error by using `pathHasLocale` to check URLs for a locale first before using i18n utilities.
+*
+*/
+var i18nNoLocaleFoundInPath = {
+	name: "i18nNoLocaleFoundInPath",
+	title: "The path doesn't contain any locale.",
+	message: "You tried to use an i18n utility on a path that doesn't contain any locale. You can use `pathHasLocale` first to determine if the path has a locale."
+};
+/**
+* @docs
+* @description
+* Some environment variables do not match the data type and/or properties defined in `env.schema`.
+* @message
+* The following environment variables defined in `env.schema` are invalid.
+*/
+var EnvInvalidVariables = {
+	name: "EnvInvalidVariables",
+	title: "Invalid environment variables.",
+	message: (errors) => `The following environment variables defined in \`env.schema\` are invalid:\n\n${errors.map((err) => `- ${err}`).join("\n")}\n`
+};
+/**
+* @docs
+* @description
+* `Astro.rewrite()` cannot be used if the request body has already been read. If you need to read the body, first clone the request. For example:
+*
+* ```js
+* const data = await Astro.request.clone().formData();
+*
+* Astro.rewrite("/target")
+* ```
+*
+* @see
+* - [Request.clone()](https://developer.mozilla.org/en-US/docs/Web/API/Request/clone)
+* - [Astro.rewrite](https://docs.astro.build/en/reference/api-reference/#rewrite)
+*/
+var RewriteWithBodyUsed = {
+	name: "RewriteWithBodyUsed",
+	title: "Cannot use `Astro.rewrite()` after the request body has been read.",
+	message: "`Astro.rewrite()` cannot be used if the request body has already been read. If you need to read the body, first clone the request.",
+	hint: "Read the body from `Astro.request.clone()` instead of `Astro.request`, so the original request can still be rewritten."
+};
+/**
+* @docs
+* @description
+* `Astro.rewrite()` can't be used to rewrite an on-demand route with a static route when using the `"server"` output.
+*
+*/
+var ForbiddenRewrite = {
+	name: "ForbiddenRewrite",
+	title: "Forbidden rewrite to a static route.",
+	message: (from, to, component) => `You tried to rewrite the on-demand route '${from}' with the static route '${to}', when using the 'server' output. \n\nThe static route '${to}' is rendered by the component
+'${component}', which is marked as prerendered. This is a forbidden operation because during the build, the component '${component}' is compiled to an
+HTML file, which can't be retrieved at runtime by Astro.`,
+	hint: (component) => `Add \`export const prerender = false\` to the component '${component}', or use \`Astro.redirect()\`.`
+};
+/**
+* @docs
+* @description
+* Font family not found.
+* @message
+* No data was found for the `cssVariable` passed to the `<Font />` component.
+*/
+var FontFamilyNotFound = {
+	name: "FontFamilyNotFound",
+	title: "Font family not found.",
+	message: (family) => `No data was found for the \`"${family}"\` family passed to the \`<Font>\` component.`,
+	hint: "This is often caused by a typo. Check that the `<Font />` component is using a `cssVariable` specified in your config."
+};
+/**
+* @docs
+* @description
+* Font file URL not found.
+* @message
+* The URL passed to the `experimental_getFontFileURL()` function is invalid.
+*/
+var FontFileUrlNotFound = {
+	name: "FontFileUrlNotFound",
+	title: "Font file URL not found.",
+	message: (url) => `The \`"${url}"\` URL passed to the \`experimental_getFontFileURL()\` function is invalid.`,
+	hint: "Make sure you pass a valid URL, obtained via the `fontData` object."
+};
+/**
+* @docs
+* @description
+* `experimental_getFontFileURL()` requires the request URL with on-demand rendering.
+*/
+var MissingGetFontFileRequestUrl = {
+	name: "MissingGetFontFileRequestUrl",
+	title: "`experimental_getFontFileURL()` requires the request URL with on-demand rendering.",
+	hint: "Pass the request URL as the 2nd argument, for example `Astro.url`."
+};
+/**
+* @docs
+* @description
+* Unavailable Astro global in `getStaticPaths()`.
+* @message
+* The Astro global is not available in `getStaticPaths()`.
+*/
+var UnavailableAstroGlobal = {
+	name: "UnavailableAstroGlobal",
+	title: "Unavailable Astro global in `getStaticPaths()`.",
+	message: (name) => `The Astro global is not available in this scope. Please remove \`Astro.${name}\` from your \`getStaticPaths()\` function.`
+};
+/**
+* @docs
+* @description
+* `new FetchState(request)` can only be used inside an Astro server — the built
+* server output or the dev server — where Astro provides the manifest describing
+* your site. This error means it was called somewhere else, for example in a
+* plain Node script that imports `astro/fetch`.
+*
+* If this error occurs inside an Astro-built server, please [open an issue](https://astro.build/issues/).
+* @message
+* `new FetchState(request)` was called outside of an Astro server, so no manifest is available.
+*/
+var NoManifestAvailable = {
+	name: "NoManifestAvailable",
+	title: "No manifest available.",
+	message: "`new FetchState(request)` was called outside of an Astro server, so no manifest is available.",
+	hint: "Make sure this code runs as part of your Astro app, such as its fetch entrypoint. If this error occurred inside an Astro-built server, please open an issue at https://github.com/withastro/astro/issues."
+};
+/**
+* @docs
+* @see
+* - [Actions handler reference](https://docs.astro.build/en/reference/modules/astro-actions/#handler-property)
+* @description
+* Action handler returned invalid data. Handlers should return serializable data types, and cannot return a Response object.
+*/
+var ActionsReturnedInvalidDataError = {
+	name: "ActionsReturnedInvalidDataError",
+	title: "Action handler returned invalid data.",
+	message: (error) => `Action handler returned invalid data. Handlers should return serializable data types like objects, arrays, strings, and numbers. Parse error: ${error}`,
+	hint: "See the devalue library for all supported types: https://github.com/rich-harris/devalue"
+};
+/**
+* @docs
+* @description
+* The server received a request for an action but could not find a match with the same name.
+*/
+var ActionNotFoundError = {
+	name: "ActionNotFoundError",
+	title: "Action not found.",
+	message: (actionName) => `The server received a request for an action named \`${actionName}\` but could not find a match. If you renamed an action, check that you've updated your \`actions/index\` file and your calling code to match.`,
+	hint: "You can run `astro check` to detect type errors caused by mismatched action names."
+};
+/**
+* @docs
+* @see
+* - [`Astro.callAction()` reference](https://docs.astro.build/en/reference/api-reference/#callaction)
+* @description
+* Action called from a server page or endpoint without using `Astro.callAction()`.
+*/
+var ActionCalledFromServerError = {
+	name: "ActionCalledFromServerError",
+	title: "Action called from the server without `Astro.callAction()`.",
+	message: "Action called from a server-rendered page or endpoint without using `Astro.callAction()`. This wrapper must be used to call actions from server code.",
+	hint: "See the `Astro.callAction()` reference for usage examples: https://docs.astro.build/en/reference/api-reference/#callaction"
+};
+/**
+* @docs
+* @message `Astro.cache` is not available because the cache feature is not enabled.
+* @description
+* Thrown when `Astro.cache` or `context.cache` is used but the cache feature has not been enabled in the Astro config.
+*/
+var CacheNotEnabled = {
+	name: "CacheNotEnabled",
+	title: "Cache is not enabled.",
+	message: "`Astro.cache` is not available because the cache feature is not enabled. To use caching, configure a cache provider in your Astro config under `cache`.",
+	hint: "Use an adapter that provides a default cache provider, or set one explicitly: `cache: { provider: \"...\" }`. See https://docs.astro.build/en/guides/caching/."
+};
+//#endregion
+//#region node_modules/astro/dist/env/errors.js
+function invalidVariablesToError(invalid) {
+	const _errors = [];
+	for (const { key, type, errors } of invalid) if (errors[0] === "missing") _errors.push(`${key} is missing`);
+	else if (errors[0] === "type") _errors.push(`${key}'s type is invalid, expected: ${type}`);
+	else _errors.push(`The following constraints for ${key} are not met: ${errors.join(", ")}`);
+	return _errors;
+}
+//#endregion
+//#region node_modules/astro/dist/env/runtime.js
+var _getEnv = (key) => process.env[key];
+function setGetEnv(fn) {
+	_getEnv = fn;
+	_onSetGetEnv();
+}
+var _onSetGetEnv = () => {};
+function setOnSetGetEnv(fn) {
+	_onSetGetEnv = fn;
+}
+function getEnv(...args) {
+	return _getEnv(...args);
+}
+function createInvalidVariablesError(key, type, result) {
+	return new AstroError({
+		...EnvInvalidVariables,
+		message: EnvInvalidVariables.message(invalidVariablesToError([{
+			key,
+			type,
+			errors: result.errors
+		}]))
+	});
+}
+//#endregion
 //#region node_modules/astro/dist/core/csp/config.js
 var ALGORITHMS = {
 	"SHA-256": "sha256-",
@@ -143,6 +1122,27 @@ async function generateCspDigest(data, algorithm) {
 	const hash = encodeBase64(new Uint8Array(hashBuffer));
 	return `${ALGORITHMS[algorithm]}${hash}`;
 }
+//#endregion
+//#region node_modules/astro/dist/core/middleware/defineMiddleware.js
+function defineMiddleware(fn) {
+	return fn;
+}
+//#endregion
+//#region node_modules/astro/dist/core/build/util.js
+/**
+* Given the Astro configuration, it tells if a slash should be appended or not
+*/
+function shouldAppendForwardSlash(trailingSlash, buildFormat) {
+	switch (trailingSlash) {
+		case "always": return true;
+		case "never": return false;
+		case "ignore": switch (buildFormat) {
+			case "directory": return true;
+			case "preserve":
+			case "file": return false;
+		}
+	}
+}
 var ASTRO_GENERATOR = `Astro v7.4.1`;
 /**
 * Set by internal handlers (e.g. PagesHandler) to signal that a
@@ -209,6 +1209,183 @@ var fetchStateSymbol = Symbol.for("astro.fetchState");
 */
 var responseSentSymbol = Symbol.for("astro.responseSent");
 //#endregion
+//#region node_modules/@astrojs/internal-helpers/dist/path.js
+function appendForwardSlash(path) {
+	return path.endsWith("/") ? path : path + "/";
+}
+function prependForwardSlash(path) {
+	return path[0] === "/" ? path : "/" + path;
+}
+var MANY_LEADING_SLASHES = /^\/{2,}/;
+function collapseDuplicateLeadingSlashes(path) {
+	if (!path) return path;
+	return path.replace(MANY_LEADING_SLASHES, "/");
+}
+var MANY_SLASHES = /\/{2,}/g;
+function collapseDuplicateSlashes(path) {
+	if (!path) return path;
+	return path.replace(MANY_SLASHES, "/");
+}
+var MANY_TRAILING_SLASHES = /\/{2,}$/g;
+function collapseDuplicateTrailingSlashes(path, trailingSlash) {
+	if (!path) return path;
+	return path.replace(MANY_TRAILING_SLASHES, trailingSlash ? "/" : "") || "/";
+}
+function removeTrailingForwardSlash(path) {
+	return path.endsWith("/") ? path.slice(0, path.length - 1) : path;
+}
+function removeLeadingForwardSlash(path) {
+	return path.startsWith("/") ? path.substring(1) : path;
+}
+function trimSlashes(path) {
+	return path.replace(/^\/|\/$/g, "");
+}
+function isString(path) {
+	return typeof path === "string" || path instanceof String;
+}
+var INTERNAL_PREFIXES = /* @__PURE__ */ new Set([
+	"/_",
+	"/@",
+	"/.",
+	"//"
+]);
+var JUST_SLASHES = /^\/{2,}$/;
+function isInternalPath(path) {
+	const prefix = path.slice(0, 2).replace(/\\/g, "/");
+	return INTERNAL_PREFIXES.has(prefix) && !JUST_SLASHES.test(path);
+}
+function joinPaths(...paths) {
+	return paths.filter(isString).map((path, i) => {
+		if (i === 0) return removeTrailingForwardSlash(path);
+		else if (i === paths.length - 1) return removeLeadingForwardSlash(path);
+		else return trimSlashes(path);
+	}).join("/");
+}
+function removeQueryString(path) {
+	const index = path.lastIndexOf("?");
+	return index > 0 ? path.substring(0, index) : path;
+}
+/**
+* Checks whether the path is considered a remote path.
+* Remote means untrusted in this context, so anything that isn't a straightforward
+* local path is considered remote.
+*
+* @param src
+*/
+function isRemotePath(src) {
+	if (!src) return false;
+	const trimmed = src.trim();
+	if (!trimmed) return false;
+	let decoded = trimmed;
+	let previousDecoded = "";
+	let maxIterations = 10;
+	while (decoded !== previousDecoded && maxIterations > 0) {
+		previousDecoded = decoded;
+		try {
+			decoded = decodeURIComponent(decoded);
+		} catch {
+			break;
+		}
+		maxIterations--;
+	}
+	if (/^[a-zA-Z]:/.test(decoded)) return false;
+	if (decoded[0] === "/" && /^\/[\w.@-]/.test(decoded)) return false;
+	if (decoded[0] === "\\") return true;
+	if (decoded.startsWith("//")) return true;
+	try {
+		const url = new URL(decoded, "http://n");
+		if (url.username || url.password) return true;
+		if (decoded.includes("@") && !url.pathname.includes("@") && !url.search.includes("@")) return true;
+		if (url.origin !== "http://n") {
+			if (url.protocol.toLowerCase() === "file:") return false;
+			return true;
+		}
+		if (URL.canParse(decoded)) return true;
+		return false;
+	} catch {
+		return true;
+	}
+}
+function slash(path) {
+	return path.replace(/\\/g, "/");
+}
+function fileExtension(path) {
+	const ext = path.split(".").pop();
+	return ext !== path ? `.${ext}` : "";
+}
+function removeBase(path, base) {
+	if (path.startsWith(base)) return path.slice(removeTrailingForwardSlash(base).length);
+	return path;
+}
+/**
+* Strips a configured request `base` from a pathname, only when the pathname is
+* the base itself or lies under it at a path-segment boundary. `stripRequestBase('/appX/admin', '/app')`
+* leaves the pathname untouched, whereas `stripRequestBase('/app/admin', '/app')` returns `/admin`.
+*
+* Leading slashes are collapsed first so `//admin` cannot pose as being under a
+* `/` base. Route matching and `context.url.pathname` derive from separate
+* copies of the request path, so a mismatch here lets a request reach a route
+* whose base-prefixed pathname middleware never observes.
+*/
+function stripRequestBase(pathname, base) {
+	pathname = collapseDuplicateLeadingSlashes(pathname);
+	const baseWithoutTrailingSlash = removeTrailingForwardSlash(base);
+	if (pathname === baseWithoutTrailingSlash) return "/";
+	if (pathname.startsWith(baseWithoutTrailingSlash + "/")) return pathname.slice(baseWithoutTrailingSlash.length);
+	return pathname;
+}
+var WITH_FILE_EXT = /\/[^/]+\.\w+$/;
+function hasFileExtension(path) {
+	return WITH_FILE_EXT.test(path);
+}
+//#endregion
+//#region node_modules/astro/dist/i18n/path.js
+function pathHasLocale(path, locales) {
+	const segments = path.split("/").map(normalizeThePath);
+	for (const segment of segments) for (const locale of locales) if (typeof locale === "string") {
+		if (normalizeTheLocale(segment) === normalizeTheLocale(locale)) return true;
+	} else if (segment === locale.path) return true;
+	return false;
+}
+/**
+*
+* Given a locale, this function:
+* - replaces the `_` with a `-`;
+* - transforms all letters to be lowercase;
+*/
+function normalizeTheLocale(locale) {
+	return locale.replaceAll("_", "-").toLowerCase();
+}
+/**
+*
+* Given a path or path segment, this function:
+* - removes the `.html` extension if it exists
+*/
+function normalizeThePath(path) {
+	return path.endsWith(".html") ? path.slice(0, -5) : path;
+}
+//#endregion
+//#region node_modules/astro/dist/i18n/error-routes.js
+function isLocalizedErrorRoute(route, status, locales) {
+	if (!locales) return false;
+	const suffix = `/${status}`;
+	if (!route.endsWith(suffix)) return false;
+	const localeSegment = route.slice(0, -suffix.length);
+	if (!localeSegment || localeSegment.includes("/", 1)) return false;
+	return pathHasLocale(localeSegment, locales);
+}
+function getErrorRoutePath(pathname, status, routes, locales, appendTrailingSlash = false) {
+	const suffix = appendTrailingSlash ? "/" : "";
+	if (locales) {
+		const firstSegment = pathname.split("/").find(Boolean);
+		if (firstSegment && pathHasLocale(`/${firstSegment}`, locales)) {
+			const localized = `/${firstSegment}/${status}`;
+			if (routes.some((route) => route.route === localized)) return `${localized}${suffix}`;
+		}
+	}
+	return `/${status}${suffix}`;
+}
+//#endregion
 //#region node_modules/astro/dist/core/routing/internal/route-errors.js
 var ROUTE404_RE = /^\/404\/?$/;
 var ROUTE500_RE = /^\/500\/?$/;
@@ -222,6 +1399,198 @@ function isRoute500(route) {
 /** Matches the route of the user-provided redirect page, `src/pages/3xx.astro`. */
 function isRoute3xx(route) {
 	return ROUTE3XX_RE.test(route);
+}
+//#endregion
+//#region node_modules/astro/dist/core/routing/helpers.js
+/**
+* Function guard that checks if a route is redirect. If so, `RouteData.redirectRoute` and
+* `RouteData.redirect` aren't `undefined` anymore
+* @param route
+*/
+function routeIsRedirect(route) {
+	return route?.type === "redirect";
+}
+/**
+* True if the route represents a fallback entry.
+*/
+function routeIsFallback(route) {
+	return route?.type === "fallback";
+}
+/**
+* Give a route, it returns its fallback routes from a `list` of `RouteInfo[]`.
+*
+* It throws an error if no fallback routes were found. This means there's an error
+* when we construct the list of routes
+* @param route
+* @param routeList
+*/
+function getFallbackRoute(route, routeList) {
+	const fallbackRoute = routeList.find((r) => {
+		if (route.route === "/" && r.routeData.route === "/") return true;
+		return r.routeData.fallbackRoutes.find((f) => {
+			return f.route === route.route;
+		});
+	});
+	if (!fallbackRoute) throw new Error(`No fallback route found for route ${route.route}`);
+	return fallbackRoute.routeData;
+}
+/**
+* Return a user-provided 404 route if one exists.
+*/
+function getCustom404Route(manifestData) {
+	return manifestData.routes.find((r) => isRoute404(r.route));
+}
+/**
+* Return a user-provided 500 route if one exists.
+*/
+function getCustom500Route(manifestData) {
+	return manifestData.routes.find((r) => isRoute500(r.route));
+}
+/**
+* Computes the default HTTP status code a route renders with:
+* `302` for i18n fallback matches, `404`/`500` for (possibly localized)
+* error routes, `200` otherwise.
+*/
+function getDefaultStatusCode(manifest, routeData, pathname) {
+	if (!routeData.pattern.test(pathname)) {
+		for (const fallbackRoute of routeData.fallbackRoutes) if (fallbackRoute.pattern.test(pathname)) return 302;
+	}
+	const route = removeTrailingForwardSlash(routeData.route);
+	const locales = manifest.i18n?.locales;
+	if (isRoute404(route) || isLocalizedErrorRoute(route, 404, locales)) return 404;
+	if (isRoute500(route) || isLocalizedErrorRoute(route, 500, locales)) return 500;
+	return 200;
+}
+/**
+* Returns true if the route definition contains `.html` as a static segment part,
+* as is the case for routes like `[slug].html.astro`. Used to avoid stripping the
+* `.html` suffix from pathnames that intentionally include it.
+*/
+function routeHasHtmlExtension(route) {
+	return route.segments.some((segment) => segment.some((part) => !part.dynamic && part.content.includes(".html")));
+}
+//#endregion
+//#region node_modules/astro/dist/core/redirects/component.js
+var RedirectComponentInstance = { default() {
+	return new Response(null, { status: 301 });
+} };
+var RedirectSinglePageBuiltModule = {
+	page: () => Promise.resolve(RedirectComponentInstance),
+	onRequest: (_, next) => next()
+};
+//#endregion
+//#region node_modules/astro/dist/assets/utils/getAssetsPrefix.js
+function getAssetsPrefix(fileExtension, assetsPrefix) {
+	let prefix = "";
+	if (!assetsPrefix) prefix = "";
+	else if (typeof assetsPrefix === "string") prefix = assetsPrefix;
+	else prefix = assetsPrefix[fileExtension.slice(1)] || assetsPrefix.fallback;
+	return prefix;
+}
+//#endregion
+//#region node_modules/astro/dist/core/render/ssr-element.js
+var URL_PARSE_BASE = "https://astro.build";
+function splitAssetPath(path) {
+	const parsed = new URL(path, URL_PARSE_BASE);
+	return {
+		pathname: !URL.canParse(path) && !path.startsWith("/") ? parsed.pathname.slice(1) : parsed.pathname,
+		suffix: `${parsed.search}${parsed.hash}`
+	};
+}
+function appendQueryParams(path, queryParams) {
+	const queryString = queryParams.toString();
+	if (!queryString) return path;
+	const hashIndex = path.indexOf("#");
+	const basePath = hashIndex === -1 ? path : path.slice(0, hashIndex);
+	const hash = hashIndex === -1 ? "" : path.slice(hashIndex);
+	return `${basePath}${basePath.includes("?") ? "&" : "?"}${queryString}${hash}`;
+}
+function createAssetLink(href, base, assetsPrefix, queryParams) {
+	const { pathname, suffix } = splitAssetPath(href);
+	let url = "";
+	if (assetsPrefix) url = joinPaths(getAssetsPrefix(fileExtension(pathname), assetsPrefix), slash(pathname)) + suffix;
+	else if (base) url = prependForwardSlash(joinPaths(base, slash(pathname))) + suffix;
+	else url = href;
+	if (queryParams) url = appendQueryParams(url, queryParams);
+	return url;
+}
+function createStylesheetElement(stylesheet, base, assetsPrefix, queryParams) {
+	if (stylesheet.type === "inline") return {
+		props: {},
+		children: stylesheet.content
+	};
+	else return {
+		props: {
+			rel: "stylesheet",
+			href: createAssetLink(stylesheet.src, base, assetsPrefix, queryParams)
+		},
+		children: ""
+	};
+}
+function createStylesheetElementSet(stylesheets, base, assetsPrefix, queryParams) {
+	return new Set(stylesheets.map((s) => createStylesheetElement(s, base, assetsPrefix, queryParams)));
+}
+function createModuleScriptElement(script, base, assetsPrefix, queryParams) {
+	if (script.type === "external") return createModuleScriptElementWithSrc(script.value, base, assetsPrefix, queryParams);
+	else return {
+		props: { type: "module" },
+		children: script.value
+	};
+}
+function createModuleScriptElementWithSrc(src, base, assetsPrefix, queryParams) {
+	return {
+		props: {
+			type: "module",
+			src: createAssetLink(src, base, assetsPrefix, queryParams)
+		},
+		children: ""
+	};
+}
+//#endregion
+//#region node_modules/astro/dist/core/manifest/memo.js
+function createManifestMemo(derive) {
+	const cache = /* @__PURE__ */ new WeakMap();
+	return {
+		get(manifest) {
+			if (cache.has(manifest)) return cache.get(manifest);
+			const value = derive(manifest);
+			cache.set(manifest, value);
+			return value;
+		},
+		has(manifest) {
+			return cache.has(manifest);
+		},
+		set(manifest, value) {
+			cache.set(manifest, value);
+		},
+		invalidate(manifest) {
+			cache.delete(manifest);
+		}
+	};
+}
+/**
+* Caches the PROMISE (single-flight: concurrent callers share one derivation).
+* On rejection the entry is DELETED so the next call retries a failed lazy
+* resolve instead of caching the failure forever.
+*/
+function createAsyncManifestMemo(derive) {
+	const cache = /* @__PURE__ */ new WeakMap();
+	return {
+		get(manifest) {
+			let promise = cache.get(manifest);
+			if (!promise) {
+				promise = derive(manifest);
+				cache.set(manifest, promise);
+				promise.catch(() => {
+					if (cache.get(manifest) === promise) cache.delete(manifest);
+				});
+			}
+			return promise;
+		},
+		invalidate(manifest) {
+			cache.delete(manifest);
+		}
+	};
 }
 //#endregion
 //#region node_modules/astro/dist/runtime/server/endpoint.js
@@ -2630,4 +3999,1282 @@ function spreadAttributes(values = {}, _name, { class: scopedClassName } = {}) {
 	return markHTMLString(output);
 }
 //#endregion
-export { STATUS_CODE_PAGES as A, isRoute404 as C, DEFAULT_404_COMPONENT as D, ASTRO_GENERATOR as E, decodeKey as F, decryptString as I, generateCspDigest as L, fetchStateSymbol as M, originPathnameSymbol as N, REDIRECT_STATUS_CODES as O, responseSentSymbol as P, isRoute3xx as S, ASTRO_ERROR_HEADER as T, shorthash as _, chunkToString as a, unescapeHTML as b, renderSlotToString as c, maybeRenderHead as d, renderHead as f, pushDirective as g, normalizeCspResourceEntry as h, renderComponent as i, clientAddressSymbol as j, REROUTABLE_STATUS_CODES as k, isRenderTemplateResult as l, isRenderInstruction as m, renderPage as n, createSlotValueFromString as o, addAttribute as p, renderJSX as r, renderSlot as s, spreadAttributes as t, renderTemplate as u, isAstroComponentFactory as v, isRoute500 as w, renderEndpoint as x, markHTMLString as y };
+//#region node_modules/astro/dist/core/request-body.js
+/**
+* Shared utility for reading request bodies with a size limit.
+* Used by both Actions and Server Islands to enforce `security.actionBodySizeLimit`
+* and `security.serverIslandBodySizeLimit` respectively.
+*/
+/**
+* Read the request body as a `Uint8Array`, enforcing a maximum size limit.
+* Checks the `Content-Length` header for early rejection, then streams the body
+* and tracks bytes received.
+*
+* @throws {BodySizeLimitError} if the body exceeds the configured limit
+*/
+async function readBodyWithLimit(request, limit) {
+	const contentLengthHeader = request.headers.get("content-length");
+	if (contentLengthHeader) {
+		const contentLength = Number.parseInt(contentLengthHeader, 10);
+		if (Number.isFinite(contentLength) && contentLength > limit) throw new BodySizeLimitError(limit);
+	}
+	if (!request.body) return /* @__PURE__ */ new Uint8Array();
+	const reader = request.body.getReader();
+	const chunks = [];
+	let received = 0;
+	while (true) {
+		const { done, value } = await reader.read();
+		if (done) break;
+		if (value) {
+			received += value.byteLength;
+			if (received > limit) throw new BodySizeLimitError(limit);
+			chunks.push(value);
+		}
+	}
+	const buffer = new Uint8Array(received);
+	let offset = 0;
+	for (const chunk of chunks) {
+		buffer.set(chunk, offset);
+		offset += chunk.byteLength;
+	}
+	return buffer;
+}
+var BodySizeLimitError = class extends Error {
+	limit;
+	constructor(limit) {
+		super(`Request body exceeds the configured limit of ${limit} bytes`);
+		this.name = "BodySizeLimitError";
+		this.limit = limit;
+	}
+};
+//#endregion
+//#region node_modules/astro/dist/core/server-islands/endpoint.js
+var SERVER_ISLAND_ROUTE = "/_server-islands/[name]";
+var SERVER_ISLAND_COMPONENT = "_server-islands.astro";
+function badRequest(reason) {
+	return new Response(null, {
+		status: 400,
+		statusText: "Bad request: " + reason
+	});
+}
+var DEFAULT_BODY_SIZE_LIMIT = 1048576;
+async function getRequestData(request, bodySizeLimit = DEFAULT_BODY_SIZE_LIMIT) {
+	switch (request.method) {
+		case "GET": {
+			const params = new URL(request.url).searchParams;
+			if (!params.has("s") || !params.has("e") || !params.has("p")) return badRequest("Missing required query parameters.");
+			const encryptedSlots = params.get("s");
+			return {
+				encryptedComponentExport: params.get("e"),
+				encryptedProps: params.get("p"),
+				encryptedSlots
+			};
+		}
+		case "POST": try {
+			const body = await readBodyWithLimit(request, bodySizeLimit);
+			const raw = new TextDecoder().decode(body);
+			const data = JSON.parse(raw);
+			if (Object.hasOwn(data, "slots") && typeof data.slots === "object") return badRequest("Plaintext slots are not allowed. Slots must be encrypted.");
+			if (Object.hasOwn(data, "componentExport") && typeof data.componentExport === "string") return badRequest("Plaintext componentExport is not allowed. componentExport must be encrypted.");
+			return data;
+		} catch (e) {
+			if (e instanceof BodySizeLimitError) return new Response(null, {
+				status: 413,
+				statusText: e.message
+			});
+			if (e instanceof SyntaxError) return badRequest("Request format is invalid.");
+			throw e;
+		}
+		default: return new Response(null, { status: 405 });
+	}
+}
+function createEndpoint(manifest) {
+	const page = async (result) => {
+		const params = result.params;
+		if (!params.name) return new Response(null, {
+			status: 400,
+			statusText: "Bad request"
+		});
+		const componentId = params.name;
+		const data = await getRequestData(result.request, manifest.serverIslandBodySizeLimit);
+		if (data instanceof Response) return data;
+		let imp = (await (await manifest.serverIslandMappings?.())?.serverIslandMap)?.get(componentId);
+		if (!imp) return new Response(null, {
+			status: 404,
+			statusText: "Not found"
+		});
+		const key = await manifest.key;
+		let componentExport;
+		try {
+			componentExport = await decryptString(key, data.encryptedComponentExport, `export:${componentId}`);
+		} catch (_e) {
+			return badRequest("Encrypted componentExport value is invalid.");
+		}
+		const encryptedProps = data.encryptedProps;
+		let props = {};
+		if (encryptedProps !== "") try {
+			const propString = await decryptString(key, encryptedProps, `props:${componentId}`);
+			props = JSON.parse(propString);
+		} catch (_e) {
+			return badRequest("Encrypted props value is invalid.");
+		}
+		let decryptedSlots = {};
+		const encryptedSlots = data.encryptedSlots;
+		if (encryptedSlots !== "") try {
+			const slotsString = await decryptString(key, encryptedSlots, `slots:${componentId}`);
+			decryptedSlots = JSON.parse(slotsString);
+		} catch (_e) {
+			return badRequest("Encrypted slots value is invalid.");
+		}
+		let Component = (await imp())[componentExport];
+		const slots = {};
+		for (const prop in decryptedSlots) slots[prop] = createSlotValueFromString(decryptedSlots[prop]);
+		result.response.headers.set("X-Robots-Tag", "noindex");
+		if (isAstroComponentFactory(Component)) {
+			const ServerIsland = Component;
+			Component = function(...args) {
+				return ServerIsland.apply(this, args);
+			};
+			Object.assign(Component, ServerIsland);
+			Component.propagation = "self";
+		}
+		result._metadata.routeHasPropagation = true;
+		const renderPropagatedHead = () => markHTMLString(result._metadata.extraHead.join(""));
+		return renderTemplate`${renderPropagatedHead}${renderComponent(result, "Component", Component, props, slots)}`;
+	};
+	page.isAstroComponentFactory = true;
+	return {
+		default: page,
+		partial: true
+	};
+}
+//#endregion
+//#region node_modules/astro/dist/template/4xx.js
+/** Display all errors */
+function template({ title, pathname, statusCode = 404, tabTitle, body }) {
+	return `<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>${tabTitle}</title>
+		<style>
+			:root {
+				--gray-10: hsl(258, 7%, 10%);
+				--gray-20: hsl(258, 7%, 20%);
+				--gray-30: hsl(258, 7%, 30%);
+				--gray-40: hsl(258, 7%, 40%);
+				--gray-50: hsl(258, 7%, 50%);
+				--gray-60: hsl(258, 7%, 60%);
+				--gray-70: hsl(258, 7%, 70%);
+				--gray-80: hsl(258, 7%, 80%);
+				--gray-90: hsl(258, 7%, 90%);
+				--black: #13151A;
+				--accent-light: #E0CCFA;
+			}
+
+			* {
+				box-sizing: border-box;
+			}
+
+			html {
+				background: var(--black);
+				color-scheme: dark;
+				accent-color: var(--accent-light);
+			}
+
+			body {
+				background-color: var(--gray-10);
+				color: var(--gray-80);
+				font-family: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
+				line-height: 1.5;
+				margin: 0;
+			}
+
+			a {
+				color: var(--accent-light);
+			}
+
+			.center {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				height: 100vh;
+				width: 100vw;
+			}
+
+			h1 {
+				margin-bottom: 8px;
+				color: white;
+				font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+				font-weight: 700;
+				margin-top: 1rem;
+				margin-bottom: 0;
+			}
+
+			.statusCode {
+				color: var(--accent-light);
+			}
+
+			.astro-icon {
+				height: 124px;
+				width: 124px;
+			}
+
+			pre, code {
+				padding: 2px 8px;
+				background: rgba(0,0,0, 0.25);
+				border: 1px solid rgba(255,255,255, 0.25);
+				border-radius: 4px;
+				font-size: 1.2em;
+				margin-top: 0;
+				max-width: 60em;
+			}
+		</style>
+	</head>
+	<body>
+		<main class="center">
+			<svg class="astro-icon" xmlns="http://www.w3.org/2000/svg" width="64" height="80" viewBox="0 0 64 80" fill="none"> <path d="M20.5253 67.6322C16.9291 64.3531 15.8793 57.4632 17.3776 52.4717C19.9755 55.6188 23.575 56.6157 27.3035 57.1784C33.0594 58.0468 38.7122 57.722 44.0592 55.0977C44.6709 54.7972 45.2362 54.3978 45.9045 53.9931C46.4062 55.4451 46.5368 56.9109 46.3616 58.4028C45.9355 62.0362 44.1228 64.8429 41.2397 66.9705C40.0868 67.8215 38.8669 68.5822 37.6762 69.3846C34.0181 71.8508 33.0285 74.7426 34.403 78.9491C34.4357 79.0516 34.4649 79.1541 34.5388 79.4042C32.6711 78.5705 31.3069 77.3565 30.2674 75.7604C29.1694 74.0757 28.6471 72.2121 28.6196 70.1957C28.6059 69.2144 28.6059 68.2244 28.4736 67.257C28.1506 64.8985 27.0406 63.8425 24.9496 63.7817C22.8036 63.7192 21.106 65.0426 20.6559 67.1268C20.6215 67.2865 20.5717 67.4446 20.5218 67.6304L20.5253 67.6322Z" fill="white"/> <path d="M20.5253 67.6322C16.9291 64.3531 15.8793 57.4632 17.3776 52.4717C19.9755 55.6188 23.575 56.6157 27.3035 57.1784C33.0594 58.0468 38.7122 57.722 44.0592 55.0977C44.6709 54.7972 45.2362 54.3978 45.9045 53.9931C46.4062 55.4451 46.5368 56.9109 46.3616 58.4028C45.9355 62.0362 44.1228 64.8429 41.2397 66.9705C40.0868 67.8215 38.8669 68.5822 37.6762 69.3846C34.0181 71.8508 33.0285 74.7426 34.403 78.9491C34.4357 79.0516 34.4649 79.1541 34.5388 79.4042C32.6711 78.5705 31.3069 77.3565 30.2674 75.7604C29.1694 74.0757 28.6471 72.2121 28.6196 70.1957C28.6059 69.2144 28.6059 68.2244 28.4736 67.257C28.1506 64.8985 27.0406 63.8425 24.9496 63.7817C22.8036 63.7192 21.106 65.0426 20.6559 67.1268C20.6215 67.2865 20.5717 67.4446 20.5218 67.6304L20.5253 67.6322Z" fill="url(#paint0_linear_738_686)"/> <path d="M0 51.6401C0 51.6401 10.6488 46.4654 21.3274 46.4654L29.3786 21.6102C29.6801 20.4082 30.5602 19.5913 31.5538 19.5913C32.5474 19.5913 33.4275 20.4082 33.7289 21.6102L41.7802 46.4654C54.4274 46.4654 63.1076 51.6401 63.1076 51.6401C63.1076 51.6401 45.0197 2.48776 44.9843 2.38914C44.4652 0.935933 43.5888 0 42.4073 0H20.7022C19.5206 0 18.6796 0.935933 18.1251 2.38914C18.086 2.4859 0 51.6401 0 51.6401Z" fill="white"/> <defs> <linearGradient id="paint0_linear_738_686" x1="31.554" y1="75.4423" x2="39.7462" y2="48.376" gradientUnits="userSpaceOnUse"> <stop stop-color="#D83333"/> <stop offset="1" stop-color="#F041FF"/> </linearGradient> </defs> </svg>
+			<h1>${statusCode ? `<span class="statusCode">${statusCode}: </span> ` : ""}<span class="statusMessage">${title}</span></h1>
+			${body || `
+				<pre>Path: ${escape(pathname)}</pre>
+			`}
+			</main>
+	</body>
+</html>`;
+}
+//#endregion
+//#region node_modules/astro/dist/core/routing/internal/astro-designed-error-pages.js
+var DEFAULT_404_ROUTE = {
+	component: DEFAULT_404_COMPONENT,
+	params: [],
+	pattern: /^\/404\/?$/,
+	prerender: false,
+	pathname: "/404",
+	segments: [[{
+		content: "404",
+		dynamic: false,
+		spread: false
+	}]],
+	type: "page",
+	route: "/404",
+	fallbackRoutes: [],
+	isIndex: false,
+	origin: "internal",
+	distURL: []
+};
+async function default404Page({ pathname }) {
+	return new Response(template({
+		statusCode: 404,
+		title: "Not found",
+		tabTitle: "404: Not Found",
+		pathname
+	}), {
+		status: 404,
+		headers: { "Content-Type": "text/html" }
+	});
+}
+default404Page.isAstroComponentFactory = true;
+var default404Instance = { default: default404Page };
+//#endregion
+//#region node_modules/astro/dist/core/routing/default.js
+function createDefaultRoutes(manifest) {
+	const root = new URL(manifest.rootDir);
+	return [{
+		instance: default404Instance,
+		matchesComponent: (filePath) => filePath.href === new URL(DEFAULT_404_COMPONENT, root).href,
+		route: DEFAULT_404_ROUTE.route,
+		component: DEFAULT_404_COMPONENT
+	}, {
+		instance: createEndpoint(manifest),
+		matchesComponent: (filePath) => filePath.href === new URL(SERVER_ISLAND_COMPONENT, root).href,
+		route: SERVER_ISLAND_ROUTE,
+		component: SERVER_ISLAND_COMPONENT
+	}];
+}
+var defaultRoutesMemo = createManifestMemo(createDefaultRoutes);
+/** The built-in internal routes for a manifest, derived once per manifest. */
+function getDefaultRoutes(manifest) {
+	return defaultRoutesMemo.get(manifest);
+}
+//#endregion
+//#region node_modules/astro/dist/core/logger/core.js
+/** @lintignore */
+var dateTimeFormat = new Intl.DateTimeFormat([], {
+	hour: "2-digit",
+	minute: "2-digit",
+	second: "2-digit",
+	hour12: false
+});
+var levels = {
+	debug: 20,
+	info: 30,
+	warn: 40,
+	error: 50,
+	silent: 90
+};
+/** Full logging API */
+function log(opts, level, label, message, newLine = true) {
+	const logLevel = opts.level;
+	const dest = opts.destination;
+	const event = {
+		label,
+		level,
+		message,
+		newLine
+	};
+	if (!isLogLevelEnabled(logLevel, level)) return;
+	dest.write(event);
+}
+function isLogLevelEnabled(configuredLogLevel, level) {
+	return levels[configuredLogLevel] <= levels[level];
+}
+/** Emit a user-facing message. Useful for UI and other console messages. */
+function info(opts, label, message, newLine = true) {
+	return log(opts, "info", label, message, newLine);
+}
+/** Emit a warning message. Useful for high-priority messages that aren't necessarily errors. */
+function warn(opts, label, message, newLine = true) {
+	return log(opts, "warn", label, message, newLine);
+}
+/** Emit an error message, Useful when Astro can't recover from some error. */
+function error(opts, label, message, newLine = true) {
+	return log(opts, "error", label, message, newLine);
+}
+function debug(...args) {
+	if ("_astroGlobalDebug" in globalThis) globalThis._astroGlobalDebug(...args);
+}
+/**
+* Get the prefix for a log message.
+* This includes the timestamp, log level, and label all properly formatted
+* with colors. This is shared across different loggers, so it's defined here.
+*/
+function getEventPrefix({ level, label }) {
+	const timestamp = `${dateTimeFormat.format(/* @__PURE__ */ new Date())}`;
+	const prefix = [];
+	if (level === "error" || level === "warn") {
+		prefix.push(colors.bold(timestamp));
+		prefix.push(`[${level.toUpperCase()}]`);
+	} else prefix.push(timestamp);
+	if (label) prefix.push(`[${label}]`);
+	if (level === "error") return colors.red(prefix.join(" "));
+	if (level === "warn") return colors.yellow(prefix.join(" "));
+	if (prefix.length === 1) return colors.dim(prefix[0]);
+	return colors.dim(prefix[0]) + " " + colors.blue(prefix.splice(1).join(" "));
+}
+var AstroLogger = class {
+	options;
+	constructor(options) {
+		this.options = options;
+	}
+	info(label, message, newLine = true) {
+		info(this.options, label, message, newLine);
+	}
+	warn(label, message, newLine = true) {
+		warn(this.options, label, message, newLine);
+	}
+	error(label, message, newLine = true) {
+		error(this.options, label, message, newLine);
+	}
+	debug(label, ...messages) {
+		debug(label, ...messages);
+	}
+	level() {
+		return this.options.level;
+	}
+	forkIntegrationLogger(label) {
+		return new AstroIntegrationLogger(this.options, label);
+	}
+	setDestination(destination) {
+		this.options.destination = destination;
+	}
+	/**
+	* It calls the `close` function of the provided destination, if it exists.
+	*/
+	close() {
+		if (this.options.destination.close) this.options.destination.close();
+	}
+	/**
+	* It calls the `flush` function of the provided destination, if it exists.
+	*/
+	flush() {
+		if (this.options.destination.flush) this.options.destination.flush();
+	}
+};
+var AstroIntegrationLogger = class AstroIntegrationLogger {
+	options;
+	label;
+	constructor(logging, label) {
+		this.options = logging;
+		this.label = label;
+	}
+	/**
+	* Creates a new logger instance with a new label, but the same log options.
+	*/
+	fork(label) {
+		return new AstroIntegrationLogger(this.options, label);
+	}
+	info(message) {
+		info(this.options, this.label, message);
+	}
+	warn(message) {
+		warn(this.options, this.label, message);
+	}
+	error(message) {
+		error(this.options, this.label, message);
+	}
+	debug(message) {
+		debug(this.label, message);
+	}
+	/**
+	* It calls the `flush` function of the provided destination, if it exists.
+	*/
+	flush() {
+		if (this.options.destination.flush) this.options.destination.flush();
+	}
+	/**
+	* It calls the `close` function of the provided destination, if it exists.
+	*/
+	close() {
+		if (this.options.destination.close) this.options.destination.close();
+	}
+};
+function astroToRuntimeLogger(logger) {
+	return {
+		info(msg) {
+			logger.info(null, msg);
+		},
+		warn(msg) {
+			logger.warn(null, msg);
+		},
+		error(msg) {
+			logger.error(null, msg);
+		}
+	};
+}
+//#endregion
+//#region node_modules/astro/dist/core/logger/public.js
+/**
+* Returns `true` if `messageLevel` has a level equals or higher than `configuredLevel`. As a golden rule,
+* the first argument should be level of the incoming message, and the second argument should be the
+* configured level of the logger.
+*
+* @param messageLevel The level of the incoming message
+* @param configuredLevel The level the logger is configured with
+*
+* @example
+*
+* ```js
+* matchesLevel('error', 'info') // true, because 'error' has higher priority than 'info'
+* matchesLevel('info', 'error') // false, because 'info' has lower priority than 'error'
+* ```
+*/
+function matchesLevel(messageLevel, configuredLevel) {
+	return levels[messageLevel] >= levels[configuredLevel];
+}
+//#endregion
+//#region node_modules/astro/dist/core/logger/impls/console.js
+function consoleLogDestination(config = {}) {
+	const { level = "info" } = config;
+	return { write(event) {
+		let dest = console.error;
+		if (levels[event.level] < levels["error"]) dest = console.info;
+		if (!matchesLevel(event.level, level)) return;
+		if (event.label === "SKIP_FORMAT") dest(event.message);
+		else dest(getEventPrefix(event) + " " + event.message);
+	} };
+}
+function createConsoleLogger({ level }) {
+	return new AstroLogger({
+		level,
+		destination: consoleLogDestination()
+	});
+}
+//#endregion
+//#region node_modules/astro/dist/core/logger/manifest-logger.js
+var loggers = /* @__PURE__ */ new WeakMap();
+/**
+* One identity-stable logger per manifest. Created on first access as a
+* console logger at `manifest.logLevel`.
+*
+* The instance is never replaced: `getResolvedLogger` swaps the
+* destination in place via `AstroLogger.setDestination`, so every holder
+* (state-captured logger, adapterLogger's retained options) writes to the
+* new destination immediately.
+*/
+function getLogger(manifest) {
+	let logger = loggers.get(manifest);
+	if (!logger) {
+		logger = createConsoleLogger({ level: manifest.logLevel });
+		loggers.set(manifest, logger);
+	}
+	return logger;
+}
+var resolvedLogger = createAsyncManifestMemo(async (manifest) => {
+	const logger = getLogger(manifest);
+	try {
+		const destination = (await manifest.logger?.())?.default;
+		if (destination) logger.setDestination(destination);
+	} catch (error) {
+		logger.error("config", "Failed to load the configured logger destination; continuing with the console logger.\n" + (error instanceof Error ? error.stack ?? error.message : String(error)));
+	}
+	return logger;
+});
+/**
+* The manifest's logger with the user-configured destination (the
+* `manifest.logger` thunk) resolved and applied via `setDestination` on the
+* identity-stable logger. Memoized single-flight; awaited at request entry.
+*
+* Never rejects: a destination that fails to load is reported through the
+* unswapped (console) logger, which stays in place — a broken custom
+* destination cannot fail a request. Because the derivation always resolves,
+* the memo's delete-on-rejection retry path never triggers: the thunk runs
+* at most once per manifest.
+*/
+function getResolvedLogger(manifest) {
+	return resolvedLogger.get(manifest);
+}
+//#endregion
+//#region node_modules/astro/dist/core/routing/rewrite-validate.js
+/**
+* Creates the check `findRouteToRewrite` runs on a dynamic route whose
+* `distURL` is empty. Returns `true` when `getStaticPaths()` produces the
+* pathname, `false` when it throws `NoMatchingStaticPathFound`, and rethrows
+* any other error so a broken `getStaticPaths()` is not hidden as a 404.
+*/
+function createRewriteRouteValidator(manifest, getComponentByRoute) {
+	return async (route, pathname) => {
+		try {
+			await getProps({
+				mod: await getComponentByRoute(manifest, route),
+				routeData: route,
+				routeCache: getRouteCache(manifest),
+				pathname,
+				logger: getLogger(manifest),
+				serverLike: manifest.serverLike,
+				base: manifest.base,
+				trailingSlash: manifest.trailingSlash
+			});
+			return true;
+		} catch (e) {
+			if (isAstroError(e) && e.title === NoMatchingStaticPathFound.title) return false;
+			throw e;
+		}
+	};
+}
+//#endregion
+//#region node_modules/astro/dist/core/request.js
+/**
+* Used by astro internals to create a web standard request object.
+*
+* The user of this function may provide the data in a runtime-agnostic way.
+*
+* This is used by the static build to create fake requests for prerendering, and by the dev server to convert node requests into the standard request object.
+*/
+function createRequest({ url, headers, method = "GET", body = void 0, logger, isPrerendered = false, routePattern, init }) {
+	const headersObj = isPrerendered ? void 0 : headers instanceof Headers ? headers : new Headers(Object.entries(headers).filter(([name]) => !name.startsWith(":")));
+	if (typeof url === "string") url = new URL(url);
+	if (isPrerendered) url.search = "";
+	const request = new Request(url, {
+		method,
+		headers: headersObj,
+		body: isPrerendered ? null : body,
+		...init
+	});
+	if (isPrerendered) {
+		let _headers = request.headers;
+		const { value, writable, ...headersDesc } = Object.getOwnPropertyDescriptor(request, "headers") || {};
+		Object.defineProperty(request, "headers", {
+			...headersDesc,
+			get() {
+				logger.warn(null, `\`Astro.request.headers\` was used when rendering the route \`${routePattern}'\`. \`Astro.request.headers\` is not available on prerendered pages. If you need access to request headers, make sure that the page is server-rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your pages server-rendered by default.`);
+				return _headers;
+			},
+			set(newHeaders) {
+				_headers = newHeaders;
+			}
+		});
+	}
+	return request;
+}
+//#endregion
+//#region node_modules/astro/dist/core/util/pathname.js
+/**
+* Thrown when a URL path is encoded so many times that we give up decoding it
+* (see {@link validateAndDecodePathname}). When this happens we reject the
+* request with a `400` instead of guessing the path. If we let a half-decoded
+* path through, your middleware might check one path while Astro routes to a
+* different one.
+*/
+var MultiLevelEncodingError = class extends Error {
+	constructor() {
+		super("URL encoding depth exceeded the maximum number of decode iterations");
+		this.name = "MultiLevelEncodingError";
+	}
+};
+/**
+* How many times {@link validateAndDecodePathname} will decode a path before
+* giving up. A normal URL is encoded once, or at most twice — for example a
+* `[` (`%5B`) can arrive as `%255B` when a link is built from a value that was
+* already encoded. A path that is still encoded after this many tries is
+* almost certainly an attack, so we reject it instead of decoding again.
+*/
+var MAX_DECODE_ITERATIONS = 10;
+/**
+* Decodes a URL path over and over until it stops changing, so a path that was
+* encoded several times ends up as a single, final path. This stops someone
+* from sneaking a path like `/admin` past middleware by encoding it multiple
+* times — middleware always sees the real, decoded path.
+*
+* @param pathname - The path to decode
+* @returns The final, fully decoded path
+* @throws Error if the path has broken encoding that can't be decoded at all
+*   (for example a lone `%` that isn't followed by two hex digits)
+* @throws MultiLevelEncodingError if the path is still changing after
+*   {@link MAX_DECODE_ITERATIONS} tries (it was encoded too many times).
+*   Handing back a half-decoded path here would bring back the security hole
+*   this function exists to close.
+*/
+function validateAndDecodePathname(pathname) {
+	let decoded;
+	try {
+		decoded = decodeURI(pathname);
+	} catch (_e) {
+		throw new Error("Invalid URL encoding");
+	}
+	let iterations = 0;
+	while (decoded !== pathname) {
+		if (iterations >= MAX_DECODE_ITERATIONS) throw new MultiLevelEncodingError();
+		pathname = decoded;
+		try {
+			decoded = decodeURI(pathname);
+		} catch {
+			break;
+		}
+		iterations++;
+	}
+	return decoded;
+}
+//#endregion
+//#region node_modules/astro/dist/core/routing/rewrite.js
+/**
+* Shared logic to retrieve the rewritten route. It returns a tuple that represents:
+* 1. The new `Request` object. It contains `base`
+* 2.
+*/
+async function findRouteToRewrite({ payload, routes, request, trailingSlash, buildFormat, base, outDir, validate }) {
+	let newUrl = void 0;
+	if (payload instanceof URL) newUrl = payload;
+	else if (payload instanceof Request) newUrl = new URL(payload.url);
+	else newUrl = new URL(collapseDuplicateSlashes(payload), new URL(request.url).origin);
+	const { pathname, resolvedUrlPathname } = normalizeRewritePathname(newUrl.pathname, base, trailingSlash, buildFormat);
+	newUrl.pathname = resolvedUrlPathname;
+	const decodedPathname = validateAndDecodePathname(pathname);
+	if (isRoute404(decodedPathname)) {
+		const errorRoute = routes.find((route) => isRoute404(route.route));
+		if (errorRoute) return {
+			routeData: errorRoute,
+			newUrl,
+			pathname: decodedPathname
+		};
+	}
+	if (isRoute500(decodedPathname)) {
+		const errorRoute = routes.find((route) => isRoute500(route.route));
+		if (errorRoute) return {
+			routeData: errorRoute,
+			newUrl,
+			pathname: decodedPathname
+		};
+	}
+	let foundRoute;
+	let firstValidationError = null;
+	for (const route of routes) if (route.pattern.test(decodedPathname)) {
+		if (route.params && route.params.length !== 0) {
+			if (route.distURL && route.distURL.length !== 0) {
+				if (!route.distURL.find((url) => url.href.replace(outDir.toString(), "").replace(/(?:\/index\.html|\.html)$/, "") === trimSlashes(pathname))) continue;
+			} else {
+				let ownsPathname;
+				try {
+					ownsPathname = await validate(route, decodedPathname);
+				} catch (error) {
+					firstValidationError ??= error;
+					continue;
+				}
+				if (!ownsPathname) continue;
+			}
+		}
+		foundRoute = route;
+		break;
+	}
+	if (foundRoute) return {
+		routeData: foundRoute,
+		newUrl,
+		pathname: decodedPathname
+	};
+	else if (firstValidationError) throw firstValidationError;
+	else {
+		const custom404 = routes.find((route) => isRoute404(route.route));
+		if (custom404) return {
+			routeData: custom404,
+			newUrl,
+			pathname
+		};
+		else return {
+			routeData: DEFAULT_404_ROUTE,
+			newUrl,
+			pathname
+		};
+	}
+}
+/**
+* Utility function that creates a new `Request` with a new URL from an old `Request`.
+*
+* @param newUrl The new `URL`
+* @param oldRequest The old `Request`
+* @param isPrerendered It needs to be the flag of the previous routeData, before the rewrite
+* @param logger
+* @param routePattern
+*/
+function copyRequest(newUrl, oldRequest, isPrerendered, logger, routePattern) {
+	const canHaveBody = oldRequest.method !== "GET" && oldRequest.method !== "HEAD";
+	if (canHaveBody && oldRequest.bodyUsed) throw new AstroError(RewriteWithBodyUsed);
+	return createRequest({
+		url: newUrl,
+		method: oldRequest.method,
+		body: canHaveBody ? oldRequest.body : void 0,
+		isPrerendered,
+		logger,
+		headers: isPrerendered ? {} : oldRequest.headers,
+		routePattern,
+		init: {
+			referrer: oldRequest.referrer,
+			referrerPolicy: oldRequest.referrerPolicy,
+			mode: oldRequest.mode,
+			credentials: oldRequest.credentials,
+			cache: oldRequest.cache,
+			redirect: oldRequest.redirect,
+			integrity: oldRequest.integrity,
+			signal: oldRequest.signal,
+			keepalive: oldRequest.keepalive,
+			duplex: "half"
+		}
+	});
+}
+function setOriginPathname(request, pathname, trailingSlash, buildFormat) {
+	if (!pathname) pathname = "/";
+	const shouldAppendSlash = shouldAppendForwardSlash(trailingSlash, buildFormat);
+	let finalPathname;
+	if (pathname === "/") finalPathname = "/";
+	else if (shouldAppendSlash) finalPathname = appendForwardSlash(pathname);
+	else finalPathname = removeTrailingForwardSlash(pathname);
+	Reflect.set(request, originPathnameSymbol, encodeURIComponent(finalPathname));
+}
+function getOriginPathname(request) {
+	const origin = Reflect.get(request, originPathnameSymbol);
+	if (origin) return decodeURIComponent(origin);
+	return new URL(request.url).pathname;
+}
+/**
+* Pure function that normalizes a rewrite target pathname by stripping the base,
+* handling trailing slashes, removing `.html` suffixes, and computing the final
+* full URL pathname (with base re-prepended).
+*/
+function normalizeRewritePathname(urlPathname, base, trailingSlash, buildFormat) {
+	let pathname = collapseDuplicateSlashes(urlPathname);
+	const shouldAppendSlash = shouldAppendForwardSlash(trailingSlash, buildFormat);
+	if (base !== "/") {
+		if (urlPathname === base || urlPathname === removeTrailingForwardSlash(base)) pathname = "/";
+		else if (urlPathname.startsWith(base)) {
+			pathname = shouldAppendSlash ? appendForwardSlash(urlPathname) : removeTrailingForwardSlash(urlPathname);
+			pathname = pathname.slice(base.length);
+		}
+	}
+	if (!pathname.startsWith("/") && shouldAppendSlash && urlPathname.endsWith("/")) pathname = prependForwardSlash(pathname);
+	if (buildFormat === "file") pathname = pathname.replace(/\.html$/, "");
+	let resolvedUrlPathname;
+	if (base !== "/" && (pathname === "" || pathname === "/") && !shouldAppendSlash) resolvedUrlPathname = removeTrailingForwardSlash(base);
+	else resolvedUrlPathname = joinPaths(...[base, pathname].filter(Boolean));
+	return {
+		pathname,
+		resolvedUrlPathname
+	};
+}
+//#endregion
+//#region node_modules/astro/dist/core/environment/production.js
+async function getModuleForRoute(manifest, route) {
+	for (const defaultRoute of getDefaultRoutes(manifest)) if (route.component === defaultRoute.component) return { page: () => Promise.resolve(defaultRoute.instance) };
+	let routeToProcess = route;
+	if (routeIsRedirect(route)) {
+		if (route.redirectRoute) routeToProcess = route.redirectRoute;
+		else return RedirectSinglePageBuiltModule;
+	} else if (routeIsFallback(route)) routeToProcess = getFallbackRoute(route, manifest.routes);
+	if (manifest.pageMap) {
+		const importComponentInstance = manifest.pageMap.get(routeToProcess.component);
+		if (!importComponentInstance) throw new Error(`Unexpectedly unable to find a component instance for route ${route.route}`);
+		return await importComponentInstance();
+	} else if (manifest.pageModule) return manifest.pageModule;
+	throw new Error("Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue.");
+}
+async function getComponentByRoute(manifest, routeData) {
+	return (await getModuleForRoute(manifest, routeData)).page();
+}
+/**
+* The production / bundled environment — the default when nothing is
+* registered. A stateless module constant derived from the manifest alone.
+*/
+var productionEnvironment = {
+	name: "production",
+	runtimeMode: "production",
+	defaultStreaming: () => true,
+	async resolve(manifest, specifier) {
+		if (!(specifier in manifest.entryModules)) throw new Error(`Unable to resolve [${specifier}]`);
+		const bundlePath = manifest.entryModules[specifier];
+		if (bundlePath.startsWith("data:") || bundlePath.length === 0) return bundlePath;
+		else return createAssetLink(bundlePath, manifest.base, manifest.assetsPrefix);
+	},
+	async headElements(manifest, routeData) {
+		const { assetsPrefix, base } = manifest;
+		const routeInfo = manifest.routes.find((route) => route.routeData.route === routeData.route);
+		const links = /* @__PURE__ */ new Set();
+		const scripts = /* @__PURE__ */ new Set();
+		const styles = createStylesheetElementSet(routeInfo?.styles ?? [], base, assetsPrefix);
+		for (const script of routeInfo?.scripts ?? []) if ("stage" in script) {
+			if (script.stage === "head-inline") scripts.add({
+				props: {},
+				children: script.children
+			});
+		} else scripts.add(createModuleScriptElement(script, base, assetsPrefix));
+		return {
+			links,
+			styles,
+			scripts
+		};
+	},
+	componentMetadata() {},
+	getComponentByRoute,
+	getModuleForRoute,
+	async tryRewrite(manifest, payload, request) {
+		const { newUrl, pathname, routeData } = await findRouteToRewrite({
+			payload,
+			request,
+			routes: manifest.routes.map((r) => r.routeData),
+			trailingSlash: manifest.trailingSlash,
+			buildFormat: manifest.buildFormat,
+			base: manifest.base,
+			outDir: manifest.serverLike ? manifest.buildClientDir : manifest.outDir,
+			validate: createRewriteRouteValidator(manifest, getComponentByRoute)
+		});
+		return {
+			newUrl,
+			pathname,
+			componentInstance: await getComponentByRoute(manifest, routeData),
+			routeData
+		};
+	},
+	getRenderers(manifest) {
+		return manifest.renderers;
+	},
+	errorStrategy: "default",
+	rendersRedirectPage: () => false,
+	injectCspMetaTagsOnErrorPages: false,
+	logRequest() {}
+};
+//#endregion
+//#region node_modules/astro/dist/core/environment/index.js
+var environments = /* @__PURE__ */ new WeakMap();
+/**
+* The environment for a manifest. Defaults to the production (bundled)
+* implementation, which is derivable from the manifest alone — so a bare
+* `new FetchState(request)` in a bundled worker needs no registration.
+*/
+function getEnvironment(manifest) {
+	return environments.get(manifest) ?? productionEnvironment;
+}
+//#endregion
+//#region node_modules/astro/dist/core/routing/generator.js
+/**
+* Sanitizes the parameters object by normalizing string values and replacing certain characters with their URL-encoded equivalents.
+* @param {Record<string, string | number>} params - The parameters object to be sanitized.
+* @returns {Record<string, string | number>} The sanitized parameters object.
+*/
+function sanitizeParams(params) {
+	return Object.fromEntries(Object.entries(params).map(([key, value]) => {
+		if (typeof value === "string") return [key, value.normalize().replace(/#/g, "%23").replace(/\?/g, "%3F")];
+		return [key, value];
+	}));
+}
+function getParameter(part, params) {
+	if (part.spread) return params[part.content.slice(3)] ?? "";
+	if (part.dynamic) {
+		if (params[part.content] === void 0) throw new TypeError(`Missing parameter: ${part.content}`);
+		return params[part.content];
+	}
+	return part.content.normalize().replace(/\?/g, "%3F").replace(/#/g, "%23").replace(/%5B/g, "[").replace(/%5D/g, "]");
+}
+function getSegment(segment, params) {
+	const segmentPath = segment.map((part) => getParameter(part, params)).join("");
+	return segmentPath ? collapseDuplicateLeadingSlashes("/" + segmentPath) : "";
+}
+function getRouteGenerator(segments, addTrailingSlash) {
+	return (params) => {
+		const sanitizedParams = sanitizeParams(params);
+		let trailing = "";
+		if (addTrailingSlash === "always" && segments.length) trailing = "/";
+		return segments.map((segment) => getSegment(segment, sanitizedParams)).join("") + trailing || "/";
+	};
+}
+//#endregion
+//#region node_modules/astro/dist/core/routing/internal/validation.js
+var VALID_PARAM_TYPES = ["string", "undefined"];
+/** Throws error for invalid parameter in getStaticPaths() response */
+function validateGetStaticPathsParameter([key, value], route) {
+	if (!VALID_PARAM_TYPES.includes(typeof value)) throw new AstroError({
+		...GetStaticPathsInvalidRouteParam,
+		message: GetStaticPathsInvalidRouteParam.message(key, value, typeof value),
+		location: { file: route }
+	});
+}
+//#endregion
+//#region node_modules/astro/dist/core/routing/params.js
+/**
+* given a route's Params object, validate parameter
+* values and create a stringified key for the route
+* that can be used to match request routes
+*/
+function stringifyParams(params, route, trailingSlash) {
+	if (route.type === "endpoint" && hasFileExtension(route.route)) trailingSlash = "never";
+	const validatedParams = {};
+	for (const [key, value] of Object.entries(params)) {
+		validateGetStaticPathsParameter([key, value], route.component);
+		if (value !== void 0) validatedParams[key] = trimSlashes(value);
+	}
+	return getRouteGenerator(route.segments, trailingSlash)(validatedParams);
+}
+//#endregion
+//#region node_modules/astro/dist/core/routing/validation.js
+/** Error for deprecated or malformed route components */
+function validateDynamicRouteModule(mod, { ssr, route }) {
+	if ((!ssr || route.prerender) && route.origin !== "internal" && !mod.getStaticPaths) throw new AstroError({
+		...GetStaticPathsRequired,
+		location: { file: route.component }
+	});
+}
+/** Throw error and log warnings for malformed getStaticPaths() response */
+function validateGetStaticPathsResult(result, route) {
+	if (!Array.isArray(result)) throw new AstroError({
+		...InvalidGetStaticPathsReturn,
+		message: InvalidGetStaticPathsReturn.message(typeof result),
+		location: { file: route.component }
+	});
+	result.forEach((pathObject) => {
+		if (typeof pathObject === "object" && Array.isArray(pathObject) || pathObject === null) throw new AstroError({
+			...InvalidGetStaticPathsEntry,
+			message: InvalidGetStaticPathsEntry.message(Array.isArray(pathObject) ? "array" : typeof pathObject)
+		});
+		if (pathObject.params === void 0 || pathObject.params === null || pathObject.params && Object.keys(pathObject.params).length === 0) throw new AstroError({
+			...GetStaticPathsExpectedParams,
+			location: { file: route.component }
+		});
+	});
+}
+//#endregion
+//#region node_modules/astro/dist/core/render/paginate.js
+function generatePaginateFunction(routeMatch, base, trailingSlash) {
+	return function paginateUtility(data, args = {}) {
+		const generate = getRouteGenerator(routeMatch.segments, trailingSlash);
+		let { pageSize: _pageSize, params: _params, props: _props, format: _format } = args;
+		const pageSize = _pageSize || 10;
+		const paramName = "page";
+		const additionalParams = _params || {};
+		const additionalProps = _props || {};
+		const formatUrl = _format || ((url) => url);
+		let includesFirstPageNumber;
+		if (routeMatch.params.includes(`...${paramName}`)) includesFirstPageNumber = false;
+		else if (routeMatch.params.includes(`${paramName}`)) includesFirstPageNumber = true;
+		else throw new AstroError({
+			...PageNumberParamNotFound,
+			message: PageNumberParamNotFound.message(paramName)
+		});
+		const lastPage = Math.max(1, Math.ceil(data.length / pageSize));
+		return [...Array(lastPage).keys()].map((num) => {
+			const pageNum = num + 1;
+			const start = pageSize === Number.POSITIVE_INFINITY ? 0 : (pageNum - 1) * pageSize;
+			const end = Math.min(start + pageSize, data.length);
+			const params = {
+				...additionalParams,
+				[paramName]: includesFirstPageNumber || pageNum > 1 ? String(pageNum) : void 0
+			};
+			const current = formatUrl(addRouteBase(generate({ ...params }), base));
+			const next = pageNum === lastPage ? void 0 : formatUrl(addRouteBase(generate({
+				...params,
+				page: String(pageNum + 1)
+			}), base));
+			const prev = pageNum === 1 ? void 0 : formatUrl(addRouteBase(generate({
+				...params,
+				page: !includesFirstPageNumber && pageNum - 1 === 1 ? void 0 : String(pageNum - 1)
+			}), base));
+			const first = pageNum === 1 ? void 0 : formatUrl(addRouteBase(generate({
+				...params,
+				page: includesFirstPageNumber ? "1" : void 0
+			}), base));
+			const last = pageNum === lastPage ? void 0 : formatUrl(addRouteBase(generate({
+				...params,
+				page: String(lastPage)
+			}), base));
+			return {
+				params,
+				props: {
+					...additionalProps,
+					page: {
+						data: data.slice(start, end),
+						start,
+						end: end - 1,
+						size: pageSize,
+						total: data.length,
+						currentPage: pageNum,
+						lastPage,
+						url: {
+							current,
+							next,
+							prev,
+							first,
+							last
+						}
+					}
+				}
+			};
+		});
+	};
+}
+function addRouteBase(route, base) {
+	let routeWithBase = joinPaths(base, route);
+	if (routeWithBase === "") routeWithBase = "/";
+	return routeWithBase;
+}
+//#endregion
+//#region node_modules/astro/dist/core/render/route-cache.js
+async function callGetStaticPaths({ mod, route, routeCache, ssr, base, trailingSlash }) {
+	const cached = routeCache.get(route);
+	if (!mod) throw new Error("This is an error caused by Astro and not your code. Please file an issue.");
+	if (cached?.staticPaths && cached.mod === mod) return cached.staticPaths;
+	validateDynamicRouteModule(mod, {
+		ssr,
+		route
+	});
+	if (ssr && !route.prerender || route.origin === "internal") {
+		const entry = Object.assign([], { keyed: /* @__PURE__ */ new Map() });
+		routeCache.set(route, {
+			...cached,
+			mod,
+			staticPaths: entry
+		});
+		return entry;
+	}
+	const keyedStaticPaths = await computeStaticPaths(mod, route, base, trailingSlash);
+	routeCache.set(route, {
+		mod,
+		staticPaths: keyedStaticPaths
+	});
+	return keyedStaticPaths;
+}
+/** Replaces a partial entry with the full result, sharing one `getStaticPaths()` call between concurrent misses. */
+function completeStaticPaths({ route, routeCache, base, trailingSlash }) {
+	const cached = routeCache.get(route);
+	if (!cached?.partial) return void 0;
+	cached.complete ??= computeStaticPaths(cached.mod, route, base, trailingSlash).then((staticPaths) => {
+		routeCache.set(route, {
+			mod: cached.mod,
+			staticPaths
+		});
+		return staticPaths;
+	});
+	return cached.complete;
+}
+async function computeStaticPaths(mod, route, base, trailingSlash) {
+	let staticPaths = [];
+	if (!mod.getStaticPaths) throw new Error("Unexpected Error.");
+	staticPaths = await mod.getStaticPaths({
+		paginate: generatePaginateFunction(route, base, trailingSlash),
+		routePattern: route.route
+	});
+	validateGetStaticPathsResult(staticPaths, route);
+	const keyedStaticPaths = staticPaths;
+	keyedStaticPaths.keyed = /* @__PURE__ */ new Map();
+	for (const sp of keyedStaticPaths) {
+		const paramsKey = stringifyParams(sp.params, route, trailingSlash);
+		keyedStaticPaths.keyed.set(paramsKey, sp);
+	}
+	return keyedStaticPaths;
+}
+/**
+* Manage the route cache, responsible for caching data related to each route,
+* including the result of calling getStaticPaths(). This gives route matching,
+* params/props resolution, and prerender generation a shared static-path table.
+*
+* In dev, this cache intentionally survives requests. It is invalidated by route
+* module identity changes after HMR or by explicit cache clears from content data
+* changes, not by each request. Dev route matching can call getStaticPaths()
+* before rendering, and render-time props resolution may ask for it again.
+*/
+var RouteCache = class {
+	logger;
+	cache = {};
+	runtimeMode;
+	constructor(logger, runtimeMode = "production") {
+		this.logger = logger;
+		this.runtimeMode = runtimeMode;
+	}
+	/** Clear the cache. */
+	clearAll() {
+		this.cache = {};
+	}
+	set(route, entry) {
+		const key = this.key(route);
+		const existing = this.cache[key];
+		if (this.runtimeMode === "production" && existing?.staticPaths && !existing.partial) this.logger.warn(null, `Internal Warning: route cache overwritten. (${key})`);
+		this.cache[key] = entry;
+	}
+	get(route) {
+		return this.cache[this.key(route)];
+	}
+	key(route) {
+		return `${route.route}_${route.component}`;
+	}
+};
+var routeCaches = createManifestMemo((manifest) => new RouteCache(getLogger(manifest), getEnvironment(manifest).runtimeMode));
+/**
+* The `RouteCache` for a manifest. Cleared via
+* `getRouteCache(manifest).clearAll()` on dev `astro:content-changed`.
+*/
+function getRouteCache(manifest) {
+	return routeCaches.get(manifest);
+}
+function findPathItemByKey(staticPaths, params, route, logger, trailingSlash) {
+	const paramsKey = stringifyParams(params, route, trailingSlash);
+	const matchedStaticPath = staticPaths.keyed.get(paramsKey);
+	if (matchedStaticPath) return matchedStaticPath;
+	logger.debug("router", `findPathItemByKey() - Unexpected cache miss looking for ${paramsKey}`);
+}
+//#endregion
+//#region node_modules/astro/dist/core/render/params-and-props.js
+async function getProps(opts) {
+	const { logger, mod, routeData: route, routeCache, pathname, serverLike, base, trailingSlash } = opts;
+	if (!route || route.pathname) return {};
+	if (routeIsRedirect(route) || routeIsFallback(route) || route.component === "astro-default-404.astro") return {};
+	const getStaticPathsOptions = {
+		mod,
+		route,
+		routeCache,
+		ssr: serverLike,
+		base,
+		trailingSlash
+	};
+	const staticPaths = await callGetStaticPaths(getStaticPathsOptions);
+	const params = getParams(route, pathname);
+	let matchedStaticPath = findPathItemByKey(staticPaths, params, route, logger, trailingSlash);
+	if (!matchedStaticPath) {
+		const allStaticPaths = await completeStaticPaths(getStaticPathsOptions);
+		if (allStaticPaths) matchedStaticPath = findPathItemByKey(allStaticPaths, params, route, logger, trailingSlash);
+	}
+	if (!matchedStaticPath && route.origin !== "internal" && (serverLike ? route.prerender : true)) throw new AstroError({
+		...NoMatchingStaticPathFound,
+		message: NoMatchingStaticPathFound.message(pathname),
+		hint: NoMatchingStaticPathFound.hint([route.component])
+	});
+	if (mod) validatePrerenderEndpointCollision(route, mod, params);
+	return matchedStaticPath?.props ? { ...matchedStaticPath.props } : {};
+}
+/**
+* When given a route with the pattern `/[x]/[y]/[z]/svelte`, and a pathname `/a/b/c/svelte`,
+* returns the params object: { x: "a", y: "b", z: "c" }.
+*/
+function getParams(route, pathname) {
+	if (!route.params.length) return {};
+	const hasHtmlSuffix = pathname.endsWith(".html") && !routeHasHtmlExtension(route);
+	const path = hasHtmlSuffix && route.type === "page" ? pathname.slice(0, -5) : pathname;
+	const allPatterns = [route, ...route.fallbackRoutes].map((r) => r.pattern);
+	let paramsMatch = allPatterns.map((pattern) => pattern.exec(path)).find((x) => x);
+	if (!paramsMatch && hasHtmlSuffix && route.type !== "page") {
+		const strippedPath = pathname.endsWith("/index.html") ? pathname.slice(0, -11) || "/" : pathname.slice(0, -5);
+		paramsMatch = allPatterns.map((pattern) => pattern.exec(strippedPath)).find((x) => x);
+	}
+	if (!paramsMatch) return {};
+	const params = {};
+	route.params.forEach((key, i) => {
+		if (key.startsWith("...")) params[key.slice(3)] = paramsMatch[i + 1] ? paramsMatch[i + 1] : void 0;
+		else params[key] = paramsMatch[i + 1];
+	});
+	return params;
+}
+/**
+* If we have an endpoint at `src/pages/api/[slug].ts` that's prerendered, and the `slug`
+* is `undefined`, throw an error as we can't generate the `/api` file and `/api` directory
+* at the same time. Using something like `[slug].json.ts` instead will work.
+*/
+function validatePrerenderEndpointCollision(route, mod, params) {
+	if (route.type === "endpoint" && mod.getStaticPaths) {
+		const lastSegment = route.segments[route.segments.length - 1];
+		const paramValues = Object.values(params);
+		const lastParam = paramValues[paramValues.length - 1];
+		if (lastSegment.length === 1 && lastSegment[0].dynamic && lastParam === void 0) throw new AstroError({
+			...PrerenderDynamicEndpointPathCollide,
+			message: PrerenderDynamicEndpointPathCollide.message(route.route),
+			hint: PrerenderDynamicEndpointPathCollide.hint(route.component),
+			location: { file: route.component }
+		});
+	}
+}
+//#endregion
+//#region node_modules/astro/dist/core/middleware/sequence.js
+/**
+*
+* It accepts one or more middleware handlers and makes sure that they are run in sequence.
+*/
+function sequence(...handlers) {
+	const filtered = handlers.filter((h) => !!h);
+	const length = filtered.length;
+	if (!length) return defineMiddleware((_context, next) => {
+		return next();
+	});
+	return defineMiddleware((context, next) => {
+		/**
+		* This variable is used to carry the rerouting payload across middleware functions.
+		*/
+		let carriedPayload = void 0;
+		return applyHandle(0, context);
+		function applyHandle(i, handleContext) {
+			const handle = filtered[i];
+			return handle(handleContext, async (payload) => {
+				if (i < length - 1) {
+					if (payload) {
+						const oldPathname = handleContext.url.pathname;
+						const state = Reflect.get(handleContext, fetchStateSymbol);
+						if (!state) throw new Error("FetchState not found on APIContext. `next(payload)` rewrites require a context created through Astro's request pipeline.");
+						const manifest = state.manifest;
+						const { routeData, pathname } = await getEnvironment(manifest).tryRewrite(manifest, payload, handleContext.request);
+						let newRequest;
+						if (payload instanceof Request) newRequest = payload;
+						else {
+							const request = handleContext.request.method === "GET" || handleContext.request.method === "HEAD" ? handleContext.request : handleContext.request.clone();
+							newRequest = copyRequest(payload instanceof URL ? payload : new URL(payload, handleContext.url.origin), request, false, state.logger, routeData.route);
+						}
+						if (manifest.serverLike === true && handleContext.isPrerendered === false && routeData.prerender === true) throw new AstroError({
+							...ForbiddenRewrite,
+							message: ForbiddenRewrite.message(handleContext.url.pathname, pathname, routeData.component),
+							hint: ForbiddenRewrite.hint(routeData.component)
+						});
+						carriedPayload = payload;
+						handleContext.request = newRequest;
+						handleContext.url = new URL(newRequest.url);
+						handleContext.params = getParams(routeData, pathname);
+						handleContext.routePattern = routeData.route;
+						setOriginPathname(handleContext.request, oldPathname, manifest.trailingSlash, manifest.buildFormat);
+					}
+					return applyHandle(i + 1, handleContext);
+				} else return next(payload ?? carriedPayload);
+			});
+		}
+	});
+}
+//#endregion
+export { pathHasLocale as $, MissingGetFontFileRequestUrl as $t, maybeRenderHead as A, setOnSetGetEnv as At, createAsyncManifestMemo as B, FailedToFetchRemoteImageDimensions as Bt, renderJSX as C, shouldAppendForwardSlash as Ct, renderSlotToString as D, createInvalidVariablesError as Dt, renderSlot as E, generateCspDigest as Et, normalizeCspResourceEntry as F, CacheNotEnabled as Ft, getDefaultStatusCode as G, IncompatibleDescriptorOptions as Gt, getAssetsPrefix as H, FontFileUrlNotFound as Ht, pushDirective as I, ClientAddressNotAvailable as It, isRoute404 as J, LocalImageUsedWrongly as Jt, routeHasHtmlExtension as K, InvalidComponentArgs as Kt, shorthash as L, ExpectedImage as Lt, addAttribute as M, ActionNotFoundError as Mt, createRenderInstruction as N, ActionsReturnedInvalidDataError as Nt, isRenderTemplateResult as O, getEnv as Ot, isRenderInstruction as P, AstroResponseHeadersReassigned as Pt, normalizeThePath as Q, MiddlewareNotAResponse as Qt, unescapeHTML as R, ExpectedImageOptions as Rt, renderPage as S, responseSentSymbol as St, chunkToString as T, decodeKey as Tt, getCustom404Route as U, ForbiddenRewrite as Ut, createManifestMemo as V, FontFamilyNotFound as Vt, getCustom500Route as W, ImageMissingAlt as Wt, getErrorRoutePath as X, LocalsReassigned as Xt, isRoute500 as Y, LocalsNotAnObject as Yt, normalizeTheLocale as Z, MiddlewareNoDataOrNextCalled as Zt, DEFAULT_404_ROUTE as _, REROUTABLE_STATUS_CODES as _t, getRouteGenerator as a, RemoteImageNotAllowed as an, isInternalPath as at, readBodyWithLimit as b, fetchStateSymbol as bt, getOriginPathname as c, StaticClientAddressNotAvailable as cn, prependForwardSlash as ct, validateAndDecodePathname as d, UnsupportedImageFormat as dn, removeQueryString as dt, MissingImageDimension as en, appendForwardSlash as et, getLogger as f, i18nNoLocaleFoundInPath as fn, removeTrailingForwardSlash as ft, astroToRuntimeLogger as g, REDIRECT_STATUS_CODES as gt, AstroIntegrationLogger as h, ASTRO_GENERATOR as ht, getRouteCache as i, PrerenderClientAddressNotAvailable as in, hasFileExtension as it, renderHead as j, ActionCalledFromServerError as jt, renderTemplate as k, setGetEnv as kt, setOriginPathname as l, UnavailableAstroGlobal as ln, removeBase as lt, createConsoleLogger as m, isAstroError as mn, ASTRO_ERROR_HEADER as mt, getParams as n, NoImageMetadata as nn, collapseDuplicateTrailingSlashes as nt, getEnvironment as o, ReservedSlotName as on, isRemotePath as ot, getResolvedLogger as p, AstroError as pn, stripRequestBase as pt, isRoute3xx as q, InvalidImageService as qt, getProps as r, NoManifestAvailable as rn, fileExtension as rt, copyRequest as s, ResponseSentError as sn, joinPaths as st, sequence as t, MissingSharp as tn, collapseDuplicateSlashes as tt, MultiLevelEncodingError as u, UnsupportedImageConversion as un, removeLeadingForwardSlash as ut, SERVER_ISLAND_COMPONENT as v, STATUS_CODE_PAGES as vt, renderComponent as w, defineMiddleware as wt, spreadAttributes as x, originPathnameSymbol as xt, BodySizeLimitError as y, clientAddressSymbol as yt, renderEndpoint as z, ExpectedNotESMImage as zt };

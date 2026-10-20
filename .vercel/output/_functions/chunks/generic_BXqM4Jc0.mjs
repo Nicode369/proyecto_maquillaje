@@ -1,8 +1,7 @@
-import { n as createComponent, r as __exportAll, t as createAstro } from "./compiler_B0MireoY.mjs";
-import { C as LocalImageUsedWrongly, H as RemoteImageNotAllowed, J as UnsupportedImageConversion, N as NoImageMetadata, O as MissingGetFontFileRequestUrl, S as InvalidImageService, Y as UnsupportedImageFormat, Z as AstroError, _ as ImageMissingAlt, c as ExpectedImageOptions, d as FontFamilyNotFound, k as MissingImageDimension, l as ExpectedNotESMImage, s as ExpectedImage, u as FailedToFetchRemoteImageDimensions, v as IncompatibleDescriptorOptions } from "./errors-data_gS1BQwyX.mjs";
-import { _ as shorthash, b as unescapeHTML, d as maybeRenderHead, p as addAttribute, t as spreadAttributes, u as renderTemplate } from "./server_CqCnuaT5.mjs";
-import { d as joinPaths, f as prependForwardSlash, h as removeQueryString, p as removeBase, s as fileExtension, t as isRemoteAllowed, u as isRemotePath } from "./remote_yhsCKz7S.mjs";
-import { i as getAssetsPrefix, t as createConsoleLogger } from "./console_BQiA7HPz.mjs";
+import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
+import { $t as MissingGetFontFileRequestUrl, A as maybeRenderHead, Bt as FailedToFetchRemoteImageDimensions, Gt as IncompatibleDescriptorOptions, H as getAssetsPrefix, Jt as LocalImageUsedWrongly, L as shorthash, Lt as ExpectedImage, M as addAttribute, R as unescapeHTML, Rt as ExpectedImageOptions, Vt as FontFamilyNotFound, Wt as ImageMissingAlt, an as RemoteImageNotAllowed, ct as prependForwardSlash, dn as UnsupportedImageFormat, dt as removeQueryString, en as MissingImageDimension, k as renderTemplate, lt as removeBase, m as createConsoleLogger, nn as NoImageMetadata, ot as isRemotePath, pn as AstroError, qt as InvalidImageService, rt as fileExtension, st as joinPaths, un as UnsupportedImageConversion, x as spreadAttributes, zt as ExpectedNotESMImage } from "./sequence_vYO_GrXQ.mjs";
+import { n as createComponent, t as createAstro } from "./compiler_DTgN-O7B.mjs";
+import { t as isRemoteAllowed } from "./remote_B72Ad3K3.mjs";
 import * as mime from "mrmime";
 //#region \0virtual:astro:logger
 var level = "info";
@@ -1693,7 +1692,7 @@ var cssFitValues = [
 var configuredImageService;
 async function getConfiguredImageService() {
 	if (!configuredImageService) {
-		const { default: service } = await import("./sharp_EMQ-Ue_1.mjs").catch((e) => {
+		const { default: service } = await import("./sharp_DYdK1bU2.mjs").catch((e) => {
 			const error = new AstroError(InvalidImageService);
 			error.cause = e;
 			throw error;

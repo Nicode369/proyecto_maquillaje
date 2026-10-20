@@ -20,6 +20,30 @@
 			"dest": "_render"
 		},
 		{
+			"src": "^/_actions(?:/(.*?))?/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/clientas/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/gastos/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/login/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/productos/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/ventas/?$",
+			"dest": "_render"
+		},
+		{
 			"src": "^/$",
 			"dest": "_render"
 		},

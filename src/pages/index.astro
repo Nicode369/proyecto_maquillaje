@@ -1,14 +1,14 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import DashboardLayout from '../layouts/DashboardLayout.astro';
+import PageHeader from '../components/ui/PageHeader.astro';
+import Card from '../components/ui/Card.astro';
 ---
 
-<BaseLayout title="Panel · Maquillaje">
-  <main class="mx-auto max-w-3xl px-6 py-20">
-    <p class="text-sm text-ink-muted">Fase 1</p>
-    <h1 class="display-number mt-2 text-4xl text-ink">Panel de control</h1>
-    <p class="mt-3 max-w-md text-ink-muted">
-      Base del proyecto lista. Sigue las fases del plan: base de datos, login, ventas,
-      productos, gastos y clientas.
+<DashboardLayout title="Resumen" active="resumen">
+  <PageHeader title="Resumen" description="Vista general del negocio" />
+  <Card class="mt-6">
+    <p class="text-sm text-ink-muted">
+      Los indicadores del mes se muestran aquí (próxima fase).
     </p>
-  </main>
-</BaseLayout>
+  </Card>
+</DashboardLayout>

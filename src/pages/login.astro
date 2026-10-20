@@ -1,0 +1,54 @@
+---
+import { actions, isInputError } from 'astro:actions';
+import AuthLayout from '../layouts/AuthLayout.astro';
+import Button from '../components/ui/Button.astro';
+import Input from '../components/ui/Input.astro';
+
+const resultado = Astro.getActionResult(actions.auth.login);
+if (resultado && !resultado.error) {
+  return Astro.redirect('/');
+}
+
+const erroresCampos = isInputError(resultado?.error) ? resultado.error.fields : {};
+const errorGeneral =
+  resultado?.error && !isInputError(resultado.error) ? resultado.error.message : null;
+---
+
+<AuthLayout>
+  <form method="POST" action={actions.auth.login} class="space-y-5">
+    <div class="space-y-1.5">
+      <h1
+        class="display-number text-[26px] leading-tight text-ink"
+        style="font-variation-settings: 'opsz' 90;"
+      >
+        Bienvenida de nuevo
+      </h1>
+      <p class="text-sm text-ink-muted">
+        Escribe tu contraseña para entrar al panel.
+      </p>
+    </div>
+
+    {
+      errorGeneral && (
+        <p
+          role="alert"
+          class="rounded border border-danger/30 bg-danger/5 px-3 py-2 text-[13px] text-danger"
+        >
+          {errorGeneral}
+        </p>
+      )
+    }
+
+    <Input
+      name="password"
+      label="Contraseña"
+      type="password"
+      autocomplete="current-password"
+      placeholder="••••••••"
+      error={erroresCampos.password?.[0]}
+      autofocus
+    />
+
+    <Button type="submit" class="w-full">Entrar al panel</Button>
+  </form>
+</AuthLayout>

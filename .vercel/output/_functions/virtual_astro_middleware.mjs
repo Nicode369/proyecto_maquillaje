@@ -1,4 +1,22 @@
-//#region \0noop-middleware
-var onRequest = (_, next) => next();
+import { t as sequence, wt as defineMiddleware } from "./chunks/sequence_vYO_GrXQ.mjs";
+import { a as verificarSesion } from "./chunks/auth_B3YfWjMV.mjs";
+//#region src/middleware.ts
+var RUTAS_PUBLICAS = /* @__PURE__ */ new Set([
+	"/login",
+	"/favicon.svg",
+	"/robots.txt"
+]);
+var onRequest$1 = defineMiddleware(async (context, next) => {
+	const ruta = context.url.pathname.replace(/\/+$/, "") || "/";
+	if (RUTAS_PUBLICAS.has(ruta)) {
+		if (ruta === "/login" && await verificarSesion(context.cookies.get("panel_session")?.value)) return context.redirect("/");
+		return next();
+	}
+	if (!await verificarSesion(context.cookies.get("panel_session")?.value)) return context.redirect("/login");
+	return next();
+});
+//#endregion
+//#region \0virtual:astro:middleware
+var onRequest = sequence(onRequest$1);
 //#endregion
 export { onRequest };
