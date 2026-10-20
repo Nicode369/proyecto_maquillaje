@@ -56,23 +56,9 @@ function tonoDelta(valor: { pct: number | null; buenSube: boolean }): string {
   return bueno ? 'text-sage' : 'text-danger';
 }
 
-const deltas: {
-  label: string;
-  valor: number;
-  d: { pct: number | null; texto: string };
-  buenSube: boolean;
-  hero?: boolean;
-  nota?: string;
-}[] = [
-  {
-    label: 'Ganancia',
-    valor: kpis.ganancia,
-    d: dGanancia,
-    buenSube: true,
-    hero: true,
-    nota: 'lo que quedó del mes',
-  },
-  { label: 'Ingresos', valor: kpis.ingresos, d: dIngresos, buenSube: true, nota: 'solo lo cobrado' },
+const deltas: { label: string; valor: number; d: { pct: number | null; texto: string }; buenSube: boolean; hero?: boolean }[] = [
+  { label: 'Ganancia', valor: kpis.ganancia, d: dGanancia, buenSube: true, hero: true },
+  { label: 'Ingresos', valor: kpis.ingresos, d: dIngresos, buenSube: true },
   { label: 'Gastos', valor: kpis.gastos, d: dGastos, buenSube: false },
 ];
 ---
@@ -91,12 +77,12 @@ const deltas: {
     </form>
   </PageHeader>
 
-  {/* Tira de KPIs: una sola celda dividida por hairlines */}
+  {/* Tira de KPIs: una sola celda dividida por hairlines (hero span-2 + 5 = 7 columnas exactas) */}
   <div
-    class="mt-6 grid grid-cols-1 divide-y divide-hairline overflow-hidden rounded-xl border border-hairline bg-surface sm:grid-cols-2 lg:grid-cols-8 lg:divide-x lg:divide-y-0"
+    class="mt-6 grid grid-cols-1 divide-y divide-hairline overflow-hidden rounded-xl border border-hairline bg-surface sm:grid-cols-2 lg:grid-cols-7 lg:divide-x lg:divide-y-0"
   >
     {
-      deltas.map(({ label, valor, d, buenSube, hero, nota }) => (
+      deltas.map(({ label, valor, d, buenSube, hero }) => (
         <div class:list={['p-5', hero && 'lg:col-span-2']}>
           <p class="text-xs tracking-wide text-ink-muted uppercase">{label}</p>
           <p
@@ -112,7 +98,6 @@ const deltas: {
               (d.pct > 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />)}
             {d.texto}
           </p>
-          {nota && <p class="mt-0.5 text-[12px] text-ink-muted">{nota}</p>}
         </div>
       ))
     }
@@ -130,7 +115,7 @@ const deltas: {
       <p class="display-number mt-1 text-2xl text-ink">
         {formatCOP(kpis.ticketPromedio)}
       </p>
-      <p class="mt-1 text-[12px] text-ink-muted">cobro promedio por venta cobrada</p>
+      <p class="mt-1 text-[12px] text-ink-muted">por venta</p>
     </div>
     <div class="p-5">
       <p class="text-xs tracking-wide text-ink-muted uppercase">Por cobrar</p>
