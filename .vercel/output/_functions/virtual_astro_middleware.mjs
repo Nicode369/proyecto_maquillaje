@@ -1,5 +1,5 @@
-import { t as sequence, wt as defineMiddleware } from "./chunks/sequence_vYO_GrXQ.mjs";
-import { a as verificarSesion } from "./chunks/auth_B3YfWjMV.mjs";
+import { Tt as defineMiddleware, t as sequence } from "./chunks/sequence_DxXwX9gt.mjs";
+import { a as verificarSesion } from "./chunks/auth_BbIa3d98.mjs";
 //#region src/middleware.ts
 var RUTAS_PUBLICAS = /* @__PURE__ */ new Set([
 	"/login",

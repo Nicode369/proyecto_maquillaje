@@ -1,5 +1,5 @@
-import { G as getDefaultStatusCode, Yt as LocalsNotAnObject, _t as REROUTABLE_STATUS_CODES, a as getRouteGenerator, at as isInternalPath, ct as prependForwardSlash, d as validateAndDecodePathname, et as appendForwardSlash, f as getLogger, ft as removeTrailingForwardSlash, h as AstroIntegrationLogger, it as hasFileExtension, kt as setGetEnv, mt as ASTRO_ERROR_HEADER, nt as collapseDuplicateTrailingSlashes, o as getEnvironment, p as getResolvedLogger, pn as AstroError, pt as stripRequestBase, q as isRoute3xx, yt as clientAddressSymbol } from "./chunks/sequence_vYO_GrXQ.mjs";
-import { A as createCrossOriginForbiddenResponse, D as FetchFeatures, E as ALL_FETCH_FEATURES, F as manifest, M as getRenderOptions, N as setRenderOptions, O as getUsedFeatures, P as getAmbientManifest, _ as handlePages, a as FetchState, b as getI18n, c as renderErrorFromState, d as handleCache, f as provideCache, g as updateRouteTable, h as matchRoute, j as isForbiddenCrossOriginRequest, k as markFeatureUsed, l as renderErrorPage, m as matchAllRoutes, n as getActionContext, o as computePathnameFromDomain, p as getRouteTable, r as serializeActionResult, s as handleMiddleware, u as provideSession, v as prepareResponse, x as getSetCookiesFromResponse, y as finalizeI18n } from "./chunks/server_DesZPQvd.mjs";
+import { At as setGetEnv, J as isRoute3xx, K as getDefaultStatusCode, Xt as LocalsNotAnObject, a as getRouteGenerator, at as hasFileExtension, bt as clientAddressSymbol, d as validateAndDecodePathname, f as getLogger, h as AstroIntegrationLogger, ht as ASTRO_ERROR_HEADER, lt as prependForwardSlash, mn as AstroError, mt as stripRequestBase, o as getEnvironment, ot as isInternalPath, p as getResolvedLogger, pt as removeTrailingForwardSlash, rt as collapseDuplicateTrailingSlashes, tt as appendForwardSlash, vt as REROUTABLE_STATUS_CODES } from "./chunks/sequence_DxXwX9gt.mjs";
+import { A as createCrossOriginForbiddenResponse, D as FetchFeatures, E as ALL_FETCH_FEATURES, F as manifest, M as getRenderOptions, N as setRenderOptions, O as getUsedFeatures, P as getAmbientManifest, _ as handlePages, a as FetchState, b as getI18n, c as renderErrorFromState, d as handleCache, f as provideCache, g as updateRouteTable, h as matchRoute, j as isForbiddenCrossOriginRequest, k as markFeatureUsed, l as renderErrorPage, m as matchAllRoutes, n as getActionContext, o as computePathnameFromDomain, p as getRouteTable, r as serializeActionResult, s as handleMiddleware, u as provideSession, v as prepareResponse, x as getSetCookiesFromResponse, y as finalizeI18n } from "./chunks/server_UmxkaEb9.mjs";
 import { n as matchPattern } from "./chunks/remote_B72Ad3K3.mjs";
 import { escape } from "html-escaper";
 //#region node_modules/@astrojs/vercel/dist/serverless/constants.js
@@ -25,7 +25,7 @@ var ASTRO_LOCALS_HEADER = "x-astro-locals";
 var ASTRO_MIDDLEWARE_SECRET_HEADER = "x-astro-middleware-secret";
 //#endregion
 //#region \0virtual:astro-vercel:config
-var middlewareSecret = "eceff96a-a3a8-4e23-8b8c-fc41e3287bcf";
+var middlewareSecret = "132de8fb-415c-4de7-ad7b-76205af6967d";
 //#endregion
 //#region node_modules/astro/dist/core/routing/invalid-encoding.js
 /**
@@ -860,7 +860,7 @@ var entrypoint_default = { async fetch(request) {
 	if (hasValidMiddlewareSecret) {
 		overrideTrusted = true;
 		realPath = request.headers.get(ASTRO_PATH_HEADER);
-	} else if (url.searchParams.get("x_astro_path_token") === "eceff96a-a3a8-4e23-8b8c-fc41e3287bcf") {
+	} else if (url.searchParams.get("x_astro_path_token") === "132de8fb-415c-4de7-ad7b-76205af6967d") {
 		overrideTrusted = true;
 		realPath = url.searchParams.get(ASTRO_PATH_PARAM);
 	}

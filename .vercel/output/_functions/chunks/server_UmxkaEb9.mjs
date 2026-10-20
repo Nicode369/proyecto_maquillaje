@@ -1,4 +1,4 @@
-import { $ as pathHasLocale, B as createAsyncManifestMemo, C as renderJSX, Ct as shouldAppendForwardSlash, D as renderSlotToString, Et as generateCspDigest, F as normalizeCspResourceEntry, Ft as CacheNotEnabled, G as getDefaultStatusCode, I as pushDirective, It as ClientAddressNotAvailable, J as isRoute404, K as routeHasHtmlExtension, Mt as ActionNotFoundError, Nt as ActionsReturnedInvalidDataError, O as isRenderTemplateResult, P as isRenderInstruction, Pt as AstroResponseHeadersReassigned, Q as normalizeThePath, Qt as MiddlewareNotAResponse, S as renderPage, St as responseSentSymbol$1, T as chunkToString, Tt as decodeKey, U as getCustom404Route, Ut as ForbiddenRewrite, V as createManifestMemo, W as getCustom500Route, X as getErrorRoutePath, Xt as LocalsReassigned, Y as isRoute500, Z as normalizeTheLocale, Zt as MiddlewareNoDataOrNextCalled, _ as DEFAULT_404_ROUTE, _t as REROUTABLE_STATUS_CODES, b as readBodyWithLimit, bt as fetchStateSymbol, c as getOriginPathname, cn as StaticClientAddressNotAvailable, ct as prependForwardSlash, d as validateAndDecodePathname, et as appendForwardSlash, f as getLogger, fn as i18nNoLocaleFoundInPath, ft as removeTrailingForwardSlash, g as astroToRuntimeLogger, gt as REDIRECT_STATUS_CODES, ht as ASTRO_GENERATOR, i as getRouteCache, in as PrerenderClientAddressNotAvailable, jt as ActionCalledFromServerError, l as setOriginPathname, mn as isAstroError, mt as ASTRO_ERROR_HEADER, n as getParams, o as getEnvironment, on as ReservedSlotName, pn as AstroError, pt as stripRequestBase, r as getProps, rn as NoManifestAvailable, s as copyRequest, sn as ResponseSentError, st as joinPaths, t as sequence, tt as collapseDuplicateSlashes, u as MultiLevelEncodingError, ut as removeLeadingForwardSlash, v as SERVER_ISLAND_COMPONENT, vt as STATUS_CODE_PAGES, wt as defineMiddleware, xt as originPathnameSymbol, y as BodySizeLimitError, z as renderEndpoint } from "./sequence_vYO_GrXQ.mjs";
+import { $ as normalizeThePath, $t as MiddlewareNotAResponse, B as renderEndpoint, C as renderJSX, Ct as responseSentSymbol$1, Dt as generateCspDigest, E as chunkToString, Et as decodeKey, F as isRenderInstruction, Ft as AstroResponseHeadersReassigned, G as getCustom500Route, H as createManifestMemo, I as normalizeCspResourceEntry, It as CacheNotEnabled, K as getDefaultStatusCode, L as pushDirective, Lt as ClientAddressNotAvailable, Mt as ActionCalledFromServerError, Nt as ActionNotFoundError, O as renderSlotToString, Pt as ActionsReturnedInvalidDataError, Q as normalizeTheLocale, Qt as MiddlewareNoDataOrNextCalled, S as renderPage, St as originPathnameSymbol, Tt as defineMiddleware, V as createAsyncManifestMemo, W as getCustom404Route, Wt as ForbiddenRewrite, X as isRoute500, Y as isRoute404, Z as getErrorRoutePath, Zt as LocalsReassigned, _ as DEFAULT_404_ROUTE, _t as REDIRECT_STATUS_CODES, an as PrerenderClientAddressNotAvailable, b as readBodyWithLimit, c as getOriginPathname, cn as ResponseSentError, ct as joinPaths, d as validateAndDecodePathname, dt as removeLeadingForwardSlash, et as pathHasLocale, f as getLogger, g as astroToRuntimeLogger, gt as ASTRO_GENERATOR, hn as isAstroError, ht as ASTRO_ERROR_HEADER, i as getRouteCache, in as NoManifestAvailable, k as isRenderTemplateResult, l as setOriginPathname, ln as StaticClientAddressNotAvailable, lt as prependForwardSlash, mn as AstroError, mt as stripRequestBase, n as getParams, nt as collapseDuplicateSlashes, o as getEnvironment, pn as i18nNoLocaleFoundInPath, pt as removeTrailingForwardSlash, q as routeHasHtmlExtension, r as getProps, s as copyRequest, sn as ReservedSlotName, t as sequence, tt as appendForwardSlash, u as MultiLevelEncodingError, v as SERVER_ISLAND_COMPONENT, vt as REROUTABLE_STATUS_CODES, wt as shouldAppendForwardSlash, xt as fetchStateSymbol, y as BodySizeLimitError, yt as STATUS_CODE_PAGES } from "./sequence_DxXwX9gt.mjs";
 import { n as matchPattern } from "./remote_B72Ad3K3.mjs";
 import { parse, stringify } from "devalue";
 import * as z from "zod/v4/core";
@@ -168,6 +168,99 @@ var renderers = [];
 		"scripts": [],
 		"styles": [],
 		"routeData": {
+			"route": "/clientas/nueva",
+			"isIndex": false,
+			"type": "page",
+			"pattern": "^\\/clientas\\/nueva\\/?$",
+			"segments": [[{
+				"content": "clientas",
+				"dynamic": false,
+				"spread": false
+			}], [{
+				"content": "nueva",
+				"dynamic": false,
+				"spread": false
+			}]],
+			"params": [],
+			"component": "src/pages/clientas/nueva.astro",
+			"pathname": "/clientas/nueva",
+			"prerender": false,
+			"fallbackRoutes": [],
+			"distURL": [],
+			"origin": "project",
+			"_meta": { "trailingSlash": "ignore" }
+		}
+	},
+	{
+		"file": "",
+		"links": [],
+		"scripts": [],
+		"styles": [],
+		"routeData": {
+			"route": "/clientas/[id]/editar",
+			"isIndex": false,
+			"type": "page",
+			"pattern": "^\\/clientas\\/([^/]+?)\\/editar\\/?$",
+			"segments": [
+				[{
+					"content": "clientas",
+					"dynamic": false,
+					"spread": false
+				}],
+				[{
+					"content": "id",
+					"dynamic": true,
+					"spread": false
+				}],
+				[{
+					"content": "editar",
+					"dynamic": false,
+					"spread": false
+				}]
+			],
+			"params": ["id"],
+			"component": "src/pages/clientas/[id]/editar.astro",
+			"prerender": false,
+			"fallbackRoutes": [],
+			"distURL": [],
+			"origin": "project",
+			"_meta": { "trailingSlash": "ignore" }
+		}
+	},
+	{
+		"file": "",
+		"links": [],
+		"scripts": [],
+		"styles": [],
+		"routeData": {
+			"route": "/clientas/[id]",
+			"isIndex": false,
+			"type": "page",
+			"pattern": "^\\/clientas\\/([^/]+?)\\/?$",
+			"segments": [[{
+				"content": "clientas",
+				"dynamic": false,
+				"spread": false
+			}], [{
+				"content": "id",
+				"dynamic": true,
+				"spread": false
+			}]],
+			"params": ["id"],
+			"component": "src/pages/clientas/[id].astro",
+			"prerender": false,
+			"fallbackRoutes": [],
+			"distURL": [],
+			"origin": "project",
+			"_meta": { "trailingSlash": "ignore" }
+		}
+	},
+	{
+		"file": "",
+		"links": [],
+		"scripts": [],
+		"styles": [],
+		"routeData": {
 			"route": "/clientas",
 			"isIndex": true,
 			"type": "page",
@@ -311,31 +404,37 @@ var renderers = [];
 ].map(deserializeRouteInfo);
 //#endregion
 //#region \0virtual:astro:pages
-var _page0 = () => import("./generic_BXqM4Jc0.mjs").then((n) => n.t);
-var _page1 = () => import("./route_BQg2_HOE.mjs");
-var _page2 = () => import("./index_nnYzW7wA.mjs");
-var _page3 = () => import("./index_DJe7eqHx.mjs");
-var _page4 = () => import("./login_DLCFKLMr.mjs");
-var _page5 = () => import("./index_CJkcx868.mjs");
-var _page6 = () => import("./index_3wuiOb2b.mjs");
-var _page7 = () => import("./index_CDFyDLKX.mjs");
+var _page0 = () => import("./generic_CV_monUS.mjs").then((n) => n.t);
+var _page1 = () => import("./route_Cj3faOrB.mjs");
+var _page2 = () => import("./nueva_p8k4Hhv1.mjs");
+var _page3 = () => import("./editar_BNpYGKSm.mjs");
+var _page4 = () => import("./_id__D3iGKHYs.mjs");
+var _page5 = () => import("./index_C1aIrS2O.mjs");
+var _page6 = () => import("./index_BsXF-mnm.mjs");
+var _page7 = () => import("./login_7B5q4iOf.mjs");
+var _page8 = () => import("./index_Dn-hp6ju.mjs");
+var _page9 = () => import("./index_B2ouxqIC.mjs");
+var _page10 = () => import("./index_BJFU8Kvz.mjs");
 var pageMap = /* @__PURE__ */ new Map([
 	["node_modules/astro/dist/assets/endpoint/generic.js", _page0],
 	["node_modules/astro/dist/actions/runtime/entrypoints/route.js", _page1],
-	["src/pages/clientas/index.astro", _page2],
-	["src/pages/gastos/index.astro", _page3],
-	["src/pages/login.astro", _page4],
-	["src/pages/productos/index.astro", _page5],
-	["src/pages/ventas/index.astro", _page6],
-	["src/pages/index.astro", _page7]
+	["src/pages/clientas/nueva.astro", _page2],
+	["src/pages/clientas/[id]/editar.astro", _page3],
+	["src/pages/clientas/[id].astro", _page4],
+	["src/pages/clientas/index.astro", _page5],
+	["src/pages/gastos/index.astro", _page6],
+	["src/pages/login.astro", _page7],
+	["src/pages/productos/index.astro", _page8],
+	["src/pages/ventas/index.astro", _page9],
+	["src/pages/index.astro", _page10]
 ]);
 //#endregion
 //#region \0virtual:astro:manifest
-var _manifest = deserializeManifest({"rootDir":"file:///home/nicode/Proyectos/proyecto_maquillaje/","cacheDir":"file:///home/nicode/Proyectos/proyecto_maquillaje/node_modules/.astro/","outDir":"file:///home/nicode/Proyectos/proyecto_maquillaje/dist/","srcDir":"file:///home/nicode/Proyectos/proyecto_maquillaje/src/","publicDir":"file:///home/nicode/Proyectos/proyecto_maquillaje/public/","buildClientDir":"file:///home/nicode/Proyectos/proyecto_maquillaje/dist/client/","buildServerDir":"file:///home/nicode/Proyectos/proyecto_maquillaje/dist/server/","adapterName":"@astrojs/vercel","assetsDir":"_astro","routes":[{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"type":"page","component":"_server-islands.astro","params":["name"],"segments":[[{"content":"_server-islands","dynamic":false,"spread":false}],[{"content":"name","dynamic":true,"spread":false}]],"pattern":"^\\/_server-islands\\/([^/]+?)\\/?$","prerender":false,"isIndex":false,"fallbackRoutes":[],"route":"/_server-islands/[name]","origin":"internal","distURL":[],"_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/_image","component":"node_modules/astro/dist/assets/endpoint/generic.js","params":[],"pathname":"/_image","pattern":"^\\/_image\\/?$","segments":[[{"content":"_image","dynamic":false,"spread":false}]],"type":"endpoint","prerender":false,"fallbackRoutes":[],"distURL":[],"isIndex":false,"origin":"internal","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"type":"endpoint","isIndex":false,"route":"/_actions/[...path]","pattern":"^\\/_actions(?:\\/(.*?))?\\/?$","segments":[[{"content":"_actions","dynamic":false,"spread":false}],[{"content":"...path","dynamic":true,"spread":true}]],"params":["...path"],"component":"node_modules/astro/dist/actions/runtime/entrypoints/route.js","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"internal","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/BaseLayout.Cl5Cb7l7.css"}],"routeData":{"route":"/clientas","isIndex":true,"type":"page","pattern":"^\\/clientas\\/?$","segments":[[{"content":"clientas","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/clientas/index.astro","pathname":"/clientas","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/BaseLayout.Cl5Cb7l7.css"}],"routeData":{"route":"/gastos","isIndex":true,"type":"page","pattern":"^\\/gastos\\/?$","segments":[[{"content":"gastos","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/gastos/index.astro","pathname":"/gastos","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/BaseLayout.Cl5Cb7l7.css"}],"routeData":{"route":"/login","isIndex":false,"type":"page","pattern":"^\\/login\\/?$","segments":[[{"content":"login","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/login.astro","pathname":"/login","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/BaseLayout.Cl5Cb7l7.css"}],"routeData":{"route":"/productos","isIndex":true,"type":"page","pattern":"^\\/productos\\/?$","segments":[[{"content":"productos","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/productos/index.astro","pathname":"/productos","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/BaseLayout.Cl5Cb7l7.css"}],"routeData":{"route":"/ventas","isIndex":true,"type":"page","pattern":"^\\/ventas\\/?$","segments":[[{"content":"ventas","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/ventas/index.astro","pathname":"/ventas","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/BaseLayout.Cl5Cb7l7.css"}],"routeData":{"route":"/","isIndex":true,"type":"page","pattern":"^\\/$","segments":[],"params":[],"component":"src/pages/index.astro","pathname":"/","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}}],"serverLike":true,"middlewareMode":"classic","base":"/","trailingSlash":"ignore","compressHTML":"jsx","componentMetadata":[["/home/nicode/Proyectos/proyecto_maquillaje/src/pages/login.astro",{"propagation":"none","containsHead":true}],["/home/nicode/Proyectos/proyecto_maquillaje/node_modules/astro/dist/actions/runtime/entrypoints/route.js",{"propagation":"none","containsHead":true}],["/home/nicode/Proyectos/proyecto_maquillaje/src/pages/clientas/index.astro",{"propagation":"none","containsHead":true}],["/home/nicode/Proyectos/proyecto_maquillaje/src/pages/gastos/index.astro",{"propagation":"none","containsHead":true}],["/home/nicode/Proyectos/proyecto_maquillaje/src/pages/index.astro",{"propagation":"none","containsHead":true}],["/home/nicode/Proyectos/proyecto_maquillaje/src/pages/productos/index.astro",{"propagation":"none","containsHead":true}],["/home/nicode/Proyectos/proyecto_maquillaje/src/pages/ventas/index.astro",{"propagation":"none","containsHead":true}]],"renderers":[],"clientDirectives":[["idle","(function(){let e=(e,t)=>{let n=async()=>{await(await e())()},r=typeof t.value==`object`?t.value:void 0,i={timeout:r==null?void 0:r.timeout};`requestIdleCallback`in window?window.requestIdleCallback(n,i):setTimeout(n,i.timeout||200)};(self.Astro||(self.Astro={})).idle=e,window.dispatchEvent(new Event(`astro:idle`))})();"],["load","(function(){let e=async e=>{await(await e())()};(self.Astro||(self.Astro={})).load=e,window.dispatchEvent(new Event(`astro:load`))})();"],["media","(function(){let e=(e,t)=>{let n=async()=>{await(await e())()};if(t.value){let e=matchMedia(t.value);e.matches?n():e.addEventListener(`change`,n,{once:!0})}};(self.Astro||(self.Astro={})).media=e,window.dispatchEvent(new Event(`astro:media`))})();"],["only","(function(){let e=async e=>{await(await e())()};(self.Astro||(self.Astro={})).only=e,window.dispatchEvent(new Event(`astro:only`))})();"],["visible","(function(){let e=(e,t,n)=>{let r=async()=>{await(await e())()},i=typeof t.value==`object`?t.value:void 0,a={rootMargin:i==null?void 0:i.rootMargin},o=new IntersectionObserver(e=>{for(let t of e)if(t.isIntersecting){o.disconnect(),r();break}},a);for(let e of n.children)o.observe(e)};(self.Astro||(self.Astro={})).visible=e,window.dispatchEvent(new Event(`astro:visible`))})();"]],"entryModules":{"\u0000virtual:astro:middleware":"virtual_astro_middleware.mjs","\u0000virtual:astro:server-island-manifest":"chunks/_virtual_astro_server-island-manifest_C1Q2srgE.mjs","\u0000virtual:astro:session-driver":"chunks/_virtual_astro_session-driver_C-PI1Pas.mjs","\u0000virtual:astro:actions/entrypoint":"chunks/entrypoint_Bdm1COdb.mjs","@astrojs/vercel/entrypoint":"entry.mjs","\u0000virtual:astro:page:node_modules/astro/dist/assets/endpoint/generic@_@js":"chunks/generic_BXqM4Jc0.mjs","\u0000virtual:astro:page:src/pages/ventas/index@_@astro":"chunks/index_3wuiOb2b.mjs","\u0000virtual:astro:page:src/pages/index@_@astro":"chunks/index_CDFyDLKX.mjs","\u0000virtual:astro:page:src/pages/productos/index@_@astro":"chunks/index_CJkcx868.mjs","\u0000virtual:astro:page:src/pages/gastos/index@_@astro":"chunks/index_DJe7eqHx.mjs","\u0000virtual:astro:page:src/pages/clientas/index@_@astro":"chunks/index_nnYzW7wA.mjs","\u0000virtual:astro:page:src/pages/login@_@astro":"chunks/login_DLCFKLMr.mjs","\u0000virtual:astro:page:node_modules/astro/dist/actions/runtime/entrypoints/route@_@js":"chunks/route_BQg2_HOE.mjs","/home/nicode/Proyectos/proyecto_maquillaje/node_modules/astro/dist/assets/services/sharp.js":"chunks/sharp_DYdK1bU2.mjs","/home/nicode/Proyectos/proyecto_maquillaje/src/components/Sidebar.astro?astro&type=script&index=0&lang.ts":"_astro/Sidebar.astro_astro_type_script_index_0_lang.DbwJEGbj.js","astro:scripts/before-hydration.js":""},"inlinedScripts":[["/home/nicode/Proyectos/proyecto_maquillaje/src/components/Sidebar.astro?astro&type=script&index=0&lang.ts","var e=document.getElementById(`sidebar`),t=document.getElementById(`menu-toggle`),n=document.getElementById(`sidebar-backdrop`),r=window.matchMedia(`(min-width: 1024px)`);if(e&&t&&n){let i=i=>{e.dataset.open=String(i),n.dataset.open=String(i),t.setAttribute(`aria-expanded`,String(i)),e.inert=!r.matches&&!i};i(!1),r.addEventListener(`change`,t=>{t.matches?i(!1):e.inert=e.dataset.open!==`true`}),t.addEventListener(`click`,()=>{i(e.dataset.open!==`true`)}),n.addEventListener(`click`,()=>i(!1)),document.addEventListener(`keydown`,n=>{n.key===`Escape`&&e.dataset.open===`true`&&(i(!1),t.focus())})}"]],"assets":["/_astro/BaseLayout.Cl5Cb7l7.css","/_astro/fraunces-latin-ext-wght-normal.Ca2vKHc0.woff2","/_astro/fraunces-latin-wght-normal.ukD16Tqj.woff2","/_astro/fraunces-vietnamese-wght-normal.CnvboYUG.woff2","/_astro/inter-cyrillic-ext-wght-normal.BOeWTOD4.woff2","/_astro/inter-cyrillic-wght-normal.DqGufNeO.woff2","/_astro/inter-greek-ext-wght-normal.DlzME5K_.woff2","/_astro/inter-greek-wght-normal.CkhJZR-_.woff2","/_astro/inter-latin-ext-wght-normal.DO1Apj_S.woff2","/_astro/inter-latin-wght-normal.Dx4kXJAl.woff2","/_astro/inter-vietnamese-wght-normal.CBcvBZtf.woff2","/favicon.ico","/favicon.svg"],"buildFormat":"directory","checkOrigin":true,"actionBodySizeLimit":1048576,"serverIslandBodySizeLimit":1048576,"allowedDomains":[],"key":"c8imB1ha5QkeLv+asQmWafudV1La1nI22sYT19NulT4=","image":{},"devToolbar":{"enabled":false,"debugInfoOutput":""},"logLevel":"info","shouldInjectCspMetaTags":false});
+var _manifest = deserializeManifest({"rootDir":"file:///home/nicode/Proyectos/proyecto_maquillaje/","cacheDir":"file:///home/nicode/Proyectos/proyecto_maquillaje/node_modules/.astro/","outDir":"file:///home/nicode/Proyectos/proyecto_maquillaje/dist/","srcDir":"file:///home/nicode/Proyectos/proyecto_maquillaje/src/","publicDir":"file:///home/nicode/Proyectos/proyecto_maquillaje/public/","buildClientDir":"file:///home/nicode/Proyectos/proyecto_maquillaje/dist/client/","buildServerDir":"file:///home/nicode/Proyectos/proyecto_maquillaje/dist/server/","adapterName":"@astrojs/vercel","assetsDir":"_astro","routes":[{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"type":"page","component":"_server-islands.astro","params":["name"],"segments":[[{"content":"_server-islands","dynamic":false,"spread":false}],[{"content":"name","dynamic":true,"spread":false}]],"pattern":"^\\/_server-islands\\/([^/]+?)\\/?$","prerender":false,"isIndex":false,"fallbackRoutes":[],"route":"/_server-islands/[name]","origin":"internal","distURL":[],"_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/_image","component":"node_modules/astro/dist/assets/endpoint/generic.js","params":[],"pathname":"/_image","pattern":"^\\/_image\\/?$","segments":[[{"content":"_image","dynamic":false,"spread":false}]],"type":"endpoint","prerender":false,"fallbackRoutes":[],"distURL":[],"isIndex":false,"origin":"internal","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"type":"endpoint","isIndex":false,"route":"/_actions/[...path]","pattern":"^\\/_actions(?:\\/(.*?))?\\/?$","segments":[[{"content":"_actions","dynamic":false,"spread":false}],[{"content":"...path","dynamic":true,"spread":true}]],"params":["...path"],"component":"node_modules/astro/dist/actions/runtime/entrypoints/route.js","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"internal","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/BaseLayout.DhE7VduH.css"}],"routeData":{"route":"/clientas/nueva","isIndex":false,"type":"page","pattern":"^\\/clientas\\/nueva\\/?$","segments":[[{"content":"clientas","dynamic":false,"spread":false}],[{"content":"nueva","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/clientas/nueva.astro","pathname":"/clientas/nueva","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/BaseLayout.DhE7VduH.css"}],"routeData":{"route":"/clientas/[id]/editar","isIndex":false,"type":"page","pattern":"^\\/clientas\\/([^/]+?)\\/editar\\/?$","segments":[[{"content":"clientas","dynamic":false,"spread":false}],[{"content":"id","dynamic":true,"spread":false}],[{"content":"editar","dynamic":false,"spread":false}]],"params":["id"],"component":"src/pages/clientas/[id]/editar.astro","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/BaseLayout.DhE7VduH.css"}],"routeData":{"route":"/clientas/[id]","isIndex":false,"type":"page","pattern":"^\\/clientas\\/([^/]+?)\\/?$","segments":[[{"content":"clientas","dynamic":false,"spread":false}],[{"content":"id","dynamic":true,"spread":false}]],"params":["id"],"component":"src/pages/clientas/[id].astro","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/BaseLayout.DhE7VduH.css"}],"routeData":{"route":"/clientas","isIndex":true,"type":"page","pattern":"^\\/clientas\\/?$","segments":[[{"content":"clientas","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/clientas/index.astro","pathname":"/clientas","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/BaseLayout.DhE7VduH.css"}],"routeData":{"route":"/gastos","isIndex":true,"type":"page","pattern":"^\\/gastos\\/?$","segments":[[{"content":"gastos","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/gastos/index.astro","pathname":"/gastos","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/BaseLayout.DhE7VduH.css"}],"routeData":{"route":"/login","isIndex":false,"type":"page","pattern":"^\\/login\\/?$","segments":[[{"content":"login","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/login.astro","pathname":"/login","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/BaseLayout.DhE7VduH.css"}],"routeData":{"route":"/productos","isIndex":true,"type":"page","pattern":"^\\/productos\\/?$","segments":[[{"content":"productos","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/productos/index.astro","pathname":"/productos","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/BaseLayout.DhE7VduH.css"}],"routeData":{"route":"/ventas","isIndex":true,"type":"page","pattern":"^\\/ventas\\/?$","segments":[[{"content":"ventas","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/ventas/index.astro","pathname":"/ventas","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/BaseLayout.DhE7VduH.css"}],"routeData":{"route":"/","isIndex":true,"type":"page","pattern":"^\\/$","segments":[],"params":[],"component":"src/pages/index.astro","pathname":"/","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}}],"serverLike":true,"middlewareMode":"classic","base":"/","trailingSlash":"ignore","compressHTML":"jsx","componentMetadata":[["/home/nicode/Proyectos/proyecto_maquillaje/src/pages/login.astro",{"propagation":"none","containsHead":true}],["/home/nicode/Proyectos/proyecto_maquillaje/node_modules/astro/dist/actions/runtime/entrypoints/route.js",{"propagation":"none","containsHead":true}],["/home/nicode/Proyectos/proyecto_maquillaje/src/pages/clientas/[id].astro",{"propagation":"none","containsHead":true}],["/home/nicode/Proyectos/proyecto_maquillaje/src/pages/clientas/[id]/editar.astro",{"propagation":"none","containsHead":true}],["/home/nicode/Proyectos/proyecto_maquillaje/src/pages/clientas/index.astro",{"propagation":"none","containsHead":true}],["/home/nicode/Proyectos/proyecto_maquillaje/src/pages/clientas/nueva.astro",{"propagation":"none","containsHead":true}],["/home/nicode/Proyectos/proyecto_maquillaje/src/pages/gastos/index.astro",{"propagation":"none","containsHead":true}],["/home/nicode/Proyectos/proyecto_maquillaje/src/pages/index.astro",{"propagation":"none","containsHead":true}],["/home/nicode/Proyectos/proyecto_maquillaje/src/pages/productos/index.astro",{"propagation":"none","containsHead":true}],["/home/nicode/Proyectos/proyecto_maquillaje/src/pages/ventas/index.astro",{"propagation":"none","containsHead":true}]],"renderers":[],"clientDirectives":[["idle","(function(){let e=(e,t)=>{let n=async()=>{await(await e())()},r=typeof t.value==`object`?t.value:void 0,i={timeout:r==null?void 0:r.timeout};`requestIdleCallback`in window?window.requestIdleCallback(n,i):setTimeout(n,i.timeout||200)};(self.Astro||(self.Astro={})).idle=e,window.dispatchEvent(new Event(`astro:idle`))})();"],["load","(function(){let e=async e=>{await(await e())()};(self.Astro||(self.Astro={})).load=e,window.dispatchEvent(new Event(`astro:load`))})();"],["media","(function(){let e=(e,t)=>{let n=async()=>{await(await e())()};if(t.value){let e=matchMedia(t.value);e.matches?n():e.addEventListener(`change`,n,{once:!0})}};(self.Astro||(self.Astro={})).media=e,window.dispatchEvent(new Event(`astro:media`))})();"],["only","(function(){let e=async e=>{await(await e())()};(self.Astro||(self.Astro={})).only=e,window.dispatchEvent(new Event(`astro:only`))})();"],["visible","(function(){let e=(e,t,n)=>{let r=async()=>{await(await e())()},i=typeof t.value==`object`?t.value:void 0,a={rootMargin:i==null?void 0:i.rootMargin},o=new IntersectionObserver(e=>{for(let t of e)if(t.isIntersecting){o.disconnect(),r();break}},a);for(let e of n.children)o.observe(e)};(self.Astro||(self.Astro={})).visible=e,window.dispatchEvent(new Event(`astro:visible`))})();"]],"entryModules":{"\u0000virtual:astro:middleware":"virtual_astro_middleware.mjs","\u0000virtual:astro:server-island-manifest":"chunks/_virtual_astro_server-island-manifest_C1Q2srgE.mjs","\u0000virtual:astro:session-driver":"chunks/_virtual_astro_session-driver_C-PI1Pas.mjs","\u0000virtual:astro:actions/entrypoint":"chunks/entrypoint_DWTC6FDu.mjs","@astrojs/vercel/entrypoint":"entry.mjs","\u0000virtual:astro:page:src/pages/clientas/[id]@_@astro":"chunks/_id__D3iGKHYs.mjs","\u0000virtual:astro:page:src/pages/clientas/[id]/editar@_@astro":"chunks/editar_BNpYGKSm.mjs","\u0000virtual:astro:page:node_modules/astro/dist/assets/endpoint/generic@_@js":"chunks/generic_CV_monUS.mjs","\u0000virtual:astro:page:src/pages/ventas/index@_@astro":"chunks/index_B2ouxqIC.mjs","\u0000virtual:astro:page:src/pages/index@_@astro":"chunks/index_BJFU8Kvz.mjs","\u0000virtual:astro:page:src/pages/gastos/index@_@astro":"chunks/index_BsXF-mnm.mjs","\u0000virtual:astro:page:src/pages/clientas/index@_@astro":"chunks/index_C1aIrS2O.mjs","\u0000virtual:astro:page:src/pages/productos/index@_@astro":"chunks/index_Dn-hp6ju.mjs","\u0000virtual:astro:page:src/pages/login@_@astro":"chunks/login_7B5q4iOf.mjs","\u0000virtual:astro:page:src/pages/clientas/nueva@_@astro":"chunks/nueva_p8k4Hhv1.mjs","\u0000virtual:astro:page:node_modules/astro/dist/actions/runtime/entrypoints/route@_@js":"chunks/route_Cj3faOrB.mjs","/home/nicode/Proyectos/proyecto_maquillaje/node_modules/astro/dist/assets/services/sharp.js":"chunks/sharp_86vVfri3.mjs","/home/nicode/Proyectos/proyecto_maquillaje/src/components/Sidebar.astro?astro&type=script&index=0&lang.ts":"_astro/Sidebar.astro_astro_type_script_index_0_lang.DbwJEGbj.js","astro:scripts/before-hydration.js":""},"inlinedScripts":[["/home/nicode/Proyectos/proyecto_maquillaje/src/components/Sidebar.astro?astro&type=script&index=0&lang.ts","var e=document.getElementById(`sidebar`),t=document.getElementById(`menu-toggle`),n=document.getElementById(`sidebar-backdrop`),r=window.matchMedia(`(min-width: 1024px)`);if(e&&t&&n){let i=i=>{e.dataset.open=String(i),n.dataset.open=String(i),t.setAttribute(`aria-expanded`,String(i)),e.inert=!r.matches&&!i};i(!1),r.addEventListener(`change`,t=>{t.matches?i(!1):e.inert=e.dataset.open!==`true`}),t.addEventListener(`click`,()=>{i(e.dataset.open!==`true`)}),n.addEventListener(`click`,()=>i(!1)),document.addEventListener(`keydown`,n=>{n.key===`Escape`&&e.dataset.open===`true`&&(i(!1),t.focus())})}"]],"assets":["/_astro/BaseLayout.DhE7VduH.css","/_astro/fraunces-latin-ext-wght-normal.Ca2vKHc0.woff2","/_astro/fraunces-latin-wght-normal.ukD16Tqj.woff2","/_astro/fraunces-vietnamese-wght-normal.CnvboYUG.woff2","/_astro/inter-cyrillic-ext-wght-normal.BOeWTOD4.woff2","/_astro/inter-cyrillic-wght-normal.DqGufNeO.woff2","/_astro/inter-greek-ext-wght-normal.DlzME5K_.woff2","/_astro/inter-greek-wght-normal.CkhJZR-_.woff2","/_astro/inter-latin-ext-wght-normal.DO1Apj_S.woff2","/_astro/inter-latin-wght-normal.Dx4kXJAl.woff2","/_astro/inter-vietnamese-wght-normal.CBcvBZtf.woff2","/favicon.ico","/favicon.svg"],"buildFormat":"directory","checkOrigin":true,"actionBodySizeLimit":1048576,"serverIslandBodySizeLimit":1048576,"allowedDomains":[],"key":"plVU4YuAxEClnTtlRnDxJhKVi/RhN5iVLh828RC7WLo=","image":{},"devToolbar":{"enabled":false,"debugInfoOutput":""},"logLevel":"info","shouldInjectCspMetaTags":false});
 var manifestRoutes = _manifest.routes;
 var manifest = Object.assign(_manifest, {
 	renderers,
-	actions: () => import("./entrypoint_Bdm1COdb.mjs"),
+	actions: () => import("./entrypoint_DWTC6FDu.mjs"),
 	middleware: () => import("../virtual_astro_middleware.mjs"),
 	sessionDriver: () => import("./_virtual_astro_session-driver_C-PI1Pas.mjs"),
 	serverIslandMappings: () => import("./_virtual_astro_server-island-manifest_C1Q2srgE.mjs"),

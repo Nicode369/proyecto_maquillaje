@@ -1,12 +1,234 @@
 ---
+import { actions, isInputError } from 'astro:actions';
+import { Pencil, Plus, Search, Trash } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
-import Card from '../../components/ui/Card.astro';
+import Button from '../../components/ui/Button.astro';
+import Input from '../../components/ui/Input.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
+import {
+  countClientes,
+  countClientesNuevasEsteMes,
+  listClientes,
+} from '../../lib/queries/clientes';
+import { formatCOP, formatFechaCorta, mesISO } from '../../lib/format';
+
+const q = Astro.url.searchParams.get('q')?.trim() || undefined;
+
+const eliminar = Astro.getActionResult(actions.clientes.eliminar);
+if (eliminar && !eliminar.error) {
+  return Astro.redirect(`/clientas${q ? `?q=${encodeURIComponent(q)}` : ''}`);
+}
+
+const [lista, total, nuevas] = await Promise.all([
+  listClientes(q),
+  countClientes(),
+  countClientesNuevasEsteMes(mesISO()),
+]);
+
+const hayBusqueda = Boolean(q);
+const errorEliminar =
+  eliminar?.error && !isInputError(eliminar.error) ? eliminar.error.message : null;
+
+const mensajeConfirmar =
+  '¿Eliminar esta clienta? Esta acción no se puede deshacer.';
 ---
 
 <DashboardLayout title="Clientas" active="clientas">
-  <PageHeader title="Clientas" description="Fichas e historial de clientas" />
-  <Card class="mt-6">
-    <p class="text-sm text-ink-muted">Módulo de clientas (próxima fase).</p>
-  </Card>
+  <PageHeader
+    title="Clientas"
+    description={`${total} ${total === 1 ? 'registrada' : 'registradas'} · ${nuevas} ${nuevas === 1 ? 'nueva' : 'nuevas'} este mes`}
+  >
+    <Button href="/clientas/nueva"><Plus size={15} /> Nueva clienta</Button>
+  </PageHeader>
+
+
+  <form method="GET" action="/clientas" class="mt-6 flex max-w-md gap-2">
+    <Input
+      name="q"
+      type="search"
+      label="Buscar"
+      placeholder="Por nombre, teléfono o correo"
+      value={q ?? ''}
+      class="flex-1"
+    />
+    <Button variant="outline" type="submit" class="mt-5.5 shrink-0">
+      <Search size={15} /> Buscar
+    </Button>
+  </form>
+
+  {
+    errorEliminar && (
+      <div
+        class="mt-4 rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
+        role="alert"
+      >
+        {errorEliminar}
+      </div>
+    )
+  }
+
+  <div class="mt-6 overflow-hidden rounded-md border border-hairline bg-surface">
+    {
+      lista.length === 0 && (
+        <EmptyState
+          title={hayBusqueda ? 'Sin resultados' : 'Aún no hay clientas'}
+          description={
+            hayBusqueda
+              ? `No encontramos clientas que coincidan con «${q}».`
+              : 'Registra a tus clientas para llevar su historial de compras.'
+          }
+        >
+          {hayBusqueda ? (
+            <Button variant="outline" href="/clientas">
+              Ver todas
+            </Button>
+          ) : (
+            <Button href="/clientas/nueva">Registrar clienta</Button>
+          )}
+        </EmptyState>
+      )
+    }
+
+    {
+      lista.length > 0 && (
+        <>
+          <table class="data-table hidden md:table">
+            <thead>
+              <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Teléfono</th>
+                <th scope="col" class="text-right">
+                  Compras
+                </th>
+                <th scope="col" class="text-right">
+                  Gasto acumulado
+                </th>
+                <th scope="col">Última compra</th>
+                <th scope="col">
+                  <span class="sr-only">Acciones</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {lista.map((c) => (
+                <tr>
+                  <td>
+                    <a
+                      href={`/clientas/${c.id}`}
+                      class="font-medium text-ink hover:text-wine"
+                    >
+                      {c.nombre}
+                    </a>
+                    {c.email && (
+                      <p class="mt-0.5 text-xs text-ink-muted">{c.email}</p>
+                    )}
+                  </td>
+                  <td class="text-ink-muted">{c.telefono ?? '—'}</td>
+                  <td class="text-right num">{c.total_compras}</td>
+                  <td class="text-right num font-display">
+                    {formatCOP(c.gasto_acumulado)}
+                  </td>
+                  <td class="text-ink-muted">
+                    {c.ultima_compra
+                      ? formatFechaCorta(c.ultima_compra)
+                      : '—'}
+                  </td>
+                  <td>
+                    <div class="flex justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        href={`/clientas/${c.id}/editar`}
+                        aria-label={`Editar a ${c.nombre}`}
+                      >
+                        <Pencil size={14} />
+                      </Button>
+                      <form method="POST" action={actions.clientes.eliminar}>
+                        <input type="hidden" name="id" value={c.id} />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          type="submit"
+                          class="text-danger hover:bg-danger/10 hover:text-danger"
+                          aria-label={`Eliminar a ${c.nombre}`}
+                          onclick={`return confirm('${mensajeConfirmar}')`}
+                        >
+                          <Trash size={14} />
+                        </Button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <ul class="divide-y divide-hairline md:hidden">
+            {lista.map((c) => (
+              <li class="flex items-start gap-3 p-4">
+                <a
+                  href={`/clientas/${c.id}`}
+                  class="min-w-0 flex-1 hover:text-wine"
+                >
+                  <p class="truncate font-medium text-ink">{c.nombre}</p>
+                  <p class="truncate text-xs text-ink-muted">
+                    {c.telefono ?? 'Sin teléfono'}
+                    {c.email ? ` · ${c.email}` : ''}
+                  </p>
+                  <p class="mt-1 text-xs text-ink-muted">
+                    Última compra:{' '}
+                    {c.ultima_compra
+                      ? formatFechaCorta(c.ultima_compra)
+                      : '—'}
+                  </p>
+                </a>
+                <div class="flex shrink-0 flex-col items-end gap-1">
+                  <p class="num font-display text-sm">
+                    {formatCOP(c.gasto_acumulado)}
+                  </p>
+                  <p class="text-xs text-ink-muted">
+                    {c.total_compras}{' '}
+                    {c.total_compras === 1 ? 'compra' : 'compras'}
+                  </p>
+                  <div class="mt-1 flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      href={`/clientas/${c.id}/editar`}
+                      aria-label={`Editar a ${c.nombre}`}
+                    >
+                      <Pencil size={14} />
+                    </Button>
+                    <form method="POST" action={actions.clientes.eliminar}>
+                      <input type="hidden" name="id" value={c.id} />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        type="submit"
+                        class="text-danger hover:bg-danger/10 hover:text-danger"
+                        aria-label={`Eliminar a ${c.nombre}`}
+                        onclick={`return confirm('${mensajeConfirmar}')`}
+                      >
+                        <Trash size={14} />
+                      </Button>
+                    </form>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
+      )
+    }
+  </div>
+
+  {
+    lista.length > 0 && (
+      <p class="mt-3 text-xs text-ink-muted">
+        Mostrando {lista.length} de {total}
+        {hayBusqueda ? ' · búsqueda activa' : ''}
+      </p>
+    )
+  }
 </DashboardLayout>

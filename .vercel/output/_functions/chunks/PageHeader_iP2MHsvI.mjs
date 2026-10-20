@@ -1,7 +1,7 @@
-import { A as maybeRenderHead, E as renderSlot, M as addAttribute, N as createRenderInstruction, k as renderTemplate, w as renderComponent, x as spreadAttributes } from "./sequence_vYO_GrXQ.mjs";
-import { n as createComponent, t as createAstro } from "./compiler_DTgN-O7B.mjs";
-import { t as actions } from "./_astro_actions_Dv3GSuet.mjs";
-import { t as $$BaseLayout } from "./BaseLayout_B8mKUvCS.mjs";
+import { A as renderTemplate, D as renderSlot, N as addAttribute, P as createRenderInstruction, j as maybeRenderHead, w as renderComponent, x as spreadAttributes } from "./sequence_DxXwX9gt.mjs";
+import { n as createComponent, t as createAstro } from "./compiler_Ij6EkFK0.mjs";
+import { t as actions } from "./_astro_actions_B_qDQafb.mjs";
+import { t as $$BaseLayout } from "./BaseLayout_DIagtaxn.mjs";
 //#region node_modules/astro/dist/runtime/server/render/script.js
 /**
 * Relies on the `renderScript: true` compiler option
@@ -363,7 +363,9 @@ var $$Sidebar = createComponent(($$result, $$props, $$slots) => {
 		"class": "shrink-0"
 	})}Cerrar sesión</button></form></div></aside><div id="sidebar-backdrop" data-open="false" class="pointer-events-none fixed inset-0 z-30 bg-ink/40 opacity-0 transition-opacity duration-200 lg:hidden data-[open=true]:pointer-events-auto data-[open=true]:opacity-100" aria-hidden="true"></div>${renderScript($$result, "/home/nicode/Proyectos/proyecto_maquillaje/src/components/Sidebar.astro?astro&type=script&index=0&lang.ts")}`;
 }, "/home/nicode/Proyectos/proyecto_maquillaje/src/components/Sidebar.astro", void 0);
-new Intl.NumberFormat("es-CO", {
+//#endregion
+//#region src/lib/format.ts
+var copFormatter = new Intl.NumberFormat("es-CO", {
 	style: "currency",
 	currency: "COP",
 	maximumFractionDigits: 0
@@ -374,7 +376,7 @@ var longDateFormatter = new Intl.DateTimeFormat("es-CO", {
 	month: "long",
 	year: "numeric"
 });
-new Intl.DateTimeFormat("es-CO", {
+var shortDateFormatter = new Intl.DateTimeFormat("es-CO", {
 	day: "2-digit",
 	month: "2-digit",
 	year: "numeric"
@@ -383,13 +385,22 @@ new Intl.DateTimeFormat("es-CO", {
 	month: "long",
 	year: "numeric"
 });
+function formatCOP(amount) {
+	return copFormatter.format(Math.round(amount));
+}
 function formatFechaLarga(date) {
 	return longDateFormatter.format(toDate(date));
+}
+function formatFechaCorta(date) {
+	return shortDateFormatter.format(toDate(date));
 }
 function hoyISO() {
 	const now = /* @__PURE__ */ new Date();
 	const offset = now.getTimezoneOffset();
 	return (/* @__PURE__ */ new Date(now.getTime() - offset * 6e4)).toISOString().slice(0, 10);
+}
+function mesISO(date = /* @__PURE__ */ new Date()) {
+	return toDate(date).toISOString().slice(0, 7);
 }
 function parseISODate(value) {
 	return /* @__PURE__ */ new Date(`${value}T12:00:00`);
@@ -419,17 +430,4 @@ var $$PageHeader = createComponent(($$result, $$props, $$slots) => {
 	return renderTemplate`${maybeRenderHead($$result)}<header${addAttribute(["border-b border-hairline pb-5", className], "class:list")}><div class="flex flex-wrap items-end justify-between gap-4"><div class="space-y-1"><h1 class="display-number text-[28px] leading-tight text-ink" style="font-variation-settings: 'opsz' 90;">${title}</h1>${description && renderTemplate`<p class="text-sm text-ink-muted">${description}</p>`}</div><div class="flex items-center gap-2">${renderSlot($$result, $$slots["default"])}</div></div></header>`;
 }, "/home/nicode/Proyectos/proyecto_maquillaje/src/components/ui/PageHeader.astro", void 0);
 //#endregion
-//#region src/components/ui/Card.astro
-createAstro("https://astro.build");
-var $$Card = createComponent(($$result, $$props, $$slots) => {
-	const Astro = $$result.createAstro($$props, $$slots);
-	Astro.self = $$Card;
-	const { class: className = "", padded = true } = Astro.props;
-	return renderTemplate`${maybeRenderHead($$result)}<div${addAttribute([
-		"rounded-md border border-hairline bg-surface",
-		padded && "p-5",
-		className
-	], "class:list")}>${renderSlot($$result, $$slots["default"])}</div>`;
-}, "/home/nicode/Proyectos/proyecto_maquillaje/src/components/ui/Card.astro", void 0);
-//#endregion
-export { $$PageHeader as n, $$DashboardLayout as r, $$Card as t };
+export { mesISO as a, formatFechaCorta as i, $$DashboardLayout as n, createLucideIcon as o, formatCOP as r, $$PageHeader as t };

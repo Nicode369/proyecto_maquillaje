@@ -1,0 +1,82 @@
+---
+import { actions, isInputError } from 'astro:actions';
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+import Button from '../../components/ui/Button.astro';
+import Input from '../../components/ui/Input.astro';
+import Textarea from '../../components/ui/Textarea.astro';
+
+const resultado = Astro.getActionResult(actions.clientes.crear);
+if (resultado && !resultado.error) {
+  return Astro.redirect('/clientas');
+}
+
+const err = resultado?.error;
+const campos = isInputError(err) ? err.fields : {};
+const errorGenerico = err && !isInputError(err) ? err.message : null;
+---
+
+<DashboardLayout title="Nueva clienta" active="clientas">
+  <PageHeader
+    title="Nueva clienta"
+    description="Registra sus datos de contacto para llevar su historial"
+  />
+
+  <form
+    method="POST"
+    action={actions.clientes.crear}
+    class="mt-6 max-w-xl space-y-4"
+  >
+    {
+      errorGenerico && (
+        <div
+          class="rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
+          role="alert"
+        >
+          {errorGenerico}
+        </div>
+      )
+    }
+
+    <Input
+      name="nombre"
+      label="Nombre completo"
+      placeholder="Ej: María González"
+      required
+      autocomplete="name"
+      error={campos.nombre?.[0]}
+    />
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <Input
+        name="telefono"
+        label="Teléfono"
+        type="tel"
+        placeholder="Ej: 300 123 4567"
+        autocomplete="tel"
+        error={campos.telefono?.[0]}
+      />
+      <Input
+        name="email"
+        label="Correo"
+        type="email"
+        placeholder="Ej: maria@correo.com"
+        autocomplete="email"
+        error={campos.email?.[0]}
+      />
+    </div>
+
+    <Textarea
+      name="notas"
+      label="Notas"
+      placeholder="Referencias de tono, alergias, preferencias…"
+      rows={4}
+      error={campos.notas?.[0]}
+    />
+
+    <div class="flex gap-2 border-t border-hairline pt-4">
+      <Button type="submit">Guardar clienta</Button>
+      <Button variant="outline" href="/clientas">Cancelar</Button>
+    </div>
+  </form>
+</DashboardLayout>

@@ -24,6 +24,18 @@
 			"dest": "_render"
 		},
 		{
+			"src": "^/clientas/nueva/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/clientas/([^/]+?)/editar/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/clientas/([^/]+?)/?$",
+			"dest": "_render"
+		},
+		{
 			"src": "^/clientas/?$",
 			"dest": "_render"
 		},

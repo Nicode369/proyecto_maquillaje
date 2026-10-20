@@ -1,5 +1,5 @@
-import { E as renderSlot, M as addAttribute, j as renderHead, k as renderTemplate } from "./sequence_vYO_GrXQ.mjs";
-import { n as createComponent, t as createAstro } from "./compiler_DTgN-O7B.mjs";
+import { A as renderTemplate, D as renderSlot, M as renderHead, N as addAttribute } from "./sequence_DxXwX9gt.mjs";
+import { n as createComponent, t as createAstro } from "./compiler_Ij6EkFK0.mjs";
 //#region src/layouts/BaseLayout.astro
 createAstro("https://astro.build");
 var $$BaseLayout = createComponent(($$result, $$props, $$slots) => {
