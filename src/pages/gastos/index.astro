@@ -3,6 +3,7 @@ import { actions, isInputError } from 'astro:actions';
 import { Pencil, Plus, Search, Trash } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
+import LimpiarFiltros from '../../components/LimpiarFiltros.astro';
 import Button from '../../components/ui/Button.astro';
 import Input from '../../components/ui/Input.astro';
 import Badge from '../../components/ui/Badge.astro';
@@ -70,7 +71,7 @@ const tonos: Record<string, 'neutral' | 'wine' | 'warning' | 'success' | 'danger
       <span class="block text-[13px] font-medium text-ink">Categoría</span>
       <select
         name="categoria"
-        class="h-9.5 w-44 rounded border border-ink/15 bg-surface px-2.5 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15"
+        class="h-9.5 w-44 rounded-lg border border-ink/15 bg-surface px-2.5 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15"
       >
         <option value="">Todas</option>
         {categorias.map((c) => (
@@ -88,7 +89,7 @@ const tonos: Record<string, 'neutral' | 'wine' | 'warning' | 'success' | 'danger
   {
     errorEliminar && (
       <div
-        class="mt-4 rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
+        class="mt-4 rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
         role="alert"
       >
         {errorEliminar}
@@ -216,13 +217,7 @@ const tonos: Record<string, 'neutral' | 'wine' | 'warning' | 'success' | 'danger
   </div>
 
   <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-    {
-      hayFiltro && (
-        <a href="/gastos" class="text-xs text-ink-muted hover:text-wine">
-          Limpiar filtros
-        </a>
-      )
-    }
+    {hayFiltro && <LimpiarFiltros href="/gastos" />}
     <p class="text-xs text-ink-muted sm:ml-auto">
       Total: <span class="num font-display text-sm text-ink">{formatCOP(total)}</span>
     </p>

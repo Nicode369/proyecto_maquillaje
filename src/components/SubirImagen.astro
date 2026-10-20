@@ -1,0 +1,157 @@
+---
+interface Props {
+  valor?: string | null;
+  error?: string;
+  class?: string;
+}
+
+const { valor = null, error, class: className = '' } = Astro.props;
+---
+
+<div class:list={['space-y-2', className]} data-uploader>
+  <span class="block text-[13px] font-medium text-ink">Foto del producto</span>
+
+  <div class="flex items-start gap-4">
+    <div
+      class="grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-xl border border-dashed border-ink/25 bg-surface"
+      data-preview-contenedor
+    >
+      <img
+        src={valor ?? undefined}
+        alt=""
+        class="h-full w-full object-cover"
+        data-preview
+        hidden={!valor}
+      />
+      <img
+        src="/logo.svg"
+        alt=""
+        class:list={['h-9 w-9 opacity-60', valor && 'hidden']}
+        data-placeholder
+        aria-hidden="true"
+      />
+    </div>
+
+    <div class="min-w-0 space-y-2">
+      <label
+        class="inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border border-wine/40 bg-surface px-4 text-[13px] font-medium text-wine transition-colors hover:border-wine/60 hover:bg-wine-soft"
+      >
+        Elegir foto
+        <input
+          type="file"
+          accept="image/*"
+          capture="environment"
+          class="sr-only"
+          data-archivo
+        />
+      </label>
+      <p class="text-xs text-ink-muted">JPG, PNG o WebP · se recorta a 800 px</p>
+      <p>
+        <button
+          type="button"
+          class="text-xs text-ink-muted underline-offset-2 transition-colors hover:text-wine hover:underline"
+          data-quitar
+          hidden={!valor}
+        >
+          Quitar foto
+        </button>
+      </p>
+      <p class="text-xs text-danger" data-aviso hidden></p>
+      {error && <p class="text-xs text-danger">{error}</p>}
+    </div>
+  </div>
+
+  <input type="hidden" name="imagen" value={valor ?? ''} data-oculto />
+</div>
+
+<script>
+  const LADO_MAX = 800;
+
+  function redimensionar(archivo: File, ladoMax: number, calidad: number): Promise<string> {
+    return new Promise((resolver, rechazar) => {
+      const url = URL.createObjectURL(archivo);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let w = img.naturalWidth;
+        let h = img.naturalHeight;
+        if (w > ladoMax || h > ladoMax) {
+          const escala = Math.min(ladoMax / w, ladoMax / h);
+          w = Math.round(w * escala);
+          h = Math.round(h * escala);
+        }
+        const lienzo = document.createElement('canvas');
+        lienzo.width = w;
+        lienzo.height = h;
+        const ctx = lienzo.getContext('2d');
+        if (!ctx) {
+          rechazar(new Error('Sin contexto de dibujo'));
+          return;
+        }
+        ctx.fillStyle = '#fffafb';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        resolver(lienzo.toDataURL('image/jpeg', calidad));
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        rechazar(new Error('Imagen inválida'));
+      };
+      img.src = url;
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-uploader]').forEach((raiz) => {
+    const archivo = raiz.querySelector<HTMLInputElement>('[data-archivo]');
+    const oculto = raiz.querySelector<HTMLInputElement>('[data-oculto]');
+    const previa = raiz.querySelector<HTMLImageElement>('[data-preview]');
+    const marca = raiz.querySelector<HTMLImageElement>('[data-placeholder]');
+    const quitar = raiz.querySelector<HTMLButtonElement>('[data-quitar]');
+    const aviso = raiz.querySelector<HTMLParagraphElement>('[data-aviso]');
+    if (!archivo || !oculto || !previa || !quitar || !aviso) return;
+
+    const pintar = () => {
+      const hay = Boolean(oculto.value);
+      previa.hidden = !hay;
+      if (marca) marca.hidden = hay;
+      quitar.hidden = !hay;
+    };
+
+    const fallo = (mensaje: string) => {
+      aviso.textContent = mensaje;
+      aviso.hidden = false;
+      archivo.value = '';
+    };
+
+    archivo.addEventListener('change', async () => {
+      aviso.hidden = true;
+      const f = archivo.files?.[0];
+      if (!f) return;
+      if (!f.type.startsWith('image/')) {
+        fallo('Selecciona un archivo de imagen.');
+        return;
+      }
+      if (f.size > 12 * 1024 * 1024) {
+        fallo('La imagen pesa más de 12 MB.');
+        return;
+      }
+      try {
+        const dataUrl = await redimensionar(f, LADO_MAX, 0.82);
+        oculto.value = dataUrl;
+        previa.src = dataUrl;
+        pintar();
+      } catch {
+        fallo('No se pudo leer la imagen. Prueba con otra.');
+      }
+    });
+
+    quitar.addEventListener('click', () => {
+      oculto.value = '';
+      previa.removeAttribute('src');
+      archivo.value = '';
+      pintar();
+    });
+
+    pintar();
+  });
+</script>

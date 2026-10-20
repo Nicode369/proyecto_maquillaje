@@ -26,6 +26,15 @@ const esquemaProducto = z.object({
   precio_venta: z.coerce
     .number({ message: 'El precio de venta debe ser un número' })
     .min(0, 'El precio no puede ser negativo'),
+  imagen: z
+    .string()
+    .max(1_400_000, 'La imagen es demasiado grande')
+    .refine(
+      (v) => v === '' || /^data:image\/(jpeg|jpg|png|webp);base64,/.test(v),
+      'Formato de imagen no válido',
+    )
+    .nullable()
+    .optional(),
   activo: z.boolean(),
 });
 
@@ -39,6 +48,7 @@ function limpiar(data: z.infer<typeof esquemaProducto>) {
     precio_compra: data.precio_compra,
     precio_venta: data.precio_venta,
     activo: data.activo,
+    imagen: data.imagen || null,
   };
 }
 

@@ -1,0 +1,12 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class={className}>
+  <p class="text-center text-xs text-ink-muted">© {year} · Desarrollado por Nicode</p>
+</footer>

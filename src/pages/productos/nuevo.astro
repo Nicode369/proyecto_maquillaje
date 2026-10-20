@@ -5,6 +5,7 @@ import PageHeader from '../../components/ui/PageHeader.astro';
 import Button from '../../components/ui/Button.astro';
 import Input from '../../components/ui/Input.astro';
 import Checkbox from '../../components/ui/Checkbox.astro';
+import SubirImagen from '../../components/SubirImagen.astro';
 
 const resultado = Astro.getActionResult(actions.productos.crear);
 if (resultado && !resultado.error) {
@@ -30,7 +31,7 @@ const errorGenerico = err && !isInputError(err) ? err.message : null;
     {
       errorGenerico && (
         <div
-          class="rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
+          class="rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
           role="alert"
         >
           {errorGenerico}
@@ -106,6 +107,8 @@ const errorGenerico = err && !isInputError(err) ? err.message : null;
         error={campos.precio_venta?.[0]}
       />
     </div>
+
+    <SubirImagen error={campos.imagen?.[0]} />
 
     <Checkbox
       name="activo"

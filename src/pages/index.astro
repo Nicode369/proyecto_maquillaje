@@ -69,7 +69,7 @@ const deltas: { label: string; valor: number; d: { pct: number | null; texto: st
         name="mes"
         value={mes}
         aria-label="Mes a consultar"
-        class="h-9.5 rounded border border-ink/15 bg-surface px-3 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15"
+        class="h-9.5 rounded-lg border border-ink/15 bg-surface px-3 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15"
       />
       <Button variant="outline" type="submit">Ver</Button>
     </form>
@@ -283,7 +283,7 @@ const deltas: { label: string; valor: number; d: { pct: number | null; texto: st
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     Chart.defaults.font.family = "'Inter Variable', ui-sans-serif, system-ui, sans-serif";
-    Chart.defaults.color = '#6b585c';
+    Chart.defaults.color = '#7a5f66';
 
     new Chart(canvas, {
       type: 'line',
@@ -293,29 +293,29 @@ const deltas: { label: string; valor: number; d: { pct: number | null; texto: st
           {
             label: 'Ingresos',
             data: datos.ingresos ?? [],
-            borderColor: '#7a2233',
-            backgroundColor: 'rgba(122, 34, 51, 0.08)',
+            borderColor: '#a63d5c',
+            backgroundColor: 'rgba(166, 61, 92, 0.10)',
             fill: true,
             tension: 0.35,
             borderWidth: 2,
             pointRadius: 3,
-            pointBackgroundColor: '#7a2233',
-            pointBorderColor: '#fffcf8',
+            pointBackgroundColor: '#a63d5c',
+            pointBorderColor: '#fffafb',
             pointBorderWidth: 1.5,
             pointHoverRadius: 5,
           },
           {
             label: 'Gastos',
             data: datos.gastos ?? [],
-            borderColor: '#261a1d',
+            borderColor: '#3a222c',
             backgroundColor: 'transparent',
             borderDash: [5, 4],
             fill: false,
             tension: 0.35,
             borderWidth: 1.5,
             pointRadius: 2.5,
-            pointBackgroundColor: '#261a1d',
-            pointBorderColor: '#fffcf8',
+            pointBackgroundColor: '#3a222c',
+            pointBorderColor: '#fffafb',
             pointBorderWidth: 1.5,
             pointHoverRadius: 5,
           },
@@ -329,11 +329,11 @@ const deltas: { label: string; valor: number; d: { pct: number | null; texto: st
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: '#261a1d',
-            titleColor: '#fffcf8',
-            bodyColor: '#fffcf8',
+            backgroundColor: '#3a222c',
+            titleColor: '#fffafb',
+            bodyColor: '#fffafb',
             padding: 10,
-            cornerRadius: 4,
+            cornerRadius: 8,
             displayColors: true,
             callbacks: {
               label(context) {
@@ -351,12 +351,12 @@ const deltas: { label: string; valor: number; d: { pct: number | null; texto: st
         scales: {
           x: {
             grid: { display: false },
-            border: { color: 'rgba(34, 23, 25, 0.12)' },
+            border: { color: 'rgba(42, 27, 32, 0.12)' },
             ticks: { font: { size: 12 } },
           },
           y: {
             beginAtZero: true,
-            grid: { color: 'rgba(34, 23, 25, 0.07)' },
+            grid: { color: 'rgba(42, 27, 32, 0.07)' },
             border: { display: false },
             ticks: {
               font: { size: 11 },

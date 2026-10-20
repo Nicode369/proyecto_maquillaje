@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Valeria Eslava">
+  <defs>
+    <linearGradient id="petalo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e3a3b4"/>
+      <stop offset="1" stop-color="#a63d5c"/>
+    </linearGradient>
+  </defs>
+  <g fill="url(#petalo)">
+    <ellipse cx="32" cy="17.5" rx="9.5" ry="14"/>
+    <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(72 32 34)"/>
+    <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(144 32 34)"/>
+    <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(216 32 34)"/>
+    <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(288 32 34)"/>
+  </g>
+  <circle cx="32" cy="34" r="7" fill="#fffafb"/>
+  <circle cx="32" cy="34" r="2.6" fill="#8a2f4a"/>
+</svg>

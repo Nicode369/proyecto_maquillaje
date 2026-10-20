@@ -5,6 +5,7 @@ import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 import Button from '../../components/ui/Button.astro';
 import Input from '../../components/ui/Input.astro';
+import LimpiarFiltros from '../../components/LimpiarFiltros.astro';
 import EmptyState from '../../components/ui/EmptyState.astro';
 import {
   countClientes,
@@ -57,10 +58,12 @@ const mensajeConfirmar =
     </Button>
   </form>
 
+  {hayBusqueda && <LimpiarFiltros href="/clientas" class="mt-3" />}
+
   {
     errorEliminar && (
       <div
-        class="mt-4 rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
+        class="mt-4 rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
         role="alert"
       >
         {errorEliminar}

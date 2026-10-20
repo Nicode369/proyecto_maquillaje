@@ -21,6 +21,7 @@ export async function listProductos(filtro: FiltroProductos = {}): Promise<Produ
       precio_compra::float8 AS precio_compra,
       precio_venta::float8 AS precio_venta,
       activo,
+      imagen,
       created_at::text AS created_at
     FROM productos
     WHERE (${inactivos ?? false} OR activo)
@@ -42,6 +43,7 @@ export async function getProducto(id: string): Promise<Producto | null> {
       precio_compra::float8 AS precio_compra,
       precio_venta::float8 AS precio_venta,
       activo,
+      imagen,
       created_at::text AS created_at
     FROM productos
     WHERE id = ${id}`;
@@ -69,9 +71,10 @@ export async function createProducto(data: {
   stock_minimo: number;
   precio_compra: number;
   precio_venta: number;
+  imagen?: string | null;
 }): Promise<string> {
   const [row] = await sql`
-    INSERT INTO productos (nombre, marca, categoria, stock, stock_minimo, precio_compra, precio_venta)
+    INSERT INTO productos (nombre, marca, categoria, stock, stock_minimo, precio_compra, precio_venta, imagen)
     VALUES (
       ${data.nombre},
       ${data.marca || null},
@@ -79,7 +82,8 @@ export async function createProducto(data: {
       ${data.stock},
       ${data.stock_minimo},
       ${data.precio_compra},
-      ${data.precio_venta}
+      ${data.precio_venta},
+      ${data.imagen || null}
     )
     RETURNING id`;
   return row.id;
@@ -96,6 +100,7 @@ export async function updateProducto(
     precio_compra: number;
     precio_venta: number;
     activo: boolean;
+    imagen?: string | null;
   },
 ): Promise<void> {
   await sql`
@@ -107,7 +112,8 @@ export async function updateProducto(
         stock_minimo = ${data.stock_minimo},
         precio_compra = ${data.precio_compra},
         precio_venta = ${data.precio_venta},
-        activo = ${data.activo}
+        activo = ${data.activo},
+        imagen = ${data.imagen || null}
     WHERE id = ${id}`;
 }
 

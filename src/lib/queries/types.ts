@@ -23,6 +23,7 @@ export interface Producto {
   precio_compra: number;
   precio_venta: number;
   activo: boolean;
+  imagen: string | null;
   created_at: string;
 }
 

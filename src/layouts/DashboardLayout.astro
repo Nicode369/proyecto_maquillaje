@@ -1,6 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import Sidebar from '../components/Sidebar.astro';
+import Footer from '../components/Footer.astro';
 import { formatFechaLarga, hoyISO } from '../lib/format';
 
 interface Props {
@@ -13,7 +14,7 @@ const fecha = formatFechaLarga(hoyISO());
 const fechaCapitalizada = fecha.charAt(0).toUpperCase() + fecha.slice(1);
 ---
 
-<BaseLayout title={`${title} · Panel`}>
+<BaseLayout title={`${title} · Valeria Eslava`}>
   <div class="min-h-screen lg:flex">
     <Sidebar active={active} />
 
@@ -50,6 +51,8 @@ const fechaCapitalizada = fecha.charAt(0).toUpperCase() + fecha.slice(1);
       <main class="mx-auto w-full max-w-[1120px] flex-1 px-4 py-7 sm:px-6 lg:px-8 lg:py-9">
         <slot />
       </main>
+
+      <Footer class="border-t border-hairline px-4 py-5 sm:px-6 lg:px-8" />
     </div>
   </div>
 </BaseLayout>

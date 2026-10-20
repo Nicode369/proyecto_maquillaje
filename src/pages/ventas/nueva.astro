@@ -51,7 +51,7 @@ const metodos = ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia', 'Transferencia
     {
       errorGenerico && (
         <div
-          class="rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
+          class="rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
           role="alert"
         >
           {errorGenerico}
@@ -111,7 +111,7 @@ const metodos = ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia', 'Transferencia
 
       <p
         id="error-items"
-        class="mt-3 hidden rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
+        class="mt-3 hidden rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
         role="alert"
       >
         Agrega al menos un producto o servicio.
@@ -195,22 +195,22 @@ const metodos = ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia', 'Transferencia
       <div class="grid gap-3 sm:grid-cols-12 items-start">
         <div class="sm:col-span-5 space-y-1.5">
           <label class="block text-[13px] font-medium text-ink">Producto</label>
-          <select class="sel-producto h-9.5 w-full rounded border border-ink/15 bg-surface px-3 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15">
+          <select class="sel-producto h-9.5 w-full rounded-lg border border-ink/15 bg-surface px-3 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15">
             <option value="" data-precio="" data-stock="" data-etiqueta="">— Servicio personalizado —</option>
             ${opciones}
           </select>
         </div>
         <div class="sm:col-span-4 space-y-1.5">
           <label class="block text-[13px] font-medium text-ink">Descripción</label>
-          <input type="text" class="inp-desc h-9.5 w-full rounded border border-ink/15 bg-surface px-3 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15" placeholder="Ej: Aplicación de cejas" maxlength="200" value="${descripcion}" />
+          <input type="text" class="inp-desc h-9.5 w-full rounded-lg border border-ink/15 bg-surface px-3 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15" placeholder="Ej: Aplicación de cejas" maxlength="200" value="${descripcion}" />
         </div>
         <div class="sm:col-span-1 space-y-1.5">
           <label class="block text-[13px] font-medium text-ink">Cant.</label>
-          <input type="number" class="inp-cant h-9.5 w-full rounded border border-ink/15 bg-surface px-2 text-sm text-ink text-right focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15" min="1" step="1" value="${cantidad}" />
+          <input type="number" class="inp-cant h-9.5 w-full rounded-lg border border-ink/15 bg-surface px-2 text-sm text-ink text-right focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15" min="1" step="1" value="${cantidad}" />
         </div>
         <div class="sm:col-span-2 space-y-1.5 relative">
           <label class="block text-[13px] font-medium text-ink">Precio</label>
-          <input type="number" class="inp-precio h-9.5 w-full rounded border border-ink/15 bg-surface px-2 pr-7 text-sm text-ink text-right focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15" min="0" step="100" value="${precio}" />
+          <input type="number" class="inp-precio h-9.5 w-full rounded-lg border border-ink/15 bg-surface px-2 pr-7 text-sm text-ink text-right focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15" min="0" step="100" value="${precio}" />
           <span class="pointer-events-none absolute right-2 bottom-2.5 text-xs text-ink-muted">$</span>
         </div>
       </div>

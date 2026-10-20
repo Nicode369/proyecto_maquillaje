@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS productos (
   precio_compra numeric(12,2) NOT NULL DEFAULT 0,
   precio_venta numeric(12,2) NOT NULL DEFAULT 0,
   activo boolean NOT NULL DEFAULT true,
+  imagen text,
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
@@ -55,3 +56,5 @@ CREATE INDEX IF NOT EXISTS idx_ventas_fecha ON ventas (fecha);
 CREATE INDEX IF NOT EXISTS idx_ventas_cliente ON ventas (cliente_id);
 CREATE INDEX IF NOT EXISTS idx_venta_items_venta ON venta_items (venta_id);
 CREATE INDEX IF NOT EXISTS idx_gastos_fecha ON gastos (fecha);
+
+ALTER TABLE productos ADD COLUMN IF NOT EXISTS imagen text;

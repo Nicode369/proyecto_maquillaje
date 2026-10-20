@@ -3,6 +3,7 @@ import { actions, isInputError } from 'astro:actions';
 import { TriangleAlert, Pencil, Plus, Search, Trash } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
+import LimpiarFiltros from '../../components/LimpiarFiltros.astro';
 import Button from '../../components/ui/Button.astro';
 import Input from '../../components/ui/Input.astro';
 import Badge from '../../components/ui/Badge.astro';
@@ -58,7 +59,7 @@ const aviso = Astro.url.searchParams.get('aviso');
       totalStockBajo > 0 && (
         <a
           href="/productos?stock=bajo"
-          class="inline-flex items-center gap-1.5 rounded bg-ochre/10 px-2.5 py-1 text-[13px] font-medium text-ochre"
+          class="inline-flex items-center gap-1.5 rounded-full bg-ochre/10 px-2.5 py-1 text-[13px] font-medium text-ochre"
         >
           <TriangleAlert size={14} />
           {totalStockBajo} bajo stock
@@ -85,7 +86,7 @@ const aviso = Astro.url.searchParams.get('aviso');
       <span class="block text-[13px] font-medium text-ink">Categoría</span>
       <select
         name="categoria"
-        class="h-9.5 w-40 rounded border border-ink/15 bg-surface px-2.5 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15"
+        class="h-9.5 w-40 rounded-lg border border-ink/15 bg-surface px-2.5 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15"
       >
         <option value="">Todas</option>
         {categorias.map((c) => (
@@ -123,7 +124,7 @@ const aviso = Astro.url.searchParams.get('aviso');
   {
     errorEliminar && (
       <div
-        class="mt-4 rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
+        class="mt-4 rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
         role="alert"
       >
         {errorEliminar}
@@ -133,7 +134,7 @@ const aviso = Astro.url.searchParams.get('aviso');
   {
     aviso && (
       <div
-        class="mt-4 rounded border border-ochre/30 bg-ochre/5 px-4 py-3 text-sm text-ochre"
+        class="mt-4 rounded-lg border border-ochre/30 bg-ochre/5 px-4 py-3 text-sm text-ochre"
         role="alert"
       >
         {aviso}
@@ -198,15 +199,33 @@ const aviso = Astro.url.searchParams.get('aviso');
                 return (
                   <tr class={p.activo ? '' : 'opacity-55'}>
                     <td>
-                      <a
-                        href={`/productos/${p.id}/editar`}
-                        class="font-medium text-ink hover:text-wine"
-                      >
-                        {p.nombre}
-                      </a>
-                      <p class="mt-0.5 text-xs text-ink-muted">
-                        {p.marca ?? 'Sin marca'}
-                      </p>
+                      <div class="flex items-center gap-3">
+                        {p.imagen ? (
+                          <img
+                            src={p.imagen}
+                            alt=""
+                            class="h-11 w-11 shrink-0 rounded-lg border border-hairline object-cover"
+                          />
+                        ) : (
+                          <span
+                            class="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-wine-soft"
+                            aria-hidden="true"
+                          >
+                            <img src="/logo.svg" alt="" class="h-6 w-6 opacity-70" />
+                          </span>
+                        )}
+                        <div class="min-w-0">
+                          <a
+                            href={`/productos/${p.id}/editar`}
+                            class="font-medium text-ink hover:text-wine"
+                          >
+                            {p.nombre}
+                          </a>
+                          <p class="mt-0.5 text-xs text-ink-muted">
+                            {p.marca ?? 'Sin marca'}
+                          </p>
+                        </div>
+                      </div>
                     </td>
                     <td>
                       <Badge tone="neutral">{p.categoria}</Badge>
@@ -277,6 +296,20 @@ const aviso = Astro.url.searchParams.get('aviso');
           <ul class="divide-y divide-hairline md:hidden">
             {lista.map((p) => (
               <li class="flex items-start gap-3 p-4">
+                {p.imagen ? (
+                  <img
+                    src={p.imagen}
+                    alt=""
+                    class="h-12 w-12 shrink-0 rounded-lg border border-hairline object-cover"
+                  />
+                ) : (
+                  <span
+                    class="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-wine-soft"
+                    aria-hidden="true"
+                  >
+                    <img src="/logo.svg" alt="" class="h-7 w-7 opacity-70" />
+                  </span>
+                )}
                 <a
                   href={`/productos/${p.id}/editar`}
                   class="min-w-0 flex-1 hover:text-wine"
@@ -335,12 +368,6 @@ const aviso = Astro.url.searchParams.get('aviso');
   </div>
 
   {
-    hayFiltro && (
-      <p class="mt-3 text-xs text-ink-muted">
-        <a href="/productos" class="hover:text-wine">
-          Limpiar filtros
-        </a>
-      </p>
-    )
+    hayFiltro && <LimpiarFiltros href="/productos" class="mt-3" />
   }
 </DashboardLayout>
