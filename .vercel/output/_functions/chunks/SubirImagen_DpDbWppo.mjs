@@ -1,6 +1,6 @@
 import { A as renderTemplate, N as addAttribute, j as maybeRenderHead, x as spreadAttributes } from "./sequence_CIT0iznN.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { i as renderScript } from "./PageHeader_vdNxn5rr.mjs";
+import { i as renderScript } from "./PageHeader_CJ9Vj3RQ.mjs";
 //#region src/components/ui/Checkbox.astro
 createAstro("https://astro.build");
 var $$Checkbox = createComponent(($$result, $$props, $$slots) => {
