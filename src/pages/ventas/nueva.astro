@@ -90,6 +90,23 @@ const metodos = ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia', 'Transferencia
       </Select>
     </div>
 
+    <label
+      class="flex items-start gap-3 rounded-xl border border-hairline bg-surface px-4 py-3"
+    >
+      <input
+        type="checkbox"
+        name="credito"
+        class="mt-0.5 h-4 w-4 shrink-0 accent-wine"
+      />
+      <span class="text-sm text-ink">
+        Venta a crédito (fiada)
+        <span class="block text-[13px] text-ink-muted">
+          El saldo queda pendiente en la clienta; registra los abonos desde el
+          detalle de la venta. Requiere elegir clienta.
+        </span>
+      </span>
+    </label>
+
     <div>
       <div class="flex items-center justify-between border-b border-hairline pb-2">
         <h2 class="font-display text-lg text-ink" style="font-variation-settings: 'opsz' 40;">

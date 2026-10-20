@@ -11,6 +11,7 @@ export interface ClienteResumen extends Cliente {
   ultima_compra: string | null;
   total_compras: number;
   gasto_acumulado: number;
+  saldo: number;
 }
 
 export interface Producto {
@@ -37,6 +38,8 @@ export interface Venta {
   total: number;
   notas: string | null;
   anulada: boolean;
+  credito: boolean;
+  saldo: number;
   num_items: number;
 }
 
@@ -49,8 +52,18 @@ export interface VentaItem {
   subtotal: number;
 }
 
+export interface Abono {
+  id: string;
+  venta_id: string;
+  fecha: string;
+  monto: number;
+  notas: string | null;
+  created_at: string;
+}
+
 export interface VentaCompleta extends Venta {
   items: VentaItem[];
+  abonos: Abono[];
 }
 
 export interface Gasto {

@@ -2,7 +2,12 @@ import { defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
 import { exigirSesion } from './sesion';
 import { listClientes } from '../lib/queries/clientes';
-import { anularVenta, createVenta, getVenta } from '../lib/queries/ventas';
+import {
+  anularVenta,
+  createVenta,
+  getVenta,
+  registrarAbono,
+} from '../lib/queries/ventas';
 
 const esquemaLinea = z.object({
   producto_id: z.uuid().nullable(),
@@ -24,6 +29,7 @@ const esquemaVenta = z.object({
     .number({ message: 'El descuento debe ser un número' })
     .min(0, 'El descuento no puede ser negativo'),
   notas: z.string().trim().max(500).nullable(),
+  credito: z.coerce.boolean().optional().default(false),
   items_json: z
     .string()
     .transform((texto, ctx) => {
@@ -49,6 +55,12 @@ export const ventas = {
     handler: async (input, context) => {
       await exigirSesion(context);
 
+      if (input.credito && !input.cliente_id) {
+        throw new Error(
+          'Si la venta es a crédito, elige la clienta que queda pendiente.',
+        );
+      }
+
       if (input.cliente_id) {
         const clientas = await listClientes();
         if (!clientas.some((c) => c.id === input.cliente_id)) {
@@ -62,6 +74,7 @@ export const ventas = {
         metodoPago: input.metodo_pago,
         descuento: input.descuento,
         notas: input.notas,
+        credito: input.credito,
         items: input.items_json.map((linea) => ({
           productoId: linea.producto_id,
           descripcion: linea.descripcion,
@@ -86,7 +99,34 @@ export const ventas = {
       if (venta.anulada) {
         throw new Error('Esta venta ya está anulada.');
       }
+      if (venta.abonos.length > 0) {
+        throw new Error(
+          'Esta venta tiene abonos registrados y no se puede anular. Si el pago se anuló por error, ajusta los abonos desde el detalle de la venta.',
+        );
+      }
       await anularVenta(input.id);
+      return { ok: true };
+    },
+  }),
+
+  registrarAbono: defineAction({
+    accept: 'form',
+    input: z.object({
+      venta_id: z.uuid('Identificador no válido'),
+      fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha no válida'),
+      monto: z.coerce
+        .number({ message: 'El monto debe ser un número' })
+        .min(0.01, 'El monto debe ser mayor a cero'),
+      notas: z.string().trim().max(300).nullable(),
+    }),
+    handler: async (input, context) => {
+      await exigirSesion(context);
+      await registrarAbono({
+        ventaId: input.venta_id,
+        fecha: input.fecha,
+        monto: input.monto,
+        notas: input.notas,
+      });
       return { ok: true };
     },
   }),

@@ -24,7 +24,16 @@ export async function listClientes(q?: string): Promise<ClienteResumen[]> {
         SELECT SUM(v.total)::float8
         FROM ventas v
         WHERE v.cliente_id = c.id AND NOT v.anulada
-      ), 0) AS gasto_acumulado
+      ), 0) AS gasto_acumulado,
+      COALESCE((
+        SELECT SUM(GREATEST(v.total - COALESCE(ab.pagado, 0), 0))::float8
+        FROM ventas v
+        LEFT JOIN LATERAL (
+          SELECT COALESCE(SUM(a.monto), 0)::float8 AS pagado
+          FROM abonos a WHERE a.venta_id = v.id
+        ) ab ON true
+        WHERE v.cliente_id = c.id AND v.credito AND NOT v.anulada
+      ), 0) AS saldo
     FROM clientes c
     WHERE ${q ?? null}::text IS NULL
        OR c.nombre ILIKE '%' || ${q ?? null} || '%'
@@ -57,7 +66,16 @@ export async function getCliente(id: string): Promise<ClienteResumen | null> {
         SELECT SUM(v.total)::float8
         FROM ventas v
         WHERE v.cliente_id = c.id AND NOT v.anulada
-      ), 0) AS gasto_acumulado
+      ), 0) AS gasto_acumulado,
+      COALESCE((
+        SELECT SUM(GREATEST(v.total - COALESCE(ab.pagado, 0), 0))::float8
+        FROM ventas v
+        LEFT JOIN LATERAL (
+          SELECT COALESCE(SUM(a.monto), 0)::float8 AS pagado
+          FROM abonos a WHERE a.venta_id = v.id
+        ) ab ON true
+        WHERE v.cliente_id = c.id AND v.credito AND NOT v.anulada
+      ), 0) AS saldo
     FROM clientes c
     WHERE c.id = ${id}`;
   return (rows[0] as unknown as ClienteResumen | undefined) ?? null;

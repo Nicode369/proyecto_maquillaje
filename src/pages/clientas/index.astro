@@ -107,6 +107,7 @@ const mensajeConfirmar =
                 <th scope="col" class="text-right">
                   Gasto acumulado
                 </th>
+                <th scope="col" class="text-right">Debe</th>
                 <th scope="col">Última compra</th>
                 <th scope="col">
                   <span class="sr-only">Acciones</span>
@@ -131,6 +132,13 @@ const mensajeConfirmar =
                   <td class="text-right num">{c.total_compras}</td>
                   <td class="text-right num font-display">
                     {formatCOP(c.gasto_acumulado)}
+                  </td>
+                  <td class="text-right num font-display">
+                    {c.saldo > 0 ? (
+                      <span class="text-wine">{formatCOP(c.saldo)}</span>
+                    ) : (
+                      <span class="text-ink-muted">—</span>
+                    )}
                   </td>
                   <td class="text-ink-muted">
                     {c.ultima_compra
@@ -194,6 +202,11 @@ const mensajeConfirmar =
                     {c.total_compras}{' '}
                     {c.total_compras === 1 ? 'compra' : 'compras'}
                   </p>
+                  {c.saldo > 0 && (
+                    <p class="text-xs font-medium text-wine">
+                      Debe {formatCOP(c.saldo)}
+                    </p>
+                  )}
                   <div class="mt-1 flex gap-1">
                     <Button
                       variant="ghost"

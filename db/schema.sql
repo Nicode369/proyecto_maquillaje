@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS ventas (
   total numeric(12,2) NOT NULL DEFAULT 0,
   notas text,
   anulada boolean NOT NULL DEFAULT false,
+  credito boolean NOT NULL DEFAULT false,
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
@@ -41,6 +42,20 @@ CREATE TABLE IF NOT EXISTS venta_items (
   cantidad integer NOT NULL CHECK (cantidad > 0),
   precio_unitario numeric(12,2) NOT NULL,
   subtotal numeric(12,2) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS abonos (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  venta_id uuid NOT NULL REFERENCES ventas(id) ON DELETE CASCADE,
+  fecha date NOT NULL DEFAULT CURRENT_DATE,
+  monto numeric(12,2) NOT NULL CHECK (monto > 0),
+  notas text,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS login_attempts (
+  ip text NOT NULL,
+  ts timestamptz NOT NULL DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS gastos (
@@ -56,5 +71,7 @@ CREATE INDEX IF NOT EXISTS idx_ventas_fecha ON ventas (fecha);
 CREATE INDEX IF NOT EXISTS idx_ventas_cliente ON ventas (cliente_id);
 CREATE INDEX IF NOT EXISTS idx_venta_items_venta ON venta_items (venta_id);
 CREATE INDEX IF NOT EXISTS idx_gastos_fecha ON gastos (fecha);
+CREATE INDEX IF NOT EXISTS idx_abonos_venta ON abonos (venta_id);
 
 ALTER TABLE productos ADD COLUMN IF NOT EXISTS imagen text;
+ALTER TABLE ventas ADD COLUMN IF NOT EXISTS credito boolean NOT NULL DEFAULT false;

@@ -8,6 +8,7 @@ import Button from '../components/ui/Button.astro';
 import EmptyState from '../components/ui/EmptyState.astro';
 import {
   kpisMes,
+  porCobrar,
   serieMensual,
   stockBajo,
   topClientes,
@@ -18,13 +19,14 @@ import { formatCOP, formatFechaCorta, formatMes, mesISO } from '../lib/format';
 
 const mes = Astro.url.searchParams.get('mes')?.trim() || mesISO();
 
-const [kpis, serie, bajoStock, topsC, topsP, recientes] = await Promise.all([
+const [kpis, serie, bajoStock, topsC, topsP, recientes, cobrar] = await Promise.all([
   kpisMes(mes),
   serieMensual(6),
   stockBajo(),
   topClientes(5),
   topProductos(5),
   ultimasVentas(5),
+  porCobrar(),
 ]);
 
 function delta(actual: number, anterior: number): { pct: number | null; texto: string } {
@@ -77,7 +79,7 @@ const deltas: { label: string; valor: number; d: { pct: number | null; texto: st
 
   {/* Tira de KPIs: una sola celda dividida por hairlines */}
   <div
-    class="mt-6 grid grid-cols-1 divide-y divide-hairline overflow-hidden rounded-xl border border-hairline bg-surface sm:grid-cols-2 lg:grid-cols-6 lg:divide-x lg:divide-y-0"
+    class="mt-6 grid grid-cols-1 divide-y divide-hairline overflow-hidden rounded-xl border border-hairline bg-surface sm:grid-cols-2 lg:grid-cols-8 lg:divide-x lg:divide-y-0"
   >
     {
       deltas.map(({ label, valor, d, buenSube, hero }) => (
@@ -114,6 +116,18 @@ const deltas: { label: string; valor: number; d: { pct: number | null; texto: st
         {formatCOP(kpis.ticketPromedio)}
       </p>
       <p class="mt-1 text-[12px] text-ink-muted">por venta</p>
+    </div>
+    <div class="p-5">
+      <p class="text-xs tracking-wide text-ink-muted uppercase">Por cobrar</p>
+      <p
+        class:list={[
+          'display-number mt-1 text-2xl',
+          cobrar > 0 ? 'text-ochre' : 'text-ink',
+        ]}
+      >
+        {formatCOP(cobrar)}
+      </p>
+      <p class="mt-1 text-[12px] text-ink-muted">total fiado · todas las ventas a crédito</p>
     </div>
   </div>
 

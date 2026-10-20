@@ -171,9 +171,7 @@ export interface TopProducto {
   nombre: string;
   unidades: number;
   ingresos: number;
-}
-
-export async function topProductos(limit = 5): Promise<TopProducto[]> {
+}export async function topProductos(limit = 5): Promise<TopProducto[]> {
   const rows = await sql`
     SELECT
       p.id,
@@ -187,4 +185,18 @@ export async function topProductos(limit = 5): Promise<TopProducto[]> {
     ORDER BY unidades DESC, ingresos DESC
     LIMIT ${limit}`;
   return rows as unknown as TopProducto[];
+}
+
+export async function porCobrar(): Promise<number> {
+  const [row] = await sql`
+    SELECT COALESCE(
+      SUM(GREATEST(v.total - COALESCE(ab.pagado, 0), 0)), 0
+    )::float8 AS total
+    FROM ventas v
+    LEFT JOIN LATERAL (
+      SELECT COALESCE(SUM(a.monto), 0)::float8 AS pagado
+      FROM abonos a WHERE a.venta_id = v.id
+    ) ab ON true
+    WHERE v.credito AND NOT v.anulada`;
+  return Number(row.total);
 }

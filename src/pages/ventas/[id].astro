@@ -6,8 +6,10 @@ import PageHeader from '../../components/ui/PageHeader.astro';
 import Button from '../../components/ui/Button.astro';
 import Badge from '../../components/ui/Badge.astro';
 import Card from '../../components/ui/Card.astro';
+import Input from '../../components/ui/Input.astro';
+import Textarea from '../../components/ui/Textarea.astro';
 import { getVenta } from '../../lib/queries/ventas';
-import { formatCOP, formatFechaLarga } from '../../lib/format';
+import { formatCOP, formatFechaCorta, formatFechaLarga, hoyISO } from '../../lib/format';
 
 const { id } = Astro.params;
 const venta = id ? await getVenta(id) : null;
@@ -20,8 +22,17 @@ if (anular && !anular.error) {
   return Astro.redirect(`/ventas/${venta.id}`);
 }
 
+const abono = Astro.getActionResult(actions.ventas.registrarAbono);
+if (abono && !abono.error) {
+  return Astro.redirect(`/ventas/${venta.id}`);
+}
+
 const errorAnular =
   anular?.error && !isInputError(anular.error) ? anular.error.message : null;
+
+const errAbono = abono?.error;
+const camposAbono = isInputError(errAbono) ? errAbono.fields : {};
+const errorAbono = errAbono && !isInputError(errAbono) ? errAbono.message : null;
 
 const metodos: Record<string, string> = {
   efectivo: 'Efectivo',
@@ -77,12 +88,23 @@ const mensajeAnular =
   <div class="mt-6 grid gap-4 sm:grid-cols-3">
     <Card>
       <p class="text-xs tracking-wide text-ink-muted uppercase">Estado</p>
-      <div class="mt-2">
+      <div class="mt-2 flex flex-wrap items-center gap-2">
         {
           venta.anulada ? (
             <Badge tone="danger">Anulada</Badge>
+          ) : venta.credito ? (
+            <Badge tone="wine">A crédito</Badge>
           ) : (
             <Badge tone="success">Validada</Badge>
+          )
+        }
+        {
+          venta.credito && !venta.anulada && (
+            <Badge tone={venta.saldo > 0 ? 'warning' : 'success'}>
+              {venta.saldo > 0
+                ? `Debe ${formatCOP(venta.saldo)}`
+                : 'Pagada'}
+            </Badge>
           )
         }
       </div>
@@ -161,4 +183,82 @@ const mensajeAnular =
       </tfoot>
     </table>
   </div>
+
+  {
+    venta.credito && !venta.anulada && (
+      <section class="mt-8">
+        <h2
+          class="border-b border-hairline pb-2 font-display text-lg text-ink"
+          style="font-variation-settings: 'opsz' 40;"
+        >
+          Abonos
+        </h2>
+
+        {errorAbono && (
+          <div
+            class="mt-4 rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
+            role="alert"
+          >
+            {errorAbono}
+          </div>
+        )}
+
+        {venta.abonos.length > 0 && (
+          <div class="mt-4 overflow-hidden rounded-xl border border-hairline bg-surface">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col">Fecha</th>
+                  <th scope="col" class="text-right">Monto</th>
+                  <th scope="col">Notas</th>
+                </tr>
+              </thead>
+              <tbody>
+                {venta.abonos.map((a) => (
+                  <tr>
+                    <td class="text-ink-muted">{formatFechaCorta(a.fecha)}</td>
+                    <td class="text-right num font-display">{formatCOP(a.monto)}</td>
+                    <td class="text-ink">{a.notas ?? '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <form
+          method="POST"
+          action={actions.ventas.registrarAbono}
+          class="mt-4 grid items-end gap-4 rounded-xl border border-hairline bg-surface p-5 sm:grid-cols-[10rem_11rem_1fr_auto]"
+        >
+          <input type="hidden" name="venta_id" value={venta.id} />
+          <Input
+            name="fecha"
+            label="Fecha del abono"
+            type="date"
+            required
+            value={hoyISO()}
+            error={camposAbono.fecha?.[0]}
+          />
+          <Input
+            name="monto"
+            label={`Monto (máx. ${formatCOP(venta.saldo)})`}
+            type="number"
+            min="1"
+            step="100"
+            required
+            error={camposAbono.monto?.[0]}
+          />
+          <Textarea
+            name="notas"
+            label="Notas"
+            placeholder="Ej: pagó en Nequi"
+            rows={1}
+            error={camposAbono.notas?.[0]}
+          />
+          <Button type="submit">Registrar abono</Button>
+        </form>
+      </section>
+    )
+  }
 </DashboardLayout>

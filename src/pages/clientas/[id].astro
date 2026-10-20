@@ -76,7 +76,7 @@ const metodos: Record<string, string> = {
   }
 
   <div
-    class="mt-6 grid grid-cols-1 divide-y divide-hairline rounded-xl border border-hairline bg-surface sm:grid-cols-3 sm:divide-x sm:divide-y-0"
+    class="mt-6 grid grid-cols-1 divide-y divide-hairline rounded-xl border border-hairline bg-surface sm:grid-cols-4 sm:divide-x sm:divide-y-0"
   >
     <div class="p-5">
       <p class="text-xs tracking-wide text-ink-muted uppercase">Compras</p>
@@ -86,6 +86,17 @@ const metodos: Record<string, string> = {
       <p class="text-xs tracking-wide text-ink-muted uppercase">Gasto acumulado</p>
       <p class="display-number mt-1 text-2xl text-wine">
         {formatCOP(cliente.gasto_acumulado)}
+      </p>
+    </div>
+    <div class="p-5">
+      <p class="text-xs tracking-wide text-ink-muted uppercase">Debe</p>
+      <p
+        class:list={[
+          'display-number mt-1 text-2xl',
+          cliente.saldo > 0 ? 'text-ochre' : 'text-ink',
+        ]}
+      >
+        {cliente.saldo > 0 ? formatCOP(cliente.saldo) : '$ 0'}
       </p>
     </div>
     <div class="p-5">
@@ -168,6 +179,12 @@ const metodos: Record<string, string> = {
                   <td>
                     {v.anulada ? (
                       <Badge tone="danger">Anulada</Badge>
+                    ) : v.credito ? (
+                      <Badge tone="wine">
+                        {v.saldo > 0
+                          ? `Debe ${formatCOP(v.saldo)}`
+                          : 'Crédito · pagada'}
+                      </Badge>
                     ) : (
                       <Badge tone="success">Validada</Badge>
                     )}
@@ -195,6 +212,12 @@ const metodos: Record<string, string> = {
                     <p class="mt-0.5">
                       {v.anulada ? (
                         <Badge tone="danger">Anulada</Badge>
+                      ) : v.credito ? (
+                        <Badge tone="wine">
+                          {v.saldo > 0
+                            ? `Debe ${formatCOP(v.saldo)}`
+                            : 'Crédito · pagada'}
+                        </Badge>
                       ) : (
                         <Badge tone="success">Validada</Badge>
                       )}

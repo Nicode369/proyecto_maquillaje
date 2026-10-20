@@ -169,6 +169,12 @@ const metodos: Record<string, string> = {
                   <td>
                     {v.anulada ? (
                       <Badge tone="danger">Anulada</Badge>
+                    ) : v.credito ? (
+                      <Badge tone="wine">
+                        {v.saldo > 0
+                          ? `Crédito · debe ${formatCOP(v.saldo)}`
+                          : 'Crédito · pagada'}
+                      </Badge>
                     ) : (
                       <Badge tone="success">Validada</Badge>
                     )}
@@ -207,6 +213,12 @@ const metodos: Record<string, string> = {
                       <p class="mt-0.5">
                         {v.anulada ? (
                           <Badge tone="danger">Anulada</Badge>
+                        ) : v.credito ? (
+                          <Badge tone="wine">
+                            {v.saldo > 0
+                              ? `Debe ${formatCOP(v.saldo)}`
+                              : 'Crédito · pagada'}
+                          </Badge>
                         ) : (
                           <Badge tone="success">Validada</Badge>
                         )}
