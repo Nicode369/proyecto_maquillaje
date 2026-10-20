@@ -1,13 +1,13 @@
 import { t as DASHBOARD_PASSWORD } from "./server_DcDs3kpP.mjs";
-import { S as ActionError, t as defineAction } from "./server_CLCdNJBA.mjs";
+import { S as ActionError, t as defineAction } from "./server_C1vvSnOj.mjs";
 import { a as verificarSesion, i as opcionesCookie, n as contrasenasIguales, r as firmarSesion, t as SESSION_COOKIE } from "./auth_Cowi-BmK.mjs";
-import "./_astro_actions_BGygD3du.mjs";
+import "./_astro_actions_Dj7KNRrN.mjs";
 import { t as sql } from "./db_BRoxtVEw.mjs";
 import { t as capitalizarNombre } from "./format_C9vTb3rb.mjs";
 import { a as getCliente, i as deleteCliente, o as listClientes, r as createCliente, s as updateCliente } from "./clientes_BmetyF5T.mjs";
 import { n as deleteGasto, r as getGasto, s as updateGasto, t as createGasto } from "./gastos_uFnzIew9.mjs";
 import { i as getProducto, l as updateProducto, n as createProducto, r as deleteProducto } from "./productos_DJAPQyIZ.mjs";
-import { n as createVenta, o as registrarAbono, r as getVenta, t as anularVenta } from "./ventas_CdaSwVoC.mjs";
+import { n as createVenta, o as reactivarVenta, r as getVenta, s as registrarAbono, t as anularVenta } from "./ventas_DXdeP4ex.mjs";
 import * as mod from "zod/v4";
 //#region src/actions/auth.ts
 var MAX_INTENTOS = 5;
@@ -279,6 +279,18 @@ var server = {
 				if (venta.anulada) throw new Error("Esta venta ya está anulada.");
 				if (venta.abonos.length > 0) throw new Error("Esta venta tiene abonos registrados y no se puede anular. Si el pago se anuló por error, ajusta los abonos desde el detalle de la venta.");
 				await anularVenta(input.id);
+				return { ok: true };
+			}
+		}),
+		reactivar: defineAction({
+			accept: "form",
+			input: mod.object({ id: mod.uuid("Identificador no válido") }),
+			handler: async (input, context) => {
+				await exigirSesion(context);
+				const venta = await getVenta(input.id);
+				if (!venta) throw new Error("La venta ya no existe.");
+				if (!venta.anulada) throw new Error("Esta venta no está anulada.");
+				await reactivarVenta(input.id);
 				return { ok: true };
 			}
 		}),

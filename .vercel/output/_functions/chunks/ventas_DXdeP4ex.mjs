@@ -183,6 +183,24 @@ async function anularVenta(id) {
 	await sql.transaction([...items.map((item) => sql`
         UPDATE productos SET stock = stock + ${item.cantidad} WHERE id = ${item.producto_id}`), sql`UPDATE ventas SET anulada = true WHERE id = ${id} AND NOT anulada`]);
 }
+async function reactivarVenta(id) {
+	const [venta] = await sql`
+    SELECT anulada FROM ventas WHERE id = ${id}`;
+	if (!venta) throw new Error("La venta ya no existe.");
+	if (!venta.anulada) throw new Error("Esta venta no está anulada.");
+	const items = await sql`
+    SELECT producto_id, cantidad, descripcion
+    FROM venta_items
+    WHERE venta_id = ${id} AND producto_id IS NOT NULL`;
+	for (const item of items) {
+		const [row] = await sql`
+      SELECT stock FROM productos WHERE id = ${item.producto_id} AND activo`;
+		if (!row) throw new Error(`No se puede reactivar: el producto de "${item.descripcion}" ya no está disponible.`);
+		if (row.stock < item.cantidad) throw new Error(`No se puede reactivar: solo quedan ${row.stock} de "${item.descripcion}".`);
+	}
+	await sql.transaction([...items.map((item) => sql`
+        UPDATE productos SET stock = stock - ${item.cantidad} WHERE id = ${item.producto_id}`), sql`UPDATE ventas SET anulada = false WHERE id = ${id} AND anulada`]);
+}
 async function registrarAbono(data) {
 	const [venta] = await sql`
     SELECT
@@ -204,4 +222,4 @@ async function registrarAbono(data) {
     VALUES (${data.ventaId}, ${data.fecha}, ${data.monto}, ${data.notas})`;
 }
 //#endregion
-export { listVentasDeCliente as a, listVentas as i, createVenta as n, registrarAbono as o, getVenta as r, totalesVentas as s, anularVenta as t };
+export { listVentasDeCliente as a, totalesVentas as c, listVentas as i, createVenta as n, reactivarVenta as o, getVenta as r, registrarAbono as s, anularVenta as t };

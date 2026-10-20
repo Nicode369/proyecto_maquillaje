@@ -1,12 +1,13 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
 import { A as renderTemplate, N as addAttribute, T as Fragment, j as maybeRenderHead, w as renderComponent } from "./sequence_CIT0iznN.mjs";
-import { T as isInputError } from "./server_CLCdNJBA.mjs";
+import { T as isInputError } from "./server_C1vvSnOj.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
 import { n as $$DashboardLayout, t as $$PageHeader } from "./PageHeader_CJ9Vj3RQ.mjs";
-import { t as actions } from "./_astro_actions_BGygD3du.mjs";
+import { t as actions } from "./_astro_actions_Dj7KNRrN.mjs";
 import { n as formatCOP, r as formatFechaCorta } from "./format_C9vTb3rb.mjs";
 import { o as listClientes } from "./clientes_BmetyF5T.mjs";
-import { i as listVentas, s as totalesVentas } from "./ventas_CdaSwVoC.mjs";
+import { c as totalesVentas, i as listVentas } from "./ventas_DXdeP4ex.mjs";
+import { t as Ban } from "./ban_Clkdx0pp.mjs";
 import { n as Search, r as Plus, t as $$LimpiarFiltros } from "./LimpiarFiltros_LNza5Osi.mjs";
 import { t as $$Button } from "./Button_C8T8wdfZ.mjs";
 import { t as $$Input } from "./Input_BqhAvSAl.mjs";
@@ -58,6 +59,7 @@ var $$Index = createComponent(async ($$result, $$props, $$slots) => {
 		transferencia: "Transferencia",
 		tarjeta: "Tarjeta"
 	};
+	const mensajeAnular = "¿Anular esta venta? El stock de los productos se restaurará.";
 	return renderTemplate`${renderComponent($$result, "DashboardLayout", $$DashboardLayout, {
 		"title": "Ventas",
 		"active": "ventas"
@@ -90,14 +92,29 @@ var $$Index = createComponent(async ($$result, $$props, $$slots) => {
 		"href": "/ventas"
 	}, { "default": ($$result) => renderTemplate`
               Ver todas
-            ` })}` : renderTemplate`${renderComponent($$result, "Button", $$Button, { "href": "/ventas/nueva" }, { "default": ($$result) => renderTemplate`Registrar venta` })}`}` })}`}${lista.length > 0 && renderTemplate`${renderComponent($$result, "Fragment", Fragment, {}, { "default": ($$result) => renderTemplate`<table class="data-table hidden md:table"><thead><tr><th scope="col">Fecha</th><th scope="col">Clienta</th><th scope="col">Método</th><th scope="col" class="text-right">Ítems</th><th scope="col" class="text-right">Descuento</th><th scope="col" class="text-right">Total</th><th scope="col">Estado</th><th scope="col"><span class="sr-only">Detalles</span></th></tr></thead><tbody>${lista.map((v) => renderTemplate`<tr${addAttribute(v.anulada ? "opacity-55" : "", "class")}><td class="text-ink-muted">${formatFechaCorta(v.fecha)}</td><td class="font-medium text-ink">${v.cliente_nombre ?? renderTemplate`<span class="text-ink-muted">Sin clienta</span>`}</td><td class="text-ink-muted">${metodos[v.metodo_pago.toLowerCase()] ?? v.metodo_pago}</td><td class="text-right num">${v.num_items}</td><td class="text-right num text-ink-muted">${v.descuento > 0 ? `−${formatCOP(v.descuento)}` : "—"}</td><td class="text-right num font-display">${formatCOP(v.total)}</td><td>${v.anulada ? renderTemplate`${renderComponent($$result, "Badge", $$Badge, { "tone": "danger" }, { "default": ($$result) => renderTemplate`Anulada` })}` : v.credito ? renderTemplate`${renderComponent($$result, "Badge", $$Badge, { "tone": "wine" }, { "default": ($$result) => renderTemplate`${v.saldo > 0 ? `Crédito · debe ${formatCOP(v.saldo)}` : "Crédito · pagada"}` })}` : renderTemplate`${renderComponent($$result, "Badge", $$Badge, { "tone": "success" }, { "default": ($$result) => renderTemplate`Validada` })}`}</td><td>${renderComponent($$result, "Button", $$Button, {
+            ` })}` : renderTemplate`${renderComponent($$result, "Button", $$Button, { "href": "/ventas/nueva" }, { "default": ($$result) => renderTemplate`Registrar venta` })}`}` })}`}${lista.length > 0 && renderTemplate`${renderComponent($$result, "Fragment", Fragment, {}, { "default": ($$result) => renderTemplate`<table class="data-table hidden md:table"><thead><tr><th scope="col">Fecha</th><th scope="col">Clienta</th><th scope="col">Método</th><th scope="col" class="text-right">Ítems</th><th scope="col" class="text-right">Descuento</th><th scope="col" class="text-right">Total</th><th scope="col">Estado</th><th scope="col"><span class="sr-only">Detalles</span></th></tr></thead><tbody>${lista.map((v) => renderTemplate`<tr${addAttribute(v.anulada ? "opacity-55" : "", "class")}><td class="text-ink-muted">${formatFechaCorta(v.fecha)}</td><td class="font-medium text-ink">${v.cliente_nombre ?? renderTemplate`<span class="text-ink-muted">Sin clienta</span>`}</td><td class="text-ink-muted">${metodos[v.metodo_pago.toLowerCase()] ?? v.metodo_pago}</td><td class="text-right num">${v.num_items}</td><td class="text-right num text-ink-muted">${v.descuento > 0 ? `−${formatCOP(v.descuento)}` : "—"}</td><td class="text-right num font-display">${formatCOP(v.total)}</td><td>${v.anulada ? renderTemplate`${renderComponent($$result, "Badge", $$Badge, { "tone": "danger" }, { "default": ($$result) => renderTemplate`Anulada` })}` : v.credito ? renderTemplate`${renderComponent($$result, "Badge", $$Badge, { "tone": "wine" }, { "default": ($$result) => renderTemplate`${v.saldo > 0 ? `Crédito · debe ${formatCOP(v.saldo)}` : "Crédito · pagada"}` })}` : renderTemplate`${renderComponent($$result, "Badge", $$Badge, { "tone": "success" }, { "default": ($$result) => renderTemplate`Validada` })}`}</td><td><div class="flex items-center justify-end gap-1">${renderComponent($$result, "Button", $$Button, {
 		"variant": "ghost",
 		"size": "sm",
 		"href": `/ventas/${v.id}`,
 		"aria-label": "Ver detalle"
 	}, { "default": ($$result) => renderTemplate`
-                      Ver
-                    ` })}</td></tr>`)}</tbody></table><ul class="divide-y divide-hairline md:hidden">${lista.map((v) => renderTemplate`<li><a${addAttribute(`/ventas/${v.id}`, "href")} class="block p-4"><div class="flex items-start gap-3"><div class="min-w-0 flex-1"><p class="font-medium text-ink">${v.cliente_nombre ?? "Sin clienta"}</p><p class="text-xs text-ink-muted">${formatFechaCorta(v.fecha)} ·${" "}${metodos[v.metodo_pago.toLowerCase()] ?? v.metodo_pago}</p></div><div class="text-right"><p class="num font-display text-sm">${formatCOP(v.total)}</p><p class="mt-0.5">${v.anulada ? renderTemplate`${renderComponent($$result, "Badge", $$Badge, { "tone": "danger" }, { "default": ($$result) => renderTemplate`Anulada` })}` : v.credito ? renderTemplate`${renderComponent($$result, "Badge", $$Badge, { "tone": "wine" }, { "default": ($$result) => renderTemplate`${v.saldo > 0 ? `Debe ${formatCOP(v.saldo)}` : "Crédito · pagada"}` })}` : renderTemplate`${renderComponent($$result, "Badge", $$Badge, { "tone": "success" }, { "default": ($$result) => renderTemplate`Validada` })}`}</p></div></div></a></li>`)}</ul>` })}`}</div>${hayFiltro && renderTemplate`${renderComponent($$result, "LimpiarFiltros", $$LimpiarFiltros, {
+                        Ver
+                      ` })}${!v.anulada && renderTemplate`<form method="POST"${addAttribute(actions.ventas.anular, "action")}><input type="hidden" name="id"${addAttribute(v.id, "value")}>${renderComponent($$result, "Button", $$Button, {
+		"variant": "ghost",
+		"size": "sm",
+		"type": "submit",
+		"class": "text-danger hover:bg-danger/10 hover:text-danger",
+		"aria-label": "Anular venta",
+		"onclick": `return confirm('${mensajeAnular}')`
+	}, { "default": ($$result) => renderTemplate`${renderComponent($$result, "Ban", Ban, { "size": 14 })} Anular
+                          ` })}</form>`}</div></td></tr>`)}</tbody></table><ul class="divide-y divide-hairline md:hidden">${lista.map((v) => renderTemplate`<li class="flex items-start gap-3 p-4"><a${addAttribute(`/ventas/${v.id}`, "href")} class="flex min-w-0 flex-1 items-start gap-3"><div class="min-w-0 flex-1"><p class="font-medium text-ink">${v.cliente_nombre ?? "Sin clienta"}</p><p class="text-xs text-ink-muted">${formatFechaCorta(v.fecha)} ·${" "}${metodos[v.metodo_pago.toLowerCase()] ?? v.metodo_pago}</p></div><div class="text-right"><p class="num font-display text-sm">${formatCOP(v.total)}</p><p class="mt-0.5">${v.anulada ? renderTemplate`${renderComponent($$result, "Badge", $$Badge, { "tone": "danger" }, { "default": ($$result) => renderTemplate`Anulada` })}` : v.credito ? renderTemplate`${renderComponent($$result, "Badge", $$Badge, { "tone": "wine" }, { "default": ($$result) => renderTemplate`${v.saldo > 0 ? `Debe ${formatCOP(v.saldo)}` : "Crédito · pagada"}` })}` : renderTemplate`${renderComponent($$result, "Badge", $$Badge, { "tone": "success" }, { "default": ($$result) => renderTemplate`Validada` })}`}</p></div></a>${!v.anulada && renderTemplate`<form method="POST"${addAttribute(actions.ventas.anular, "action")} class="shrink-0"><input type="hidden" name="id"${addAttribute(v.id, "value")}>${renderComponent($$result, "Button", $$Button, {
+		"variant": "ghost",
+		"size": "sm",
+		"type": "submit",
+		"class": "text-danger hover:bg-danger/10 hover:text-danger",
+		"aria-label": "Anular venta",
+		"onclick": `return confirm('${mensajeAnular}')`
+	}, { "default": ($$result) => renderTemplate`${renderComponent($$result, "Ban", Ban, { "size": 14 })}` })}</form>`}</li>`)}</ul>` })}`}</div>${hayFiltro && renderTemplate`${renderComponent($$result, "LimpiarFiltros", $$LimpiarFiltros, {
 		"href": "/ventas",
 		"class": "mt-3"
 	})}`}` })}`;

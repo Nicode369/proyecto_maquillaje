@@ -74,7 +74,13 @@ var $$Ayuda = createComponent(($$result, $$props, $$slots) => {
 		},
 		{
 			titulo: "Ventas anuladas",
-			pasos: ["Si registraste una venta por error, ábrela y usa «Anular venta».", "El stock de los productos se restaura automáticamente y la venta deja de contar en los reportes."]
+			pasos: [
+				"Si registraste una venta por error, ábrela y usa «Anular venta» (o el botón Anular en la lista de ventas).",
+				"El stock de los productos se restaura automáticamente y la venta deja de contar en los reportes.",
+				"La venta no se borra: queda registrada como «Anulada» en el historial.",
+				"Si anulaste una venta por equivocación, ábrela y usa «Reactivar venta»: vuelve a contar y el stock se descuenta de nuevo.",
+				"Una venta con abonos registrados no se puede anular."
+			]
 		},
 		{
 			titulo: "Tu cuenta",
