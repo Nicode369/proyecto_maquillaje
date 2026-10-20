@@ -24,8 +24,9 @@ de una amiga. Solo el panel (sin web pública).
   `neon env pull` en `.env` (`DATABASE_URL_UNPOOLED` y `NEON_BRANCH` son del CLI)
 - Ventas `anulada = true` se excluyen de KPIs; anular restaura stock
 - Mobile-first: tablas se convierten en tarjetas en móvil; sidebar colapsa en drawer
-- Dirección visual editorial: papel crema `#F7F3EE`, tinta `#221719`, acento granate
-  `#7A2233`, sidebar espresso `#261A1D`; hairlines en vez de sombras; cifras en Fraunces
+- Dirección visual: papel `#fbf3f4`, tinta `#2a1b20`, acento granate `#bd3f66`,
+  botones rosa `#ee8db1` con texto tinta, navbar blush `#f3c9d9` (sidebar + topbar);
+  hairlines en vez de sombras; cifras en Fraunces — **paleta completa en `docs/DECISIONS.md`**
 
 ## Estructura
 
@@ -45,10 +46,21 @@ scripts/                db-init.ts, db-seed.ts
 
 Tablas: `clientes`, `productos`, `ventas`, `venta_items`, `gastos` (ver `db/schema.sql`).
 
+## Memoria del proyecto
+
+Evita re-escanear el repo — leer bajo demanda:
+
+- `docs/MEMORIA.md` — estado actual, pendientes y estado real de la DB
+- `docs/DECISIONS.md` — decisiones técnicas/diseño con su "por qué" (logout, conexión, paleta, git)
+- `docs/MAPA.md` — qué hace cada archivo (localizar sin glob/grep)
+- `docs/VERIFICACION.md` — workflow de verificación, e2e, limpieza y fallas conocidas
+
 ## Comandos
 
 - `npm run dev` (o `astro dev --background`)
 - **Verificar siempre al terminar**: `npm run astro check && npm run build`
+- `bash scripts/e2e.sh` (e2e; requiere dev server; funciona con DB vacía) ·
+  `node scripts/clean-e2e.mjs` (limpieza de residuos E2E)
 - `npm run db:init` / `npm run db:seed` (requieren `.env` con `DATABASE_URL`; usan la directa)
 - Neon CLI: `neon env pull` (refresca `.env`), `neon deploy` (aplica `neon.ts`), `neon status`
 
