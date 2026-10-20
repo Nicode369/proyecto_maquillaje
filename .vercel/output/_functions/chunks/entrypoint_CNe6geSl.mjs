@@ -1,7 +1,7 @@
 import { t as DASHBOARD_PASSWORD } from "./server_DcDs3kpP.mjs";
-import { S as ActionError, t as defineAction } from "./server_CKb0d5Fl.mjs";
+import { S as ActionError, t as defineAction } from "./server_BCn8yymk.mjs";
 import { a as verificarSesion, i as opcionesCookie, n as contrasenasIguales, r as firmarSesion, t as SESSION_COOKIE } from "./auth_Cowi-BmK.mjs";
-import "./_astro_actions_jD2YKBGI.mjs";
+import "./_astro_actions_D8QXn43k.mjs";
 import { t as sql } from "./db_BRoxtVEw.mjs";
 import { a as getCliente, i as deleteCliente, o as listClientes, r as createCliente, s as updateCliente } from "./clientes_BmetyF5T.mjs";
 import { n as deleteGasto, r as getGasto, s as updateGasto, t as createGasto } from "./gastos_uFnzIew9.mjs";

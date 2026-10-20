@@ -1,9 +1,9 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
 import { A as renderTemplate, D as renderSlot, N as addAttribute, P as defineScriptVars, j as maybeRenderHead, w as renderComponent, x as spreadAttributes } from "./sequence_CIT0iznN.mjs";
-import { T as isInputError } from "./server_CKb0d5Fl.mjs";
+import { T as isInputError } from "./server_BCn8yymk.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
 import { n as $$DashboardLayout, s as hoyISO, t as $$PageHeader } from "./PageHeader_BK87cCvx.mjs";
-import { t as actions } from "./_astro_actions_jD2YKBGI.mjs";
+import { t as actions } from "./_astro_actions_D8QXn43k.mjs";
 import { o as listClientes } from "./clientes_BmetyF5T.mjs";
 import { s as listProductosParaVenta } from "./productos_DJAPQyIZ.mjs";
 import { t as $$Button } from "./Button_C8T8wdfZ.mjs";
