@@ -1,12 +1,12 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
 import { A as renderTemplate, N as addAttribute, T as Fragment, j as maybeRenderHead, w as renderComponent } from "./sequence_CIT0iznN.mjs";
-import { T as isInputError } from "./server_B95T5TdT.mjs";
+import { T as isInputError } from "./server_Chmut7OB.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { c as mesISO, i as formatFechaCorta, n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_BK87cCvx.mjs";
-import { t as actions } from "./_astro_actions_BFN9yXEC.mjs";
+import { c as mesISO, i as formatFechaCorta, n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_DRqm_oFd.mjs";
+import { t as actions } from "./_astro_actions_D4kehWx-.mjs";
 import { n as countClientesNuevasEsteMes, o as listClientes, t as countClientes } from "./clientes_BmetyF5T.mjs";
-import { n as Pencil, t as Trash } from "./trash_DIyLjot_.mjs";
-import { n as Search, r as Plus, t as $$LimpiarFiltros } from "./LimpiarFiltros_D0J1IAex.mjs";
+import { n as Pencil, t as Trash } from "./trash_DUy4NpXD.mjs";
+import { n as Search, r as Plus, t as $$LimpiarFiltros } from "./LimpiarFiltros_LipqND-Y.mjs";
 import { t as $$Button } from "./Button_C8T8wdfZ.mjs";
 import { t as $$Input } from "./Input_BqhAvSAl.mjs";
 import { t as $$EmptyState } from "./EmptyState_s9NtGM7p.mjs";
