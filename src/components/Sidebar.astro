@@ -31,8 +31,35 @@ const items = [
 <aside
   id="sidebar"
   data-open="false"
-  class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-wine/15 bg-blush transition-transform duration-200 ease-out data-[open=true]:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shrink-0"
+  class="relative overflow-hidden fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-wine/15 bg-blush transition-transform duration-200 ease-out data-[open=true]:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shrink-0"
 >
+  <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
+    <svg
+      class="figura figura-flor -bottom-14 -left-12 h-48 w-48 opacity-[0.09]"
+      viewBox="0 0 64 64"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      style="--dur: 30s; --dy: -10px; --dr: 6deg; --r0: 12deg"
+    >
+      <ellipse cx="32" cy="17.5" rx="9.5" ry="14"></ellipse>
+      <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(72 32 34)"></ellipse>
+      <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(144 32 34)"></ellipse>
+      <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(216 32 34)"></ellipse>
+      <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(288 32 34)"></ellipse>
+    </svg>
+
+    <div
+      class="figura figura-aro -right-12 top-24"
+      style="--size: 150px; --dur: 34s; --dy: -8px; --dr: 4deg"
+    >
+    </div>
+
+    <span class="figura figura-punto top-[30%] left-6 h-1.5 w-1.5 opacity-[0.35]" style="--dur: 24s"></span>
+    <span class="figura figura-punto top-[46%] right-10 h-2 w-2 opacity-[0.35]" style="--dur: 28s; --delay: 1s"></span>
+    <span class="figura figura-punto bottom-[28%] right-6 h-1.5 w-1.5 opacity-[0.35]" style="--dur: 26s; --delay: 0.5s"></span>
+  </div>
+
   <div class="border-b border-wine/15 px-5 pb-4 pt-6">
     <a href="/" class="block">
       <Valeria variant="sidebar" class="text-[21px]" />
