@@ -44,7 +44,7 @@ scripts/                db-init.ts, db-seed.ts
 
 ## Base de datos
 
-Tablas: `clientes`, `productos`, `ventas`, `venta_items`, `gastos` (ver `db/schema.sql`).
+Tablas: `clientes`, `productos`, `ventas`, `venta_items`, `gastos`, `abonos`, `login_attempts` (ver `db/schema.sql`).
 
 ## Memoria del proyecto
 

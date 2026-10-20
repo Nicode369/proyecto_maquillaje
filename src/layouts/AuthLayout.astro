@@ -43,13 +43,12 @@ const { title = 'Iniciar sesión' } = Astro.props;
     </section>
 
     <main
-      class="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden px-4 pt-10 pb-[max(2.5rem,calc(env(safe-area-inset-bottom)_+_1rem))] sm:px-6 sm:pt-12 sm:pb-12"
+      class="fondo-polvo relative flex min-h-dvh flex-col items-center justify-center overflow-hidden px-4 pt-10 pb-[max(2.5rem,calc(env(safe-area-inset-bottom)_+_1rem))] sm:px-6 sm:pt-12 sm:pb-12"
     >
       <div
         aria-hidden="true"
         class="pointer-events-none absolute inset-0 -z-10 overflow-hidden lg:hidden"
       >
-        <div class="fondo-polvo absolute inset-0"></div>
         <svg
           class="petalo absolute top-[9%] left-[8%] h-9 w-9 fill-rose opacity-30"
           viewBox="0 0 24 24"
@@ -95,13 +94,13 @@ const { title = 'Iniciar sesión' } = Astro.props;
       <div class="entrada w-full max-w-[380px]">
         <div class="mb-7 text-center lg:hidden">
           <Valeria variant="auth" class="justify-center text-[30px]" />
-          <p class="mt-2 text-sm text-ink-muted">Maquillaje</p>
+          <p class="mt-2 text-sm text-ink/75">Maquillaje</p>
         </div>
 
         <slot />
       </div>
 
-      <Footer class="mt-10" />
+      <Footer class="mt-10 [&_p]:text-ink/75" />
     </main>
   </div>
 </BaseLayout>

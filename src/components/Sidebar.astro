@@ -5,6 +5,7 @@ import {
   Package,
   Wallet,
   Users,
+  CircleQuestionMark,
   LogOut,
 } from '@lucide/astro';
 import Valeria from './Valeria.astro';
@@ -23,13 +24,14 @@ const items = [
   { key: 'productos', href: '/productos', label: 'Productos', icon: Package },
   { key: 'gastos', href: '/gastos', label: 'Gastos', icon: Wallet },
   { key: 'clientas', href: '/clientas', label: 'Clientas', icon: Users },
+  { key: 'ayuda', href: '/ayuda', label: 'Ayuda', icon: CircleQuestionMark },
 ];
 ---
 
 <aside
   id="sidebar"
   data-open="false"
-  class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col bg-blush transition-transform duration-200 ease-out data-[open=true]:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shrink-0"
+  class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-wine/15 bg-blush transition-transform duration-200 ease-out data-[open=true]:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shrink-0"
 >
   <div class="border-b border-wine/15 px-5 pb-4 pt-6">
     <a href="/" class="block">

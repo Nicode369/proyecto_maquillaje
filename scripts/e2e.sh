@@ -35,6 +35,8 @@ for r in clientas productos ventas gastos; do
   c=$(curl -s -b $J -o $D/$r.html -w "%{http_code}" "$BASE/$r")
   [ "$c" = "200" ] && pass "/$r → 200" || fail "/$r → $c"
 done
+c=$(curl -s -b $J -o $D/ayuda.html -w "%{http_code}" "$BASE/ayuda")
+if [ "$c" = "200" ] && grep -q "Registrar una venta" $D/ayuda.html; then pass "/ayuda → 200 con guía"; else fail "/ayuda → $c"; fi
 grep -q "Valentina Ríos" $D/clientas.html && pass "seed: clienta visible" || warn "seed: clienta no visible"
 grep -q "Master Matte" $D/productos.html && pass "seed: producto visible" || warn "seed: producto no visible"
 grep -q "Arriendo" $D/gastos.html && pass "seed: gasto visible" || warn "seed: gasto no visible"
@@ -82,6 +84,35 @@ grep -qi "anulada" $D/venta.html && pass "venta marcada como anulada" || fail "b
 curl -s -b $J -o $D/prod-editar.html "$BASE/productos/$PID/editar"
 S=$(stock); [ "$S" = "7" ] && pass "stock restaurado 5 → 7" || fail "stock esperaba 7, obtuve $S"
 
+# --- Venta a crédito + abonos (fingerprint limpio: fecha/40000/Efectivo) ---
+c=$(curl -s -b $J -o $D/crear-vc.txt -w "%{http_code}" -X POST "$BASE/ventas/nueva?_action=ventas.crear" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "fecha=$FECHA" --data-urlencode "cliente_id=$CID" --data-urlencode "metodo_pago=Efectivo" \
+  --data-urlencode "descuento=0" --data-urlencode "notas=" --data-urlencode "credito=on" \
+  --data-urlencode "items_json=[{\"producto_id\":\"$PID\",\"descripcion\":\"E2E Producto Temp · MarcaX\",\"cantidad\":2,\"precio_unitario\":20000}]")
+case $c in 200|302) pass "ventas.crear crédito → $c";; *) fail "ventas.crear crédito → $c $(head -c 200 $D/crear-vc.txt)";; esac
+VID2=$(curl -s -b $J "$BASE/ventas?q=E2E" | grep -oE '/ventas/[0-9a-f-]{36}' | head -1 | sed 's#/ventas/##')
+[ -n "$VID2" ] && pass "venta a crédito visible (por clienta)" || fail "venta a crédito no aparece"
+curl -s -b $J -o $D/venta-credito.html "$BASE/ventas/$VID2"
+if grep -q "A crédito" $D/venta-credito.html && grep -q "Debe" $D/venta-credito.html; then
+  pass "detalle: badges A crédito + Debe"
+else
+  fail "detalle sin badges de crédito"
+fi
+c=$(curl -s -b $J -o $D/abono.txt -w "%{http_code}" -X POST "$BASE/ventas/$VID2?_action=ventas.registrarAbono" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "venta_id=$VID2" --data-urlencode "fecha=$FECHA" --data-urlencode "monto=15000" --data-urlencode "notas=pago parcial e2e")
+case $c in 200|302) pass "registrarAbono 15000 → $c";; *) fail "registrarAbono → $c $(head -c 200 $D/abono.txt)";; esac
+curl -s -b $J -o $D/venta-credito.html "$BASE/ventas/$VID2"
+grep -q "25.000" $D/venta-credito.html && pass "saldo tras abono = 25.000" || fail "saldo 25.000 no visible"
+c=$(curl -s -b $J -o /dev/null -w "%{http_code}" -X POST "$BASE/ventas/$VID2?_action=ventas.registrarAbono" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "venta_id=$VID2" --data-urlencode "fecha=$FECHA" --data-urlencode "monto=999999" --data-urlencode "notas=")
+[ "$c" = "500" ] && pass "abono mayor al saldo → 500" || fail "abono excesivo → $c (esperado 500)"
+c=$(curl -s -b $J -o $D/anular-credito.txt -w "%{http_code}" -X POST "$BASE/ventas/$VID2?_action=ventas.anular" \
+  -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "id=$VID2")
+grep -qi "abonos" $D/anular-credito.txt && pass "anular con abonos → bloqueada" || fail "anular con abonos no bloqueada ($c)"
+
 # --- CRUD gasto ---
 c=$(curl -s -b $J -o $D/crear-g.txt -w "%{http_code}" -X POST "$BASE/gastos/nuevo?_action=gastos.crear" \
   -H "Content-Type: application/x-www-form-urlencoded" \
@@ -107,6 +138,17 @@ case $code in
 esac
 c=$(curl -s -b $J -o /dev/null -w "%{http_code}" "$BASE/")
 [ "$c" = "302" ] && pass "tras logout / → 302 login" || fail "tras logout / → $c"
+
+# --- Rate limit de login (IP falsa única por corrida) ---
+FAKEIP="203.0.113.$((RANDOM % 250 + 1))"
+for i in 1 2 3 4 5; do
+  c=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$BASE/login?_action=auth.login" \
+    -H "X-Forwarded-For: $FAKEIP" -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "password=mala")
+done
+[ "$c" = "401" ] && pass "5 intentos fallidos (IP falsa) → 401" || fail "5º intento fallido → $c (esperado 401)"
+c=$(curl -s -o $D/ratelimit.txt -w "%{http_code}" -X POST "$BASE/login?_action=auth.login" \
+  -H "X-Forwarded-For: $FAKEIP" -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "password=mala")
+grep -qi "Demasiados" $D/ratelimit.txt && [ "$c" = "429" ] && pass "6º intento → 429 rate limit" || fail "6º intento → $c (esperado 429)"
 
 echo "=============================="
 echo "FALLOS: $FAILS"

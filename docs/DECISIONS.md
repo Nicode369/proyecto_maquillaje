@@ -13,6 +13,29 @@ Para no re-descubrir por qué el código es así. Stack/convenciones básicas en
 - `::float8`/`::int`/`::text` en todo SQL (Neon devuelve strings sin cast).
 - `sql.transaction` solo en `createVenta` (venta + items + stock en un solo paso).
 
+## Crédito y abonos (ventas fiadas)
+
+- `ventas.credito boolean` + tabla `abonos (venta_id FK CASCADE, fecha, monto>0, notas)`.
+- **El saldo nunca se almacena**: se calcula en cada query
+  (`GREATEST(total − SUM(abonos), 0)` vía LEFT JOIN LATERAL) — sin desincronización
+  y la escala es minúscula.
+- **Reglas de negocio**: a crédito exige clienta (deuda anónima no tiene sentido);
+  anular una venta con abonos queda **bloqueada** (hubo plata real de por medio);
+  `registrarAbono` valida `monto ≤ saldo` en el servidor.
+- UI: badge `wine` "Crédito · debe $X" en listas, "Debe" en clientas, celda
+  "Por cobrar" (total global, sin filtro de mes) en la tira de KPIs de la home.
+
+## Rate limit y security headers
+
+- **Rate limit por IP en DB** (`login_attempts(ip, ts)`), no in-memory: en serverless
+  (Vercel) la memoria no sobrevive entre invocaciones ni entre instancias. Máx.
+  5 intentos fallidos / 15 min; al acertar se limpia la IP; INSERT purga filas >1h.
+- IP desde `x-forwarded-for` (primer hop) con fallback a `clientAddress`.
+- **Security headers** en el middleware vía wrapper `conSeguridad()` (también en
+  redirects): `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
+  `Referrer-Policy: strict-origin-when-cross-origin`. **Sin CSP**: rompería los
+  scripts inline de Chart.js.
+
 ## Auth y logout
 
 - Cookie `panel_session`: `httpOnly`, `sameSite=lax`, `path=/`, 14 días; HMAC-SHA256
@@ -65,9 +88,12 @@ Otras reglas de diseño:
 
 - `AuthLayout`: `main` con `flex-col` (¡row rompía el footer!), `min-h-dvh` (no `screen`),
   safe-area con `env(safe-area-inset-bottom)` + `viewport-fit=cover`.
-- Capa de fondo solo mobile (`lg:hidden`): gradiente `.fondo-polvo` + 5 pétalos con keyframe
+- Capa de fondo: gradiente `.fondo-polvo` **sobre `main`** (visible también en desktop);
+  pétalos solo mobile (`lg:hidden`) con keyframe
   `deriva` (custom props `--dur/--delay/--dy/--dr/--r0`), entrada `.entrada` 450ms.
   `prefers-reduced-motion` global + explícito en el componente.
+- Textos sobre el gradiente (footer y "Maquillaje" mobile) en `ink/75` — `ink-muted`
+  cae a 4.2:1 sobre `#f6d3e0` (detector).
 - El watermark del login se **quitó** (detector: raster invisible = "compliance token");
   la identidad desktop la carga el panel espresso.
 

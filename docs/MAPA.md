@@ -4,7 +4,7 @@ Una línea por archivo para localizar todo sin escanear el repo.
 
 ```
 src/
-├── middleware.ts            Protege todas las rutas salvo /login (verifica cookie de sesión)
+├── middleware.ts            Protege todas las rutas salvo /login + security headers (conSeguridad)
 ├── env.d.ts                 Tipos de ambiente (astro:env)
 │
 ├── layouts/
@@ -13,21 +13,22 @@ src/
 │   └── AuthLayout.astro     Login: panel espresso desktop + capa blush móvil (gradiente/pétalos) + footer
 │
 ├── pages/
-│   ├── index.astro          Resumen: KPIs + Chart.js (ingresos/gastos 6 meses) + últimas ventas
+│   ├── index.astro          Resumen: KPIs (con Por cobrar) + Chart.js + tops + stock bajo
 │   ├── login.astro          Form de contraseña (botón/input size lg)
 │   ├── logout.astro         POST → borra cookie → 302 /login (endpoint, NO action; ver DECISIONS)
-│   ├── ventas/              index (filtros+tabla), nueva, [id] (detalle)
+│   ├── ayuda.astro          Guía de uso en español (8 tarjetas paso a paso)
+│   ├── ventas/              index (filtros+tabla+badges crédito), nueva (checkbox crédito), [id] (detalle + abonos)
 │   ├── productos/           index (KPIs stock + miniaturas + filtros), nuevo, [id]/editar
 │   ├── gastos/              index, nuevo, [id]/editar
-│   └── clientas/            index, nueva, [id], [id]/editar
+│   └── clientas/            index (columna Debe), nueva, [id] (tarjeta Debe), [id]/editar
 │
 ├── actions/
 │   ├── index.ts             Exporta `server` = { auth, clientes, gastos, productos, ventas }
-│   ├── auth.ts              Solo login (logout NO es action → pages/logout.astro)
+│   ├── auth.ts              Login con rate limit por IP (login_attempts, 5/15 min; ver DECISIONS)
 │   ├── sesion.ts            exigirSesion(): guard de actions (ActionError UNAUTHORIZED)
-│   ├── clientes.ts          crear/actualizar/eliminar (soft… no: eliminación dura)
+│   ├── clientes.ts          crear/actualizar/eliminar (eliminación dura)
 │   ├── productos.ts         CRUD + campo `imagen` (zod data-URL) + limpiar()
-│   ├── ventas.ts            crear (transacción) + anular (restaura stock)
+│   ├── ventas.ts            crear (transacción, credito) + anular (guard abonos) + registrarAbono
 │   └── gastos.ts            CRUD de gastos
 │
 ├── components/
@@ -44,24 +45,24 @@ src/
 │   ├── auth.ts              firmarSesion/verificarSesion (HMAC), opcionesCookie, SESSION_COOKIE
 │   ├── format.ts            COP (Intl es-CO sin decimales), fechas es-CO
 │   └── queries/             SQL crudo, uno por módulo:
-│       ├── types.ts         Tipos de filas
-│       ├── clientes.ts      CRUD + búsqueda
+│       ├── types.ts         Tipos de filas (+Abono; Venta con credito/saldo; ClienteResumen con saldo)
+│       ├── clientes.ts      CRUD + búsqueda + saldo pendiente por clienta
 │       ├── productos.ts     CRUD + resumenStockActivo() + búsquedas (incluye imagen)
-│       ├── ventas.ts        Lista/filtros + detalle + KPIs (excluye anuladas)
+│       ├── ventas.ts        Lista/filtros + detalle (items+abonos) + saldo calculado + create/anular/registrarAbono
 │       ├── gastos.ts        CRUD + filtros + totales por mes
-│       └── reportes.ts      Datos de la home (KPIs, serie de la gráfica)
+│       └── reportes.ts      Datos de la home (KPIs, serie, stock bajo, tops, porCobrar)
 │
 └── styles/
     └── global.css           Tailwind v4: tokens @theme (paleta completa), data-table,
                              display-number, reduced-motion, scrollbars
 
 db/
-├── schema.sql               CREATE TABLEs + ALTER (productos.imagen)
+├── schema.sql               CREATE TABLEs (7: +abonos, login_attempts) + ALTER (productos.imagen, ventas.credito)
 scripts/
 ├── db-init.ts               Aplica schema.sql (requiere .env + source)
 ├── db-seed.ts               Inserta datos de prueba (⚠️ no corre sin confirmar: duplicaría datos)
-├── e2e.sh                   Suite e2e (~30 checks) — bash scripts/e2e.sh desde el root; seed como avisos
-└── clean-e2e.mjs            Limpia residuos E2E% y reporta counts — requiere DATABASE_URL exportado (pooler)
+├── e2e.sh                   Suite e2e (~40 checks incl. crédito/abonos y rate limit) — bash scripts/e2e.sh
+└── clean-e2e.mjs            Limpia residuos E2E% (abonos por CASCADE) y reporta counts — requiere DATABASE_URL (pooler)
 ```
 
 Assets: `public/logo.svg` (flor con degradado), `public/favicon.svg`.

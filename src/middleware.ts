@@ -3,20 +3,27 @@ import { SESSION_COOKIE, verificarSesion } from './lib/auth';
 
 const RUTAS_PUBLICAS = new Set(['/login', '/favicon.svg', '/robots.txt']);
 
+function conSeguridad(res: Response): Response {
+  res.headers.set('X-Frame-Options', 'DENY');
+  res.headers.set('X-Content-Type-Options', 'nosniff');
+  res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  return res;
+}
+
 export const onRequest = defineMiddleware(async (context, next) => {
   const ruta = context.url.pathname.replace(/\/+$/, '') || '/';
 
   if (RUTAS_PUBLICAS.has(ruta)) {
     if (ruta === '/login' && (await verificarSesion(context.cookies.get(SESSION_COOKIE)?.value))) {
-      return context.redirect('/');
+      return conSeguridad(context.redirect('/'));
     }
-    return next();
+    return conSeguridad(await next());
   }
 
   const autenticado = await verificarSesion(context.cookies.get(SESSION_COOKIE)?.value);
   if (!autenticado) {
-    return context.redirect('/login');
+    return conSeguridad(context.redirect('/login'));
   }
 
-  return next();
+  return conSeguridad(await next());
 });
