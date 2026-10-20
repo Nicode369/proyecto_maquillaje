@@ -1,5 +1,5 @@
 import { Nt as ActionCalledFromServerError, St as fetchStateSymbol, hn as AstroError } from "./sequence_CIT0iznN.mjs";
-import { C as createActionsProxy, i as getAction, w as createGetActionPath } from "./server_C9TuG6g2.mjs";
+import { C as createActionsProxy, i as getAction, w as createGetActionPath } from "./server_CLYhxG4G.mjs";
 createGetActionPath({
 	baseUrl: "/",
 	shouldAppendTrailingSlash: true

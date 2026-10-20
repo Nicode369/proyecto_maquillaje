@@ -1,8 +1,9 @@
 import { t as DASHBOARD_PASSWORD } from "./server_DcDs3kpP.mjs";
-import { S as ActionError, t as defineAction } from "./server_C9TuG6g2.mjs";
+import { S as ActionError, t as defineAction } from "./server_CLYhxG4G.mjs";
 import { a as verificarSesion, i as opcionesCookie, n as contrasenasIguales, r as firmarSesion, t as SESSION_COOKIE } from "./auth_Cowi-BmK.mjs";
-import "./_astro_actions_DoCWdtvR.mjs";
+import "./_astro_actions_Cm4RM71H.mjs";
 import { t as sql } from "./db_BRoxtVEw.mjs";
+import { t as capitalizarNombre } from "./format_C9vTb3rb.mjs";
 import { a as getCliente, i as deleteCliente, o as listClientes, r as createCliente, s as updateCliente } from "./clientes_BmetyF5T.mjs";
 import { n as deleteGasto, r as getGasto, s as updateGasto, t as createGasto } from "./gastos_uFnzIew9.mjs";
 import { i as getProducto, l as updateProducto, n as createProducto, r as deleteProducto } from "./productos_DJAPQyIZ.mjs";
@@ -69,7 +70,7 @@ var esquemaCliente = mod.object({
 });
 function limpiar$1(data) {
 	return {
-		nombre: data.nombre,
+		nombre: capitalizarNombre(data.nombre),
 		telefono: data.telefono?.trim() || null,
 		email: data.email?.trim() || null,
 		notas: data.notas?.trim() || null

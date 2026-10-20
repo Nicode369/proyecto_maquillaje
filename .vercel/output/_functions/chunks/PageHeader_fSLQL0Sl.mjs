@@ -1,5 +1,6 @@
 import { A as renderTemplate, D as renderSlot, F as createRenderInstruction, N as addAttribute, j as maybeRenderHead, w as renderComponent, x as spreadAttributes } from "./sequence_CIT0iznN.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
+import { i as formatFechaLarga, o as hoyISO } from "./format_C9vTb3rb.mjs";
 import { n as $$Valeria, r as $$BaseLayout, t as $$Footer } from "./Footer_B21S7Zxe.mjs";
 //#region node_modules/astro/dist/runtime/server/render/script.js
 /**
@@ -400,55 +401,6 @@ var $$Sidebar = createComponent(($$result, $$props, $$slots) => {
 	})}Cerrar sesión</button></form></div></aside><div id="sidebar-backdrop" data-open="false" class="pointer-events-none fixed inset-0 z-30 bg-ink/40 opacity-0 transition-opacity duration-200 lg:hidden data-[open=true]:pointer-events-auto data-[open=true]:opacity-100" aria-hidden="true"></div>${renderScript($$result, "/home/nicode/Proyectos/proyecto_maquillaje/src/components/Sidebar.astro?astro&type=script&index=0&lang.ts")}`;
 }, "/home/nicode/Proyectos/proyecto_maquillaje/src/components/Sidebar.astro", void 0);
 //#endregion
-//#region src/lib/format.ts
-var copFormatter = new Intl.NumberFormat("es-CO", {
-	style: "currency",
-	currency: "COP",
-	maximumFractionDigits: 0
-});
-var longDateFormatter = new Intl.DateTimeFormat("es-CO", {
-	weekday: "long",
-	day: "numeric",
-	month: "long",
-	year: "numeric"
-});
-var shortDateFormatter = new Intl.DateTimeFormat("es-CO", {
-	day: "2-digit",
-	month: "2-digit",
-	year: "numeric"
-});
-var monthNameFormatter = new Intl.DateTimeFormat("es-CO", {
-	month: "long",
-	year: "numeric"
-});
-function formatCOP(amount) {
-	return copFormatter.format(Math.round(amount));
-}
-function formatFechaLarga(date) {
-	return longDateFormatter.format(toDate(date));
-}
-function formatFechaCorta(date) {
-	return shortDateFormatter.format(toDate(date));
-}
-function formatMes(date) {
-	return monthNameFormatter.format(toDate(date));
-}
-function hoyISO() {
-	const now = /* @__PURE__ */ new Date();
-	const offset = now.getTimezoneOffset();
-	return (/* @__PURE__ */ new Date(now.getTime() - offset * 6e4)).toISOString().slice(0, 10);
-}
-function mesISO(date = /* @__PURE__ */ new Date()) {
-	return toDate(date).toISOString().slice(0, 7);
-}
-function parseISODate(value) {
-	return /* @__PURE__ */ new Date(`${value}T12:00:00`);
-}
-function toDate(value) {
-	if (value instanceof Date) return value;
-	return parseISODate(value);
-}
-//#endregion
 //#region src/layouts/DashboardLayout.astro
 createAstro("https://astro.build");
 var $$DashboardLayout = createComponent(($$result, $$props, $$slots) => {
@@ -469,4 +421,4 @@ var $$PageHeader = createComponent(($$result, $$props, $$slots) => {
 	return renderTemplate`${maybeRenderHead($$result)}<header${addAttribute(["border-b border-hairline pb-5", className], "class:list")}><div class="flex flex-wrap items-end justify-between gap-4"><div class="space-y-1"><h1 class="display-number text-[28px] leading-tight text-ink" style="font-variation-settings: 'opsz' 90;">${title}</h1>${description && renderTemplate`<p class="text-sm text-ink-muted">${description}</p>`}</div><div class="flex items-center gap-2">${renderSlot($$result, $$slots["default"])}</div></div></header>`;
 }, "/home/nicode/Proyectos/proyecto_maquillaje/src/components/ui/PageHeader.astro", void 0);
 //#endregion
-export { formatFechaLarga as a, mesISO as c, formatFechaCorta as i, createLucideIcon as l, $$DashboardLayout as n, formatMes as o, formatCOP as r, hoyISO as s, $$PageHeader as t, renderScript as u };
+export { renderScript as i, $$DashboardLayout as n, createLucideIcon as r, $$PageHeader as t };
