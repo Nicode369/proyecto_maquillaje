@@ -1,11 +1,11 @@
 import { neon } from '@neondatabase/serverless';
 import { NEON_DATABASE_URL } from 'astro:env/server';
 
-type ClienteNeon = ReturnType<typeof crearCliente>;
-
-function crearCliente(): ReturnType<typeof neon> {
-  return neon(NEON_DATABASE_URL as string);
+function crearCliente() {
+  return neon<false, false>(NEON_DATABASE_URL as string);
 }
+
+type ClienteNeon = ReturnType<typeof crearCliente>;
 
 function sinBaseDeDatos(): never {
   throw new Error(
