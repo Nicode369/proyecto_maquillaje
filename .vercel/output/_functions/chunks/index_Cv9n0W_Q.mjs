@@ -1,9 +1,9 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
 import { A as renderTemplate, N as addAttribute, T as Fragment, j as maybeRenderHead, w as renderComponent } from "./sequence_CIT0iznN.mjs";
-import { T as isInputError } from "./server_DlWbROmn.mjs";
+import { T as isInputError } from "./server_Bxs8jIg6.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
 import { n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_BK87cCvx.mjs";
-import { t as actions } from "./_astro_actions_D_xV788m.mjs";
+import { t as actions } from "./_astro_actions_Bfer9Yqu.mjs";
 import { a as listCategorias, c as resumenStockActivo, o as listProductos, t as countStockBajo } from "./productos_DJAPQyIZ.mjs";
 import { n as Pencil, t as Trash } from "./trash_DIyLjot_.mjs";
 import { n as Search, r as Plus, t as $$LimpiarFiltros } from "./LimpiarFiltros_D0J1IAex.mjs";
