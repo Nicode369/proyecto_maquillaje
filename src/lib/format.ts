@@ -58,6 +58,13 @@ export function parseISODate(value: string): Date {
   return new Date(`${value}T12:00:00`);
 }
 
+export function capitalizarNombre(nombre: string): string {
+  return nombre
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/(^|[\s'-])(\p{L})/gu, (_, sep: string, letra: string) => sep + letra.toUpperCase());
+}
+
 function toDate(value: Date | string): Date {
   if (value instanceof Date) return value;
   return parseISODate(value);

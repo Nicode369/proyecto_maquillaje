@@ -1,6 +1,7 @@
 import { defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
 import { exigirSesion } from './sesion';
+import { capitalizarNombre } from '../lib/format';
 import {
   createCliente,
   deleteCliente,
@@ -31,7 +32,7 @@ function limpiar(data: {
   notas?: string | null;
 }) {
   return {
-    nombre: data.nombre,
+    nombre: capitalizarNombre(data.nombre),
     telefono: data.telefono?.trim() || null,
     email: data.email?.trim() || null,
     notas: data.notas?.trim() || null,
