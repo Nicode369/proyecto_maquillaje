@@ -54,7 +54,16 @@ const fechaCapitalizada = fecha.charAt(0).toUpperCase() + fecha.slice(1);
         <p class="ml-auto hidden text-[13px] text-ink/75 sm:block">{fechaCapitalizada}</p>
       </header>
 
-      <main class="mx-auto w-full max-w-[1120px] flex-1 px-4 py-7 sm:px-6 lg:px-8 lg:py-9">
+      <main class="relative isolate mx-auto w-full max-w-[1120px] flex-1 px-4 py-7 sm:px-6 lg:px-8 lg:py-9">
+        <div
+          aria-hidden="true"
+          class="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+        >
+          <div class="fondo-panel absolute inset-0"></div>
+          <div class="mancha -top-24 -right-24 h-80 w-80 bg-blush/40"></div>
+          <div class="mancha -bottom-32 -left-24 h-96 w-96 bg-rose/25"></div>
+          <div class="grano-papel absolute inset-0"></div>
+        </div>
         <slot />
       </main>
 
