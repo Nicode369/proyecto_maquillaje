@@ -1,14 +1,14 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
 import { A as renderTemplate, N as addAttribute, j as maybeRenderHead, w as renderComponent } from "./sequence_CIT0iznN.mjs";
-import { T as isInputError } from "./server_C7IBEsZC.mjs";
+import { T as isInputError } from "./server_q5TVdO0i.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { n as $$DashboardLayout, t as $$PageHeader } from "./PageHeader_DQKbRoGa.mjs";
-import { t as actions } from "./_astro_actions_CN5Qzb7G.mjs";
+import { n as $$DashboardLayout, t as $$PageHeader } from "./PageHeader_Guces94u.mjs";
+import { t as actions } from "./_astro_actions_laG6TyeL.mjs";
 import { i as getProducto } from "./productos_DJAPQyIZ.mjs";
-import { t as $$Button } from "./Button_rhw3u4w2.mjs";
-import { t as TriangleAlert } from "./triangle-alert_B3G4w0U6.mjs";
+import { t as $$Button } from "./Button_CpE-guga.mjs";
+import { t as TriangleAlert } from "./triangle-alert_8-iQegYG.mjs";
 import { t as $$Input } from "./Input_BqhAvSAl.mjs";
-import { n as $$Checkbox, t as $$SubirImagen } from "./SubirImagen_DxrZiaYB.mjs";
+import { n as $$Checkbox, t as $$SubirImagen } from "./SubirImagen_FzGuIuNK.mjs";
 //#region src/pages/productos/[id]/editar.astro
 var editar_exports = /* @__PURE__ */ __exportAll({
 	default: () => $$Editar,
