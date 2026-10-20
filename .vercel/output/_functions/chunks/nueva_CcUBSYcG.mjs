@@ -1,12 +1,12 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
 import { A as renderTemplate, D as renderSlot, N as addAttribute, P as defineScriptVars, j as maybeRenderHead, w as renderComponent, x as spreadAttributes } from "./sequence_CIT0iznN.mjs";
-import { T as isInputError } from "./server_D1SfNI7C.mjs";
+import { T as isInputError } from "./server_B8ZlCX6a.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { n as $$DashboardLayout, s as hoyISO, t as $$PageHeader } from "./PageHeader_BTvTqJan.mjs";
-import { t as actions } from "./_astro_actions_D5oZq4N2.mjs";
-import { o as listClientes } from "./clientes_DmH0mKyw.mjs";
+import { n as $$DashboardLayout, s as hoyISO, t as $$PageHeader } from "./PageHeader_BK87cCvx.mjs";
+import { t as actions } from "./_astro_actions_DfrBmID5.mjs";
+import { o as listClientes } from "./clientes_BmetyF5T.mjs";
 import { s as listProductosParaVenta } from "./productos_DJAPQyIZ.mjs";
-import { t as $$Button } from "./Button_D6ed2Jna.mjs";
+import { t as $$Button } from "./Button_C8T8wdfZ.mjs";
 import { t as $$Input } from "./Input_BqhAvSAl.mjs";
 import { t as $$Textarea } from "./Textarea_Dk0Vx8FR.mjs";
 //#region src/components/ui/Select.astro
@@ -79,7 +79,7 @@ var $$Nueva = createComponent(async ($$result, $$props, $$slots) => {
 		"label": "Método de pago",
 		"required": true,
 		"error": campos.metodo_pago?.[0]
-	}, { "default": ($$result) => renderTemplate`${metodos.map((m) => renderTemplate`<option${addAttribute(m, "value")}>${m}</option>`)}` })}</div><div><div class="flex items-center justify-between border-b border-hairline pb-2"><h2 class="font-display text-lg text-ink" style="font-variation-settings: 'opsz' 40;">Productos y servicios</h2><div class="flex gap-2">${renderComponent($$result, "Button", $$Button, {
+	}, { "default": ($$result) => renderTemplate`${metodos.map((m) => renderTemplate`<option${addAttribute(m, "value")}>${m}</option>`)}` })}</div><label class="flex items-start gap-3 rounded-xl border border-hairline bg-surface px-4 py-3"><input type="checkbox" name="credito" class="mt-0.5 h-4 w-4 shrink-0 accent-wine"><span class="text-sm text-ink">Venta a crédito (fiada)<span class="block text-[13px] text-ink-muted">El saldo queda pendiente en la clienta; registra los abonos desde el detalle de la venta. Requiere elegir clienta.</span></span></label><div><div class="flex items-center justify-between border-b border-hairline pb-2"><h2 class="font-display text-lg text-ink" style="font-variation-settings: 'opsz' 40;">Productos y servicios</h2><div class="flex gap-2">${renderComponent($$result, "Button", $$Button, {
 		"variant": "outline",
 		"size": "sm",
 		"type": "button",

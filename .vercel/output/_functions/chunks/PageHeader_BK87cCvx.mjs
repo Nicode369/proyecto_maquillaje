@@ -1,6 +1,6 @@
 import { A as renderTemplate, D as renderSlot, F as createRenderInstruction, N as addAttribute, j as maybeRenderHead, w as renderComponent, x as spreadAttributes } from "./sequence_CIT0iznN.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { i as $$BaseLayout, n as $$Footer, r as $$Valeria } from "./Button_D6ed2Jna.mjs";
+import { n as $$Valeria, r as $$BaseLayout, t as $$Footer } from "./Footer_C0WlN6hP.mjs";
 //#region node_modules/astro/dist/runtime/server/render/script.js
 /**
 * Relies on the `renderScript: true` compiler option
@@ -156,6 +156,33 @@ function createLucideIcon(iconOrIconName, iconNode = [], aliases = []) {
 		}, { default: () => renderTemplate`${renderSlot($$result, $$slots["default"])}` })}`;
 	}, void 0, "none");
 }
+//#endregion
+//#region node_modules/@lucide/astro/src/icons/circle-question-mark.ts
+/**
+* @component @name CircleQuestionMark
+* @description Lucide SVG icon component, renders SVG Element with children.
+*
+* @preview ![img](data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzAwMCIgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmZmY7IGJvcmRlci1yYWRpdXM6IDJweCIKICBzdHJva2Utd2lkdGg9IjIiCiAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogIHN0cm9rZS1saW5lam9pbj0icm91bmQiCj4KICA8Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgLz4KICA8cGF0aCBkPSJNOS4wOSA5YTMgMyAwIDAgMSA1LjgzIDFjMCAyLTMgMy0zIDMiIC8+CiAgPHBhdGggZD0iTTEyIDE3aC4wMSIgLz4KPC9zdmc+Cg==) - https://lucide.dev/icons/circle-question-mark
+* @see https://lucide.dev/guide/packages/lucide-astro - Documentation
+*
+* @param {import('../types').IconProps} props - Lucide icons props and any valid SVG attribute
+* @returns {any} Astro Component
+* 
+*/
+var CircleQuestionMark = createLucideIcon({
+	"name": "circle-question-mark",
+	"size": 24,
+	"node": [
+		["circle", {
+			"cx": "12",
+			"cy": "12",
+			"r": "10"
+		}],
+		["path", { "d": "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" }],
+		["path", { "d": "M12 17h.01" }]
+	],
+	"aliases": ["help-circle", "circle-help"]
+});
 //#endregion
 //#region node_modules/@lucide/astro/src/icons/layout-dashboard.ts
 /**
@@ -353,9 +380,15 @@ var $$Sidebar = createComponent(($$result, $$props, $$slots) => {
 			href: "/clientas",
 			label: "Clientas",
 			icon: Users
+		},
+		{
+			key: "ayuda",
+			href: "/ayuda",
+			label: "Ayuda",
+			icon: CircleQuestionMark
 		}
 	];
-	return renderTemplate`${maybeRenderHead($$result)}<aside id="sidebar" data-open="false" class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col bg-blush transition-transform duration-200 ease-out data-[open=true]:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shrink-0"><div class="border-b border-wine/15 px-5 pb-4 pt-6"><a href="/" class="block">${renderComponent($$result, "Valeria", $$Valeria, {
+	return renderTemplate`${maybeRenderHead($$result)}<aside id="sidebar" data-open="false" class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-wine/15 bg-blush transition-transform duration-200 ease-out data-[open=true]:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shrink-0"><div class="border-b border-wine/15 px-5 pb-4 pt-6"><a href="/" class="block">${renderComponent($$result, "Valeria", $$Valeria, {
 		"variant": "sidebar",
 		"class": "text-[21px]"
 	})}<p class="mt-1.5 text-xs text-ink/60">Maquillaje</p></a></div><nav class="flex-1 overflow-y-auto px-3 py-4" aria-label="Secciones del panel">${items.map(({ key, href, label, icon: Icon }) => renderTemplate`<a${addAttribute(href, "href")}${addAttribute(active === key ? "page" : void 0, "aria-current")}${addAttribute(["group mb-0.5 flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors", active === key ? "bg-white/75 text-wine" : "text-ink/70 hover:bg-white/50 hover:text-ink"], "class:list")}>${renderComponent($$result, "Icon", Icon, {
@@ -424,7 +457,7 @@ var $$DashboardLayout = createComponent(($$result, $$props, $$slots) => {
 	const { title, active } = Astro.props;
 	const fecha = formatFechaLarga(hoyISO());
 	const fechaCapitalizada = fecha.charAt(0).toUpperCase() + fecha.slice(1);
-	return renderTemplate`${renderComponent($$result, "BaseLayout", $$BaseLayout, { "title": `${title} · Valeria Eslava` }, { "default": ($$result) => renderTemplate`${maybeRenderHead($$result)}<div class="min-h-screen lg:flex">${renderComponent($$result, "Sidebar", $$Sidebar, { "active": active })}<div class="flex min-w-0 flex-1 flex-col"><header class="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-wine/15 bg-blush px-4 sm:px-6 lg:px-8"><button type="button" id="menu-toggle" class="-ml-1 flex h-9 w-9 items-center justify-center rounded text-ink/70 transition-colors hover:bg-white/50 hover:text-ink lg:hidden" aria-controls="sidebar" aria-expanded="false" aria-label="Abrir menú de navegación"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button><p class="text-[13px] font-medium text-ink">${title}</p><p class="ml-auto hidden text-[13px] text-ink/75 sm:block">${fechaCapitalizada}</p></header><main class="mx-auto w-full max-w-[1120px] flex-1 px-4 py-7 sm:px-6 lg:px-8 lg:py-9">${renderSlot($$result, $$slots["default"])}</main>${renderComponent($$result, "Footer", $$Footer, { "class": "border-t border-hairline px-4 py-5 sm:px-6 lg:px-8" })}</div></div>` })}`;
+	return renderTemplate`${renderComponent($$result, "BaseLayout", $$BaseLayout, { "title": `${title} · Valeria Eslava` }, { "default": ($$result) => renderTemplate`${maybeRenderHead($$result)}<div class="min-h-screen lg:flex">${renderComponent($$result, "Sidebar", $$Sidebar, { "active": active })}<div class="flex min-w-0 flex-1 flex-col"><header class="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-wine/15 bg-blush px-4 sm:px-6 lg:px-8"><button type="button" id="menu-toggle" class="-ml-1 flex h-9 w-9 items-center justify-center rounded text-ink/70 transition-colors hover:bg-white/50 hover:text-ink lg:hidden" aria-controls="sidebar" aria-expanded="false" aria-label="Abrir menú de navegación"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button><img src="/logo.svg" alt="" aria-hidden="true" class="h-5 w-5 shrink-0 lg:hidden"><p class="text-[13px] font-medium text-ink">${title}</p><p class="ml-auto hidden text-[13px] text-ink/75 sm:block">${fechaCapitalizada}</p></header><main class="mx-auto w-full max-w-[1120px] flex-1 px-4 py-7 sm:px-6 lg:px-8 lg:py-9">${renderSlot($$result, $$slots["default"])}</main>${renderComponent($$result, "Footer", $$Footer, { "class": "border-t border-hairline px-4 py-5 sm:px-6 lg:px-8" })}</div></div>` })}`;
 }, "/home/nicode/Proyectos/proyecto_maquillaje/src/layouts/DashboardLayout.astro", void 0);
 //#endregion
 //#region src/components/ui/PageHeader.astro

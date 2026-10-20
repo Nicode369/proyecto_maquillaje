@@ -1,13 +1,22 @@
 import { t as DASHBOARD_PASSWORD } from "./server_DcDs3kpP.mjs";
-import { S as ActionError, t as defineAction } from "./server_D1SfNI7C.mjs";
+import { S as ActionError, t as defineAction } from "./server_B8ZlCX6a.mjs";
 import { a as verificarSesion, i as opcionesCookie, n as contrasenasIguales, r as firmarSesion, t as SESSION_COOKIE } from "./auth_Cowi-BmK.mjs";
-import "./_astro_actions_D5oZq4N2.mjs";
-import { a as getCliente, i as deleteCliente, o as listClientes, r as createCliente, s as updateCliente } from "./clientes_DmH0mKyw.mjs";
+import "./_astro_actions_DfrBmID5.mjs";
+import { t as sql } from "./db_BRoxtVEw.mjs";
+import { a as getCliente, i as deleteCliente, o as listClientes, r as createCliente, s as updateCliente } from "./clientes_BmetyF5T.mjs";
 import { n as deleteGasto, r as getGasto, s as updateGasto, t as createGasto } from "./gastos_uFnzIew9.mjs";
 import { i as getProducto, l as updateProducto, n as createProducto, r as deleteProducto } from "./productos_DJAPQyIZ.mjs";
-import { n as createVenta, r as getVenta, t as anularVenta } from "./ventas_BBpED52g.mjs";
+import { n as createVenta, o as registrarAbono, r as getVenta, t as anularVenta } from "./ventas_CdaSwVoC.mjs";
 import * as mod from "zod/v4";
 //#region src/actions/auth.ts
+var MAX_INTENTOS = 5;
+var VENTANA_MS = 9e5;
+var LIMPIEZA_MS = 36e5;
+function ipDeRequest(request, clientAddress) {
+	const encabezado = request.headers.get("x-forwarded-for");
+	if (encabezado) return encabezado.split(",")[0].trim();
+	return clientAddress || "desconocida";
+}
 var auth = { login: defineAction({
 	accept: "form",
 	input: mod.object({ password: mod.string().min(1, "Escribe tu contraseña") }),
@@ -16,10 +25,27 @@ var auth = { login: defineAction({
 			code: "INTERNAL_SERVER_ERROR",
 			message: "Falta configurar DASHBOARD_PASSWORD en el servidor."
 		});
-		if (!contrasenasIguales(input.password, DASHBOARD_PASSWORD)) throw new ActionError({
-			code: "UNAUTHORIZED",
-			message: "Contraseña incorrecta."
+		const ip = ipDeRequest(context.request, context.clientAddress);
+		const desde = (/* @__PURE__ */ new Date(Date.now() - VENTANA_MS)).toISOString();
+		const [intentos] = await sql`
+        SELECT COUNT(*)::int AS n
+        FROM login_attempts
+        WHERE ip = ${ip} AND ts > ${desde}`;
+		if (intentos.n >= MAX_INTENTOS) throw new ActionError({
+			code: "TOO_MANY_REQUESTS",
+			message: "Demasiados intentos fallidos. Espera unos minutos antes de intentar de nuevo."
 		});
+		if (!contrasenasIguales(input.password, DASHBOARD_PASSWORD)) {
+			await sql`
+          DELETE FROM login_attempts
+          WHERE ts < ${(/* @__PURE__ */ new Date(Date.now() - LIMPIEZA_MS)).toISOString()}`;
+			await sql`INSERT INTO login_attempts (ip) VALUES (${ip})`;
+			throw new ActionError({
+				code: "UNAUTHORIZED",
+				message: "Contraseña incorrecta."
+			});
+		}
+		await sql`DELETE FROM login_attempts WHERE ip = ${ip}`;
 		context.cookies.set(SESSION_COOKIE, await firmarSesion(), opcionesCookie());
 		return { ok: true };
 	}
@@ -196,6 +222,7 @@ var esquemaVenta = mod.object({
 	metodo_pago: mod.string().trim().min(1, "Elige un método de pago").max(30),
 	descuento: mod.coerce.number({ message: "El descuento debe ser un número" }).min(0, "El descuento no puede ser negativo"),
 	notas: mod.string().trim().max(500).nullable(),
+	credito: mod.coerce.boolean().optional().default(false),
 	items_json: mod.string().transform((texto, ctx) => {
 		try {
 			return JSON.parse(texto);
@@ -221,6 +248,7 @@ var server = {
 			input: esquemaVenta,
 			handler: async (input, context) => {
 				await exigirSesion(context);
+				if (input.credito && !input.cliente_id) throw new Error("Si la venta es a crédito, elige la clienta que queda pendiente.");
 				if (input.cliente_id) {
 					if (!(await listClientes()).some((c) => c.id === input.cliente_id)) throw new Error("La clienta seleccionada ya no existe.");
 				}
@@ -230,6 +258,7 @@ var server = {
 					metodoPago: input.metodo_pago,
 					descuento: input.descuento,
 					notas: input.notas,
+					credito: input.credito,
 					items: input.items_json.map((linea) => ({
 						productoId: linea.producto_id,
 						descripcion: linea.descripcion,
@@ -247,7 +276,27 @@ var server = {
 				const venta = await getVenta(input.id);
 				if (!venta) throw new Error("La venta ya no existe.");
 				if (venta.anulada) throw new Error("Esta venta ya está anulada.");
+				if (venta.abonos.length > 0) throw new Error("Esta venta tiene abonos registrados y no se puede anular. Si el pago se anuló por error, ajusta los abonos desde el detalle de la venta.");
 				await anularVenta(input.id);
+				return { ok: true };
+			}
+		}),
+		registrarAbono: defineAction({
+			accept: "form",
+			input: mod.object({
+				venta_id: mod.uuid("Identificador no válido"),
+				fecha: mod.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha no válida"),
+				monto: mod.coerce.number({ message: "El monto debe ser un número" }).min(.01, "El monto debe ser mayor a cero"),
+				notas: mod.string().trim().max(300).nullable()
+			}),
+			handler: async (input, context) => {
+				await exigirSesion(context);
+				await registrarAbono({
+					ventaId: input.venta_id,
+					fecha: input.fecha,
+					monto: input.monto,
+					notas: input.notas
+				});
 				return { ok: true };
 			}
 		})

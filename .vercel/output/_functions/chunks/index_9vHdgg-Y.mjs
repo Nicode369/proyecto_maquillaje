@@ -1,13 +1,13 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
 import { A as renderTemplate, N as addAttribute, T as Fragment, j as maybeRenderHead, w as renderComponent } from "./sequence_CIT0iznN.mjs";
-import { T as isInputError } from "./server_D1SfNI7C.mjs";
+import { T as isInputError } from "./server_B8ZlCX6a.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { c as mesISO, i as formatFechaCorta, n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_BTvTqJan.mjs";
-import { t as actions } from "./_astro_actions_D5oZq4N2.mjs";
-import { n as countClientesNuevasEsteMes, o as listClientes, t as countClientes } from "./clientes_DmH0mKyw.mjs";
-import { t as $$Button } from "./Button_D6ed2Jna.mjs";
-import { n as Pencil, t as Trash } from "./trash_CZKuU7pS.mjs";
-import { n as Search, r as Plus, t as $$LimpiarFiltros } from "./LimpiarFiltros_Y7mghZZp.mjs";
+import { c as mesISO, i as formatFechaCorta, n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_BK87cCvx.mjs";
+import { t as actions } from "./_astro_actions_DfrBmID5.mjs";
+import { n as countClientesNuevasEsteMes, o as listClientes, t as countClientes } from "./clientes_BmetyF5T.mjs";
+import { n as Pencil, t as Trash } from "./trash_DIyLjot_.mjs";
+import { n as Search, r as Plus, t as $$LimpiarFiltros } from "./LimpiarFiltros_D0J1IAex.mjs";
+import { t as $$Button } from "./Button_C8T8wdfZ.mjs";
 import { t as $$Input } from "./Input_BqhAvSAl.mjs";
 import { t as $$EmptyState } from "./EmptyState_s9NtGM7p.mjs";
 //#region src/pages/clientas/index.astro
@@ -60,7 +60,7 @@ var $$Index = createComponent(async ($$result, $$props, $$slots) => {
 		"href": "/clientas"
 	}, { "default": ($$result) => renderTemplate`
               Ver todas
-            ` })}` : renderTemplate`${renderComponent($$result, "Button", $$Button, { "href": "/clientas/nueva" }, { "default": ($$result) => renderTemplate`Registrar clienta` })}`}` })}`}${lista.length > 0 && renderTemplate`${renderComponent($$result, "Fragment", Fragment, {}, { "default": ($$result) => renderTemplate`<table class="data-table hidden md:table"><thead><tr><th scope="col">Nombre</th><th scope="col">Teléfono</th><th scope="col" class="text-right">Compras</th><th scope="col" class="text-right">Gasto acumulado</th><th scope="col">Última compra</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>${lista.map((c) => renderTemplate`<tr><td><a${addAttribute(`/clientas/${c.id}`, "href")} class="font-medium text-ink hover:text-wine">${c.nombre}</a>${c.email && renderTemplate`<p class="mt-0.5 text-xs text-ink-muted">${c.email}</p>`}</td><td class="text-ink-muted">${c.telefono ?? "—"}</td><td class="text-right num">${c.total_compras}</td><td class="text-right num font-display">${formatCOP(c.gasto_acumulado)}</td><td class="text-ink-muted">${c.ultima_compra ? formatFechaCorta(c.ultima_compra) : "—"}</td><td><div class="flex justify-end gap-1">${renderComponent($$result, "Button", $$Button, {
+            ` })}` : renderTemplate`${renderComponent($$result, "Button", $$Button, { "href": "/clientas/nueva" }, { "default": ($$result) => renderTemplate`Registrar clienta` })}`}` })}`}${lista.length > 0 && renderTemplate`${renderComponent($$result, "Fragment", Fragment, {}, { "default": ($$result) => renderTemplate`<table class="data-table hidden md:table"><thead><tr><th scope="col">Nombre</th><th scope="col">Teléfono</th><th scope="col" class="text-right">Compras</th><th scope="col" class="text-right">Gasto acumulado</th><th scope="col" class="text-right">Debe</th><th scope="col">Última compra</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>${lista.map((c) => renderTemplate`<tr><td><a${addAttribute(`/clientas/${c.id}`, "href")} class="font-medium text-ink hover:text-wine">${c.nombre}</a>${c.email && renderTemplate`<p class="mt-0.5 text-xs text-ink-muted">${c.email}</p>`}</td><td class="text-ink-muted">${c.telefono ?? "—"}</td><td class="text-right num">${c.total_compras}</td><td class="text-right num font-display">${formatCOP(c.gasto_acumulado)}</td><td class="text-right num font-display">${c.saldo > 0 ? renderTemplate`<span class="text-wine">${formatCOP(c.saldo)}</span>` : renderTemplate`<span class="text-ink-muted">—</span>`}</td><td class="text-ink-muted">${c.ultima_compra ? formatFechaCorta(c.ultima_compra) : "—"}</td><td><div class="flex justify-end gap-1">${renderComponent($$result, "Button", $$Button, {
 		"variant": "ghost",
 		"size": "sm",
 		"href": `/clientas/${c.id}/editar`,
@@ -72,7 +72,7 @@ var $$Index = createComponent(async ($$result, $$props, $$slots) => {
 		"class": "text-danger hover:bg-danger/10 hover:text-danger",
 		"aria-label": `Eliminar a ${c.nombre}`,
 		"onclick": `return confirm('${mensajeConfirmar}')`
-	}, { "default": ($$result) => renderTemplate`${renderComponent($$result, "Trash", Trash, { "size": 14 })}` })}</form></div></td></tr>`)}</tbody></table><ul class="divide-y divide-hairline md:hidden">${lista.map((c) => renderTemplate`<li class="flex items-start gap-3 p-4"><a${addAttribute(`/clientas/${c.id}`, "href")} class="min-w-0 flex-1 hover:text-wine"><p class="truncate font-medium text-ink">${c.nombre}</p><p class="truncate text-xs text-ink-muted">${c.telefono ?? "Sin teléfono"}${c.email ? ` · ${c.email}` : ""}</p><p class="mt-1 text-xs text-ink-muted">Última compra:${" "}${c.ultima_compra ? formatFechaCorta(c.ultima_compra) : "—"}</p></a><div class="flex shrink-0 flex-col items-end gap-1"><p class="num font-display text-sm">${formatCOP(c.gasto_acumulado)}</p><p class="text-xs text-ink-muted">${c.total_compras}${" "}${c.total_compras === 1 ? "compra" : "compras"}</p><div class="mt-1 flex gap-1">${renderComponent($$result, "Button", $$Button, {
+	}, { "default": ($$result) => renderTemplate`${renderComponent($$result, "Trash", Trash, { "size": 14 })}` })}</form></div></td></tr>`)}</tbody></table><ul class="divide-y divide-hairline md:hidden">${lista.map((c) => renderTemplate`<li class="flex items-start gap-3 p-4"><a${addAttribute(`/clientas/${c.id}`, "href")} class="min-w-0 flex-1 hover:text-wine"><p class="truncate font-medium text-ink">${c.nombre}</p><p class="truncate text-xs text-ink-muted">${c.telefono ?? "Sin teléfono"}${c.email ? ` · ${c.email}` : ""}</p><p class="mt-1 text-xs text-ink-muted">Última compra:${" "}${c.ultima_compra ? formatFechaCorta(c.ultima_compra) : "—"}</p></a><div class="flex shrink-0 flex-col items-end gap-1"><p class="num font-display text-sm">${formatCOP(c.gasto_acumulado)}</p><p class="text-xs text-ink-muted">${c.total_compras}${" "}${c.total_compras === 1 ? "compra" : "compras"}</p>${c.saldo > 0 && renderTemplate`<p class="text-xs font-medium text-wine">Debe ${formatCOP(c.saldo)}</p>`}<div class="mt-1 flex gap-1">${renderComponent($$result, "Button", $$Button, {
 		"variant": "ghost",
 		"size": "sm",
 		"href": `/clientas/${c.id}/editar`,

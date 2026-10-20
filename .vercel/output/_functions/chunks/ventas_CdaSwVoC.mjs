@@ -16,11 +16,19 @@ async function listVentas(filtro = {}) {
       v.total::float8 AS total,
       v.notas,
       v.anulada,
+      v.credito,
+      CASE WHEN v.credito AND NOT v.anulada
+           THEN GREATEST(v.total - COALESCE(ab.pagado, 0), 0)
+           ELSE 0 END::float8 AS saldo,
       (
         SELECT COUNT(*)::int FROM venta_items i WHERE i.venta_id = v.id
       ) AS num_items
     FROM ventas v
     LEFT JOIN clientes c ON c.id = v.cliente_id
+    LEFT JOIN LATERAL (
+      SELECT COALESCE(SUM(a.monto), 0)::float8 AS pagado
+      FROM abonos a WHERE a.venta_id = v.id
+    ) ab ON true
     WHERE (${condicionMes(mes)}::text IS NULL OR to_char(v.fecha, 'YYYY-MM') = ${condicionMes(mes)})
       AND (${clienteId ?? null}::uuid IS NULL OR v.cliente_id = ${clienteId ?? null})
       AND (
@@ -62,9 +70,17 @@ async function getVenta(id) {
       v.total::float8 AS total,
       v.notas,
       v.anulada,
+      v.credito,
+      CASE WHEN v.credito AND NOT v.anulada
+           THEN GREATEST(v.total - COALESCE(ab.pagado, 0), 0)
+           ELSE 0 END::float8 AS saldo,
       0 AS num_items
     FROM ventas v
     LEFT JOIN clientes c ON c.id = v.cliente_id
+    LEFT JOIN LATERAL (
+      SELECT COALESCE(SUM(a.monto), 0)::float8 AS pagado
+      FROM abonos a WHERE a.venta_id = v.id
+    ) ab ON true
     WHERE v.id = ${id}`)[0];
 	if (!venta) return null;
 	const items = await sql`
@@ -78,9 +94,21 @@ async function getVenta(id) {
     FROM venta_items
     WHERE venta_id = ${id}
     ORDER BY descripcion ASC`;
+	const abonos = await sql`
+    SELECT
+      id,
+      venta_id,
+      fecha::text AS fecha,
+      monto::float8 AS monto,
+      notas,
+      created_at::text AS created_at
+    FROM abonos
+    WHERE venta_id = ${id}
+    ORDER BY fecha DESC, created_at DESC`;
 	return {
 		...venta,
-		items
+		items,
+		abonos
 	};
 }
 async function listVentasDeCliente(clienteId) {
@@ -95,11 +123,19 @@ async function listVentasDeCliente(clienteId) {
       v.total::float8 AS total,
       v.notas,
       v.anulada,
+      v.credito,
+      CASE WHEN v.credito AND NOT v.anulada
+           THEN GREATEST(v.total - COALESCE(ab.pagado, 0), 0)
+           ELSE 0 END::float8 AS saldo,
       (
         SELECT COUNT(*)::int FROM venta_items i WHERE i.venta_id = v.id
       ) AS num_items
     FROM ventas v
     LEFT JOIN clientes c ON c.id = v.cliente_id
+    LEFT JOIN LATERAL (
+      SELECT COALESCE(SUM(a.monto), 0)::float8 AS pagado
+      FROM abonos a WHERE a.venta_id = v.id
+    ) ab ON true
     WHERE v.cliente_id = ${clienteId}
     ORDER BY v.fecha DESC, v.created_at DESC`;
 }
@@ -119,8 +155,8 @@ async function createVenta(data) {
 	const ventaId = crypto.randomUUID();
 	const statementList = [
 		sql`
-      INSERT INTO ventas (id, cliente_id, fecha, metodo_pago, descuento, total, notas)
-      VALUES (${ventaId}, ${data.clienteId}, ${data.fecha}, ${data.metodoPago}, ${data.descuento}, ${total}, ${data.notas})`,
+      INSERT INTO ventas (id, cliente_id, fecha, metodo_pago, descuento, total, notas, credito)
+      VALUES (${ventaId}, ${data.clienteId}, ${data.fecha}, ${data.metodoPago}, ${data.descuento}, ${total}, ${data.notas}, ${data.credito})`,
 		...data.items.map((item) => sql`
         INSERT INTO venta_items (venta_id, producto_id, descripcion, cantidad, precio_unitario, subtotal)
         VALUES (
@@ -147,5 +183,25 @@ async function anularVenta(id) {
 	await sql.transaction([...items.map((item) => sql`
         UPDATE productos SET stock = stock + ${item.cantidad} WHERE id = ${item.producto_id}`), sql`UPDATE ventas SET anulada = true WHERE id = ${id} AND NOT anulada`]);
 }
+async function registrarAbono(data) {
+	const [venta] = await sql`
+    SELECT
+      v.total::float8 AS total,
+      v.credito,
+      v.anulada,
+      COALESCE((
+        SELECT SUM(a.monto)::float8 FROM abonos a WHERE a.venta_id = v.id
+      ), 0) AS pagado
+    FROM ventas v
+    WHERE v.id = ${data.ventaId}`;
+	if (!venta) throw new Error("La venta ya no existe.");
+	if (!venta.credito) throw new Error("Esta venta no es a crédito.");
+	if (venta.anulada) throw new Error("No se pueden registrar abonos a una venta anulada.");
+	const saldo = venta.total - Number(venta.pagado);
+	if (data.monto > saldo) throw new Error(`El abono supera el saldo pendiente (${saldo > 0 ? saldo : 0}).`);
+	await sql`
+    INSERT INTO abonos (venta_id, fecha, monto, notas)
+    VALUES (${data.ventaId}, ${data.fecha}, ${data.monto}, ${data.notas})`;
+}
 //#endregion
-export { listVentasDeCliente as a, listVentas as i, createVenta as n, totalesVentas as o, getVenta as r, anularVenta as t };
+export { listVentasDeCliente as a, listVentas as i, createVenta as n, registrarAbono as o, getVenta as r, totalesVentas as s, anularVenta as t };
