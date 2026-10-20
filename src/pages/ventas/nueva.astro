@@ -1,0 +1,351 @@
+---
+import { actions, isInputError } from 'astro:actions';
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+import Button from '../../components/ui/Button.astro';
+import Input from '../../components/ui/Input.astro';
+import Select from '../../components/ui/Select.astro';
+import Textarea from '../../components/ui/Textarea.astro';
+import { listClientes } from '../../lib/queries/clientes';
+import { listProductosParaVenta } from '../../lib/queries/productos';
+import { hoyISO } from '../../lib/format';
+
+const resultado = Astro.getActionResult(actions.ventas.crear);
+if (resultado && !resultado.error) {
+  return Astro.redirect(`/ventas/${resultado.data.id}`);
+}
+
+const [clientas, productos] = await Promise.all([
+  listClientes(),
+  listProductosParaVenta(),
+]);
+
+const err = resultado?.error;
+const campos = isInputError(err) ? err.fields : {};
+const errorGenerico = err && !isInputError(err) ? err.message : null;
+
+const catalogo = productos.map((p) => ({
+  id: p.id,
+  nombre: p.nombre,
+  marca: p.marca,
+  stock: p.stock,
+  precio: Number(p.precio_venta),
+  etiqueta: `${p.nombre}${p.marca ? ` · ${p.marca}` : ''}`,
+}));
+
+const metodos = ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia', 'Transferencia', 'Tarjeta'];
+---
+
+<DashboardLayout title="Nueva venta" active="ventas">
+  <PageHeader
+    title="Nueva venta"
+    description="Registra los productos, el método de pago y el total"
+  />
+
+  <form
+    method="POST"
+    action={actions.ventas.crear}
+    class="mt-6 max-w-3xl space-y-6"
+    id="form-venta"
+  >
+    {
+      errorGenerico && (
+        <div
+          class="rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
+          role="alert"
+        >
+          {errorGenerico}
+        </div>
+      )
+    }
+
+    <div class="grid gap-4 sm:grid-cols-3">
+      <Input
+        name="fecha"
+        label="Fecha"
+        type="date"
+        required
+        value={hoyISO()}
+        error={campos.fecha?.[0]}
+      />
+      <Select
+        name="cliente_id"
+        label="Clienta (opcional)"
+        placeholder="Sin clienta"
+        error={campos.cliente_id?.[0]}
+      >
+        {clientas.map((c) => (
+          <option value={c.id}>{c.nombre}</option>
+        ))}
+      </Select>
+      <Select
+        name="metodo_pago"
+        label="Método de pago"
+        required
+        error={campos.metodo_pago?.[0]}
+      >
+        {metodos.map((m) => (
+          <option value={m}>{m}</option>
+        ))}
+      </Select>
+    </div>
+
+    <div>
+      <div class="flex items-center justify-between border-b border-hairline pb-2">
+        <h2 class="font-display text-lg text-ink" style="font-variation-settings: 'opsz' 40;">
+          Productos y servicios
+        </h2>
+        <div class="flex gap-2">
+          <Button variant="outline" size="sm" type="button" id="btn-servicio">
+            + Servicio
+          </Button>
+          <Button variant="outline" size="sm" type="button" id="btn-linea">
+            + Producto
+          </Button>
+        </div>
+      </div>
+
+      <div id="lineas" class="mt-4 space-y-4">
+        {/* línea inicial; el script JS la clona/expande */}
+      </div>
+
+      <p
+        id="error-items"
+        class="mt-3 hidden rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
+        role="alert"
+      >
+        Agrega al menos un producto o servicio.
+      </p>
+    </div>
+
+    <input type="hidden" name="items_json" id="items_json" value="[]" />
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <Input
+        name="descuento"
+        label="Descuento (COP)"
+        type="number"
+        min="0"
+        step="100"
+        value="0"
+        required
+        error={campos.descuento?.[0]}
+      />
+      <Textarea
+        name="notas"
+        label="Notas"
+        placeholder="Observaciones de la venta…"
+        rows={2}
+        error={campos.notas?.[0]}
+      />
+    </div>
+
+    <div
+      class="flex items-center justify-between rounded-md border border-hairline bg-surface px-5 py-4"
+    >
+      <span class="text-sm text-ink-muted">Total</span>
+      <span
+        class="display-number text-2xl text-wine"
+        id="total-display"
+        style="font-variation-settings: 'opsz' 90;"
+      >
+        $ 0
+      </span>
+    </div>
+
+    <div class="flex gap-2 border-t border-hairline pt-4">
+      <Button type="submit" id="btn-guardar">Guardar venta</Button>
+      <Button variant="outline" href="/ventas">Cancelar</Button>
+    </div>
+  </form>
+</DashboardLayout>
+
+<script define:vars={{ catalogo }}>
+  const contenedor = document.getElementById('lineas');
+  const inputItems = document.getElementById('items_json');
+  const inputDescuento = document.querySelector('input[name="descuento"]');
+  const totalDisplay = document.getElementById('total-display');
+  const errorItems = document.getElementById('error-items');
+  const form = document.getElementById('form-venta');
+
+  let contador = 0;
+
+  const fmt = new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    maximumFractionDigits: 0,
+  });
+
+  function crearLinea(productoId = '', descripcion = '', cantidad = 1, precio = '') {
+    contador++;
+    const idx = contador;
+    const div = document.createElement('div');
+    div.className =
+      'linea rounded-md border border-hairline bg-surface p-4 space-y-3';
+    div.dataset.idx = String(idx);
+
+    const opciones = catalogo
+      .map(
+        (p) =>
+          `<option value="${p.id}" data-precio="${p.precio}" data-stock="${p.stock}" data-etiqueta="${p.etiqueta}" ${p.id === productoId ? 'selected' : ''}>${p.etiqueta} — ${fmt.format(p.precio)} (${p.stock} und.)</option>`,
+      )
+      .join('');
+
+    div.innerHTML = `
+      <div class="grid gap-3 sm:grid-cols-12 items-start">
+        <div class="sm:col-span-5 space-y-1.5">
+          <label class="block text-[13px] font-medium text-ink">Producto</label>
+          <select class="sel-producto h-9.5 w-full rounded border border-ink/15 bg-surface px-3 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15">
+            <option value="" data-precio="" data-stock="" data-etiqueta="">— Servicio personalizado —</option>
+            ${opciones}
+          </select>
+        </div>
+        <div class="sm:col-span-4 space-y-1.5">
+          <label class="block text-[13px] font-medium text-ink">Descripción</label>
+          <input type="text" class="inp-desc h-9.5 w-full rounded border border-ink/15 bg-surface px-3 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15" placeholder="Ej: Aplicación de cejas" maxlength="200" value="${descripcion}" />
+        </div>
+        <div class="sm:col-span-1 space-y-1.5">
+          <label class="block text-[13px] font-medium text-ink">Cant.</label>
+          <input type="number" class="inp-cant h-9.5 w-full rounded border border-ink/15 bg-surface px-2 text-sm text-ink text-right focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15" min="1" step="1" value="${cantidad}" />
+        </div>
+        <div class="sm:col-span-2 space-y-1.5 relative">
+          <label class="block text-[13px] font-medium text-ink">Precio</label>
+          <input type="number" class="inp-precio h-9.5 w-full rounded border border-ink/15 bg-surface px-2 pr-7 text-sm text-ink text-right focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15" min="0" step="100" value="${precio}" />
+          <span class="pointer-events-none absolute right-2 bottom-2.5 text-xs text-ink-muted">$</span>
+        </div>
+      </div>
+      <div class="flex items-center justify-between">
+        <p class="stock-aviso text-[13px] hidden text-ochre"></p>
+        <div class="flex items-center gap-3 ml-auto">
+          <span class="subtotal text-sm text-ink-muted num"></span>
+          <button type="button" class="btn-quitar text-[13px] text-danger hover:underline">Quitar</button>
+        </div>
+      </div>
+    `;
+
+    const sel = div.querySelector('.sel-producto');
+    const inpDesc = div.querySelector('.inp-desc');
+    const inpCant = div.querySelector('.inp-cant');
+    const inpPrecio = div.querySelector('.inp-precio');
+    const aviso = div.querySelector('.stock-aviso');
+    const subtotalEl = div.querySelector('.subtotal');
+
+    function actualizarStockAviso() {
+      const opt = sel.selectedOptions[0];
+      const stock = Number(opt?.dataset.stock ?? NaN);
+      const cant = Number(inpCant.value || 0);
+      if (Number.isFinite(stock) && cant > stock) {
+        aviso.textContent = `Solo hay ${stock} en stock`;
+        aviso.classList.remove('hidden');
+      } else {
+        aviso.classList.add('hidden');
+      }
+    }
+
+    function actualizarSubtotal() {
+      const cant = Number(inpCant.value || 0);
+      const precio = Number(inpPrecio.value || 0);
+      subtotalEl.textContent = fmt.format(cant * precio);
+      recalcularTotal();
+    }
+
+    sel.addEventListener('change', () => {
+      const opt = sel.selectedOptions[0];
+      const precio = opt?.dataset.precio;
+      const etiqueta = opt?.dataset.etiqueta;
+      if (precio) {
+        inpPrecio.value = precio;
+        if (!inpDesc.value.trim()) inpDesc.value = etiqueta ?? '';
+      }
+      actualizarStockAviso();
+      actualizarSubtotal();
+    });
+
+    inpCant.addEventListener('input', () => {
+      actualizarStockAviso();
+      actualizarSubtotal();
+    });
+    inpPrecio.addEventListener('input', actualizarSubtotal);
+    inpDesc.addEventListener('input', actualizarSubtotal);
+
+    div.querySelector('.btn-quitar').addEventListener('click', () => {
+      div.remove();
+      recalcularTotal();
+    });
+
+    contenedor.appendChild(div);
+    actualizarSubtotal();
+    if (productoId) {
+      sel.value = productoId;
+      sel.dispatchEvent(new Event('change'));
+    }
+    return div;
+  }
+
+  function recalcularTotal() {
+    let subtotal = 0;
+    for (const linea of contenedor.querySelectorAll('.linea')) {
+      const cant = Number(linea.querySelector('.inp-cant').value || 0);
+      const precio = Number(linea.querySelector('.inp-precio').value || 0);
+      subtotal += cant * precio;
+    }
+    const descuento = Number(inputDescuento.value || 0);
+    const total = Math.max(subtotal - descuento, 0);
+    totalDisplay.textContent = fmt.format(total);
+
+    const lineas = [];
+    for (const linea of contenedor.querySelectorAll('.linea')) {
+      const sel = linea.querySelector('.sel-producto');
+      const opt = sel.selectedOptions[0];
+      const productoId = opt?.value || null;
+      const descripcion = linea.querySelector('.inp-desc').value.trim();
+      const cantidad = Number(linea.querySelector('.inp-cant').value || 0);
+      const precio = Number(linea.querySelector('.inp-precio').value || 0);
+      if (descripcion && cantidad >= 1) {
+        lineas.push({ producto_id: productoId, descripcion, cantidad, precio_unitario: precio });
+      }
+    }
+    inputItems.value = JSON.stringify(lineas);
+  }
+
+  document.getElementById('btn-linea').addEventListener('click', () => {
+    errorItems.classList.add('hidden');
+    crearLinea();
+  });
+  document.getElementById('btn-servicio').addEventListener('click', () => {
+    errorItems.classList.add('hidden');
+    const div = crearLinea();
+    div.querySelector('.inp-desc').focus();
+  });
+  inputDescuento.addEventListener('input', recalcularTotal);
+
+  form.addEventListener('submit', (e) => {
+    recalcularTotal();
+    let lineas = [];
+    try {
+      lineas = JSON.parse(inputItems.value);
+    } catch {
+      lineas = [];
+    }
+    if (lineas.length === 0) {
+      e.preventDefault();
+      errorItems.classList.remove('hidden');
+      return;
+    }
+    for (const linea of lineas) {
+      if (!linea.descripcion || linea.cantidad < 1) {
+        e.preventDefault();
+        errorItems.textContent = 'Revisa la descripción y cantidad de cada línea.';
+        errorItems.classList.remove('hidden');
+        return;
+      }
+    }
+  });
+
+  // línea inicial
+  if (catalogo.length > 0) {
+    crearLinea(catalogo[0].id, '', 1, String(catalogo[0].precio));
+  } else {
+    crearLinea();
+  }
+</script>

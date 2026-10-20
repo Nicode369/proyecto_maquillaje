@@ -60,6 +60,14 @@
 			"dest": "_render"
 		},
 		{
+			"src": "^/ventas/nueva/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/ventas/([^/]+?)/?$",
+			"dest": "_render"
+		},
+		{
 			"src": "^/ventas/?$",
 			"dest": "_render"
 		},

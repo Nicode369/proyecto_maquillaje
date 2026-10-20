@@ -1,0 +1,164 @@
+---
+import { actions, isInputError } from 'astro:actions';
+import { Ban, ArrowLeft } from '@lucide/astro';
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+import Button from '../../components/ui/Button.astro';
+import Badge from '../../components/ui/Badge.astro';
+import Card from '../../components/ui/Card.astro';
+import { getVenta } from '../../lib/queries/ventas';
+import { formatCOP, formatFechaLarga } from '../../lib/format';
+
+const { id } = Astro.params;
+const venta = id ? await getVenta(id) : null;
+if (!venta) {
+  return new Response('Venta no encontrada', { status: 404 });
+}
+
+const anular = Astro.getActionResult(actions.ventas.anular);
+if (anular && !anular.error) {
+  return Astro.redirect(`/ventas/${venta.id}`);
+}
+
+const errorAnular =
+  anular?.error && !isInputError(anular.error) ? anular.error.message : null;
+
+const metodos: Record<string, string> = {
+  efectivo: 'Efectivo',
+  nequi: 'Nequi',
+  daviplata: 'Daviplata',
+  bancolombia: 'Bancolombia',
+  transferencia: 'Transferencia',
+  tarjeta: 'Tarjeta',
+};
+
+const subtotal = venta.items.reduce((sum, it) => sum + it.subtotal, 0);
+
+const mensajeAnular =
+  '¿Anular esta venta? El stock de los productos se restaurará.';
+---
+
+<DashboardLayout title={`Venta · ${formatCOP(venta.total)}`} active="ventas">
+  <PageHeader
+    title={formatCOP(venta.total)}
+    description={`${formatFechaLarga(venta.fecha)} · ${venta.cliente_nombre ?? 'Sin clienta asignada'}`}
+  >
+    <Button variant="outline" href="/ventas">
+      <ArrowLeft size={15} /> Volver
+    </Button>
+    {
+      !venta.anulada && (
+        <form method="POST" action={actions.ventas.anular}>
+          <input type="hidden" name="id" value={venta.id} />
+          <Button
+            variant="ghost"
+            type="submit"
+            class="text-danger hover:bg-danger/10 hover:text-danger"
+            onclick={`return confirm('${mensajeAnular}')`}
+          >
+            <Ban size={15} /> Anular venta
+          </Button>
+        </form>
+      )
+    }
+  </PageHeader>
+
+  {
+    errorAnular && (
+      <div
+        class="mt-4 rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
+        role="alert"
+      >
+        {errorAnular}
+      </div>
+    )
+  }
+
+  <div class="mt-6 grid gap-4 sm:grid-cols-3">
+    <Card>
+      <p class="text-xs tracking-wide text-ink-muted uppercase">Estado</p>
+      <div class="mt-2">
+        {
+          venta.anulada ? (
+            <Badge tone="danger">Anulada</Badge>
+          ) : (
+            <Badge tone="success">Validada</Badge>
+          )
+        }
+      </div>
+    </Card>
+    <Card>
+      <p class="text-xs tracking-wide text-ink-muted uppercase">Método de pago</p>
+      <p class="mt-1.5 font-display text-lg text-ink">
+        {metodos[venta.metodo_pago.toLowerCase()] ?? venta.metodo_pago}
+      </p>
+    </Card>
+    <Card>
+      <p class="text-xs tracking-wide text-ink-muted uppercase">Descuento</p>
+      <p class="mt-1.5 font-display text-lg text-ink">
+        {venta.descuento > 0 ? `−${formatCOP(venta.descuento)}` : 'Sin descuento'}
+      </p>
+    </Card>
+  </div>
+
+  {
+    venta.notas && (
+      <Card class="mt-4">
+        <p class="text-xs tracking-wide text-ink-muted uppercase">Notas</p>
+        <p class="mt-1.5 text-sm whitespace-pre-wrap text-ink">{venta.notas}</p>
+      </Card>
+    )
+  }
+
+  <h2
+    class="mt-8 border-b border-hairline pb-2 font-display text-lg text-ink"
+    style="font-variation-settings: 'opsz' 40;"
+  >
+    Productos y servicios
+  </h2>
+
+  <div class="mt-4 overflow-hidden rounded-md border border-hairline bg-surface">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th scope="col">Descripción</th>
+          <th scope="col" class="text-right">Cant.</th>
+          <th scope="col" class="text-right">Precio unit.</th>
+          <th scope="col" class="text-right">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          venta.items.map((it) => (
+            <tr>
+              <td class="text-ink">{it.descripcion}</td>
+              <td class="text-right num">{it.cantidad}</td>
+              <td class="text-right num text-ink-muted">{formatCOP(it.precio_unitario)}</td>
+              <td class="text-right num font-display">{formatCOP(it.subtotal)}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+      <tfoot>
+        <tr class="border-t border-hairline">
+          <td colspan="3" class="text-right text-sm text-ink-muted">Subtotal</td>
+          <td class="text-right num">{formatCOP(subtotal)}</td>
+        </tr>
+        {
+          venta.descuento > 0 && (
+            <tr>
+              <td colspan="3" class="text-right text-sm text-ink-muted">Descuento</td>
+              <td class="text-right num text-danger">−{formatCOP(venta.descuento)}</td>
+            </tr>
+          )
+        }
+        <tr class="border-t border-hairline bg-ink/3">
+          <td colspan="3" class="text-right font-display text-base font-medium">Total</td>
+          <td class="text-right num font-display text-lg font-medium text-wine">
+            {formatCOP(venta.total)}
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</DashboardLayout>
