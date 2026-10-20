@@ -1,4 +1,4 @@
-import { l as createLucideIcon } from "./PageHeader_DlSv5vm_.mjs";
+import { l as createLucideIcon } from "./PageHeader_BuM2ijBn.mjs";
 //#region node_modules/@lucide/astro/src/icons/pencil.ts
 /**
 * @component @name Pencil

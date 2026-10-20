@@ -1,11 +1,11 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
 import { A as renderTemplate, N as addAttribute, j as maybeRenderHead, w as renderComponent } from "./sequence_CIT0iznN.mjs";
-import { T as isInputError } from "./server_CqV02Mh5.mjs";
+import { T as isInputError } from "./server_gH9IudIp.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { n as $$DashboardLayout, t as $$PageHeader } from "./PageHeader_DlSv5vm_.mjs";
-import { t as actions } from "./_astro_actions_MWJk4dVP.mjs";
+import { n as $$DashboardLayout, t as $$PageHeader } from "./PageHeader_BuM2ijBn.mjs";
+import { t as actions } from "./_astro_actions_Bb_80P29.mjs";
 import { i as listCategoriasGasto, r as getGasto } from "./gastos_uFnzIew9.mjs";
-import { t as $$Button } from "./Button_DF7l_wdo.mjs";
+import { t as $$Button } from "./Button_Dm_iL_zf.mjs";
 import { t as $$Input } from "./Input_BqhAvSAl.mjs";
 import { t as $$Textarea } from "./Textarea_Dk0Vx8FR.mjs";
 //#region src/pages/gastos/[id]/editar.astro
