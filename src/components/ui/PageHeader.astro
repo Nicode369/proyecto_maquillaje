@@ -1,0 +1,21 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  class?: string;
+}
+
+const { title, description, class: className = '' } = Astro.props;
+---
+
+<header class:list={['border-b border-hairline pb-5', className]}>
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div class="space-y-1">
+      <h1 class="display-number text-[28px] leading-tight text-ink" style="font-variation-settings: 'opsz' 90;">
+        {title}
+      </h1>
+      {description && <p class="text-sm text-ink-muted">{description}</p>}
+    </div>
+    <div class="flex items-center gap-2"><slot /></div>
+  </div>
+</header>

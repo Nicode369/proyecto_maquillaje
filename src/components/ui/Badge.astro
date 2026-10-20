@@ -1,0 +1,26 @@
+---
+interface Props {
+  tone?: 'neutral' | 'success' | 'warning' | 'danger' | 'wine';
+  class?: string;
+}
+
+const { tone = 'neutral', class: className = '' } = Astro.props;
+
+const tones = {
+  neutral: 'bg-ink/6 text-ink-muted',
+  success: 'bg-sage/10 text-sage',
+  warning: 'bg-ochre/10 text-ochre',
+  danger: 'bg-danger/10 text-danger',
+  wine: 'bg-wine-soft text-wine',
+};
+---
+
+<span
+  class:list={[
+    'inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium whitespace-nowrap',
+    tones[tone],
+    className,
+  ]}
+>
+  <slot />
+</span>

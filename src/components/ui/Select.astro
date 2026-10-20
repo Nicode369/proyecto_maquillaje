@@ -1,0 +1,57 @@
+---
+interface Props {
+  name: string;
+  label?: string;
+  error?: string;
+  required?: boolean;
+  placeholder?: string;
+  class?: string;
+  [key: string]: unknown;
+}
+
+const {
+  name,
+  label,
+  error,
+  required = false,
+  placeholder,
+  class: className = '',
+  ...rest
+} = Astro.props;
+
+const selectId = name;
+const describedBy = error ? `${name}-error` : undefined;
+---
+
+<div class:list={['space-y-1.5', className]}>
+  {
+    label && (
+      <label for={selectId} class="block text-[13px] font-medium text-ink">
+        {label}
+      </label>
+    )
+  }
+  <select
+    id={selectId}
+    name={name}
+    required={required}
+    aria-invalid={error ? 'true' : undefined}
+    aria-describedby={describedBy}
+    class:list={[
+      'h-9.5 w-full rounded border bg-surface px-3 text-sm text-ink',
+      'transition-colors focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15',
+      error ? 'border-danger' : 'border-ink/15',
+    ]}
+    {...rest}
+  >
+    {placeholder && <option value="">{placeholder}</option>}
+    <slot />
+  </select>
+  {
+    error && (
+      <p id={describedBy} class="text-[13px] text-danger">
+        {error}
+      </p>
+    )
+  }
+</div>

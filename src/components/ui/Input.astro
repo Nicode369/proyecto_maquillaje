@@ -1,0 +1,80 @@
+---
+interface Props {
+  name: string;
+  label?: string;
+  type?:
+    | 'text'
+    | 'email'
+    | 'password'
+    | 'date'
+    | 'datetime-local'
+    | 'number'
+    | 'tel'
+    | 'search'
+    | 'url'
+    | 'hidden'
+    | 'checkbox'
+    | 'radio'
+    | 'file'
+    | 'time';
+  placeholder?: string;
+  value?: string | number;
+  error?: string;
+  required?: boolean;
+  min?: string | number;
+  max?: string | number;
+  step?: string | number;
+  autocomplete?: string;
+  class?: string;
+  [key: string]: unknown;
+}
+
+const {
+  name,
+  label,
+  type = 'text',
+  placeholder,
+  value,
+  error,
+  required = false,
+  class: className = '',
+  ...rest
+} = Astro.props;
+
+const inputId = name;
+const describedBy = error ? `${name}-error` : undefined;
+---
+
+<div class:list={['space-y-1.5', className]}>
+  {
+    label && (
+      <label for={inputId} class="block text-[13px] font-medium text-ink">
+        {label}
+      </label>
+    )
+  }
+  <input
+    id={inputId}
+    name={name}
+    type={type}
+    placeholder={placeholder}
+    value={value}
+    required={required}
+    aria-invalid={error ? 'true' : undefined}
+    aria-describedby={describedBy}
+    class:list={[
+      'h-9.5 w-full rounded border bg-surface px-3 text-sm text-ink',
+      'placeholder:text-ink-muted/60 transition-colors',
+      'focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15',
+      error ? 'border-danger' : 'border-ink/15',
+    ]}
+    {...rest}
+  />
+  {
+    error && (
+      <p id={describedBy} class="text-[13px] text-danger">
+        {error}
+      </p>
+    )
+  }
+</div>

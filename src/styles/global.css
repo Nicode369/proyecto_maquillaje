@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Fraunces Variable", ui-serif, Georgia, serif;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-paper: #f7f3ee;
+  --color-surface: #fffcf8;
+  --color-ink: #221719;
+  --color-ink-muted: #6b585c;
+  --color-hairline: rgba(34, 23, 25, 0.12);
+
+  --color-wine: #7a2233;
+  --color-wine-hover: #611a28;
+  --color-wine-soft: #f3e6e9;
+  --color-rose: #c4707f;
+  --color-gold: #a67c00;
+
+  --color-sage: #3e6b4f;
+  --color-ochre: #a1650f;
+  --color-danger: #9e2b25;
+
+  --color-espresso: #261a1d;
+  --color-espresso-soft: #3a2a2e;
+  --color-espresso-muted: #b3a1a5;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  ::selection {
+    background-color: var(--color-wine-soft);
+    color: var(--color-wine);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-wine);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .display-number {
+    font-family: var(--font-display);
+    font-variation-settings: "opsz" 144;
+    font-weight: 550;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .data-table th {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-ink-muted);
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--color-hairline);
+    white-space: nowrap;
+  }
+
+  .data-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--color-hairline);
+    vertical-align: middle;
+  }
+
+  .data-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .data-table tbody tr:hover {
+    background-color: rgba(122, 34, 51, 0.03);
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+}

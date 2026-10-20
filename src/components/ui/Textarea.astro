@@ -1,0 +1,61 @@
+---
+interface Props {
+  name: string;
+  label?: string;
+  placeholder?: string;
+  value?: string;
+  error?: string;
+  required?: boolean;
+  rows?: number;
+  class?: string;
+  [key: string]: unknown;
+}
+
+const {
+  name,
+  label,
+  placeholder,
+  value,
+  error,
+  required = false,
+  rows = 3,
+  class: className = '',
+  ...rest
+} = Astro.props;
+
+const inputId = name;
+const describedBy = error ? `${name}-error` : undefined;
+---
+
+<div class:list={['space-y-1.5', className]}>
+  {
+    label && (
+      <label for={inputId} class="block text-[13px] font-medium text-ink">
+        {label}
+      </label>
+    )
+  }
+  <textarea
+    id={inputId}
+    name={name}
+    placeholder={placeholder}
+    rows={rows}
+    required={required}
+    aria-invalid={error ? 'true' : undefined}
+    aria-describedby={describedBy}
+    class:list={[
+      'w-full rounded border bg-surface px-3 py-2 text-sm text-ink',
+      'placeholder:text-ink-muted/60 transition-colors resize-y',
+      'focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15',
+      error ? 'border-danger' : 'border-ink/15',
+    ]}
+    {...rest}
+  >{value}</textarea>
+  {
+    error && (
+      <p id={describedBy} class="text-[13px] text-danger">
+        {error}
+      </p>
+    )
+  }
+</div>
