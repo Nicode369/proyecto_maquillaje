@@ -1,12 +1,12 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
 import { A as renderTemplate, N as addAttribute, T as Fragment, j as maybeRenderHead, w as renderComponent } from "./sequence_CIT0iznN.mjs";
-import { T as isInputError } from "./server_Chmut7OB.mjs";
+import { T as isInputError } from "./server_GhWkWhLC.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { i as formatFechaCorta, n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_DRqm_oFd.mjs";
-import { t as actions } from "./_astro_actions_D4kehWx-.mjs";
+import { i as formatFechaCorta, n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_DzCWMCOK.mjs";
+import { t as actions } from "./_astro_actions_CfFJi6_D.mjs";
 import { o as listClientes } from "./clientes_BmetyF5T.mjs";
 import { i as listVentas, s as totalesVentas } from "./ventas_CdaSwVoC.mjs";
-import { n as Search, r as Plus, t as $$LimpiarFiltros } from "./LimpiarFiltros_LipqND-Y.mjs";
+import { n as Search, r as Plus, t as $$LimpiarFiltros } from "./LimpiarFiltros_C4tWoNVu.mjs";
 import { t as $$Button } from "./Button_C8T8wdfZ.mjs";
 import { t as $$Input } from "./Input_BqhAvSAl.mjs";
 import { t as $$Badge } from "./Badge_DYdURA09.mjs";

@@ -7,7 +7,7 @@ var $$Card = createComponent(($$result, $$props, $$slots) => {
 	Astro.self = $$Card;
 	const { class: className = "", padded = true } = Astro.props;
 	return renderTemplate`${maybeRenderHead($$result)}<div${addAttribute([
-		"rounded-xl border border-hairline bg-surface",
+		"rounded-xl border border-hairline bg-white shadow-[0_1px_2px_rgba(42,27,32,0.04)] transition-shadow duration-200 hover:shadow-[0_4px_16px_rgba(42,27,32,0.06)]",
 		padded && "p-5",
 		className
 	], "class:list")}>${renderSlot($$result, $$slots["default"])}</div>`;

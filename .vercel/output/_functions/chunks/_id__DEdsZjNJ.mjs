@@ -1,13 +1,13 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
 import { A as renderTemplate, N as addAttribute, T as Fragment, j as maybeRenderHead, w as renderComponent } from "./sequence_CIT0iznN.mjs";
-import { T as isInputError } from "./server_Chmut7OB.mjs";
+import { T as isInputError } from "./server_GhWkWhLC.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { i as formatFechaCorta, n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_DRqm_oFd.mjs";
-import { t as actions } from "./_astro_actions_D4kehWx-.mjs";
+import { i as formatFechaCorta, n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_DzCWMCOK.mjs";
+import { t as actions } from "./_astro_actions_CfFJi6_D.mjs";
 import { a as getCliente } from "./clientes_BmetyF5T.mjs";
 import { a as listVentasDeCliente } from "./ventas_CdaSwVoC.mjs";
-import { n as Pencil, t as Trash } from "./trash_DUy4NpXD.mjs";
-import { t as $$Card } from "./Card_B-sRX80l.mjs";
+import { n as Pencil, t as Trash } from "./trash_pJFtxUFK.mjs";
+import { t as $$Card } from "./Card_ASULwIyD.mjs";
 import { t as $$Button } from "./Button_C8T8wdfZ.mjs";
 import { t as $$Badge } from "./Badge_DYdURA09.mjs";
 import { t as $$EmptyState } from "./EmptyState_s9NtGM7p.mjs";
