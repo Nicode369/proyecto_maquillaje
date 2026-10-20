@@ -1,6 +1,6 @@
 import { A as renderTemplate, N as addAttribute, j as maybeRenderHead, w as renderComponent } from "./sequence_CIT0iznN.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { l as createLucideIcon } from "./PageHeader_DzCWMCOK.mjs";
+import { l as createLucideIcon } from "./PageHeader_Cu-i7aiO.mjs";
 //#region node_modules/@lucide/astro/src/icons/plus.ts
 /**
 * @component @name Plus
