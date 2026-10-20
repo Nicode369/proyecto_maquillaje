@@ -22,13 +22,35 @@ export async function kpisMes(mes: string): Promise<Kpis> {
 
   const [actualRows, anteriorRows, gastosRows, gastosPrevRows] = await Promise.all([
     sql`
-      SELECT COUNT(*)::int AS n, COALESCE(SUM(total), 0)::float8 AS total
-      FROM ventas
-      WHERE NOT anulada AND to_char(fecha, 'YYYY-MM') = ${mes}`,
+      SELECT
+        (SELECT COUNT(*)::int FROM ventas
+          WHERE NOT anulada AND to_char(fecha, 'YYYY-MM') = ${mes}) AS n,
+        (
+          SELECT COALESCE(SUM(v.total), 0)::float8
+          FROM ventas v
+          WHERE NOT v.anulada AND NOT v.credito AND to_char(v.fecha, 'YYYY-MM') = ${mes}
+        ) +
+        (
+          SELECT COALESCE(SUM(a.monto), 0)::float8
+          FROM abonos a
+          INNER JOIN ventas v ON v.id = a.venta_id AND NOT v.anulada
+          WHERE to_char(a.fecha, 'YYYY-MM') = ${mes}
+        ) AS total`,
     sql`
-      SELECT COUNT(*)::int AS n, COALESCE(SUM(total), 0)::float8 AS total
-      FROM ventas
-      WHERE NOT anulada AND to_char(fecha, 'YYYY-MM') = ${prev}`,
+      SELECT
+        (SELECT COUNT(*)::int FROM ventas
+          WHERE NOT anulada AND to_char(fecha, 'YYYY-MM') = ${prev}) AS n,
+        (
+          SELECT COALESCE(SUM(v.total), 0)::float8
+          FROM ventas v
+          WHERE NOT v.anulada AND NOT v.credito AND to_char(v.fecha, 'YYYY-MM') = ${prev}
+        ) +
+        (
+          SELECT COALESCE(SUM(a.monto), 0)::float8
+          FROM abonos a
+          INNER JOIN ventas v ON v.id = a.venta_id AND NOT v.anulada
+          WHERE to_char(a.fecha, 'YYYY-MM') = ${prev}
+        ) AS total`,
     sql`
       SELECT COALESCE(SUM(monto), 0)::float8 AS total
       FROM gastos
@@ -73,11 +95,19 @@ export async function serieMensual(nMeses = 6): Promise<PuntoSerie[]> {
 
   const [ingresosRows, gastosRows] = await Promise.all([
     sql`
-      SELECT to_char(fecha, 'YYYY-MM') AS mes, COALESCE(SUM(total), 0)::float8 AS ingresos
-      FROM ventas
-      WHERE NOT anulada AND fecha >= ${desdeISO}
-      GROUP BY 1
-      ORDER BY 1`,
+      SELECT mes, COALESCE(SUM(monto), 0)::float8 AS ingresos
+      FROM (
+        SELECT to_char(v.fecha, 'YYYY-MM') AS mes, v.total AS monto
+        FROM ventas v
+        WHERE NOT v.anulada AND NOT v.credito AND v.fecha >= ${desdeISO}
+        UNION ALL
+        SELECT to_char(a.fecha, 'YYYY-MM') AS mes, a.monto
+        FROM abonos a
+        INNER JOIN ventas v ON v.id = a.venta_id AND NOT v.anulada
+        WHERE a.fecha >= ${desdeISO}
+      ) cobros
+      GROUP BY mes
+      ORDER BY mes`,
     sql`
       SELECT to_char(fecha, 'YYYY-MM') AS mes, COALESCE(SUM(monto), 0)::float8 AS gastos
       FROM gastos

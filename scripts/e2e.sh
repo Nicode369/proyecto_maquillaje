@@ -105,6 +105,16 @@ c=$(curl -s -b $J -o $D/abono.txt -w "%{http_code}" -X POST "$BASE/ventas/$VID2?
 case $c in 200|302) pass "registrarAbono 15000 → $c";; *) fail "registrarAbono → $c $(head -c 200 $D/abono.txt)";; esac
 curl -s -b $J -o $D/venta-credito.html "$BASE/ventas/$VID2"
 grep -q "25.000" $D/venta-credito.html && pass "saldo tras abono = 25.000" || fail "saldo 25.000 no visible"
+grep -q "Abonado" $D/venta-credito.html && pass "desglose Abonado presente en detalle" || fail "fila Abonado ausente"
+curl -s -b $J -o $D/home-ingresos.html "$BASE/"
+python3 -c "
+import re
+h=open('$D/home-ingresos.html').read()
+nums=[n.replace(chr(160),' ') for n in re.findall(r'class=\"display-number[^\"]*\"[^>]*>([^<]+)<',h)]
+ok_ing='\$ 15.000' in nums   # ingresos = solo abono recibido (la fiada no suma)
+ok_cob='\$ 25.000' in nums   # por cobrar = 40000 - 15000
+raise SystemExit(0 if ok_ing and ok_cob else 1)" \
+  && pass "ingresos=\$ 15.000 (solo abono) y por cobrar=\$ 25.000" || fail "KPIs de ingresos/por cobrar no reflejan el cobro del abono"
 c=$(curl -s -b $J -o /dev/null -w "%{http_code}" -X POST "$BASE/ventas/$VID2?_action=ventas.registrarAbono" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   --data-urlencode "venta_id=$VID2" --data-urlencode "fecha=$FECHA" --data-urlencode "monto=999999" --data-urlencode "notas=")

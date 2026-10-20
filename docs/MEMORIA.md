@@ -21,8 +21,10 @@
   gradiente + pétalos.
 - **Imagen de producto**: resize canvas 800px JPEG, base64 en `productos.imagen`.
 - **Ventas a crédito y abonos** (2026-10-20): checkbox "fiada" (exige clienta), saldo
-  calculado en queries, sección de abonos en el detalle, badges "Debe" en ventas y
-  clientas, KPI "Por cobrar" en la home, anulación bloqueada si hay abonos.
+  calculado en queries, sección de abonos en el detalle (desglose Total → Abonado → Saldo),
+  badges "Debe" en ventas y clientas, KPI "Por cobrar" en la home, anulación bloqueada
+  si hay abonos. **Ingresos = caja**: solo ventas de contado + abonos recibidos
+  (el total fiado no infla el ingreso; corrige el "monto de ingreso en los abonos").
 - **Guía de uso**: `/ayuda` con 8 tarjetas paso a paso + ítem en el sidebar.
 - **Hardening**: rate limit de login (5 intentos/15 min por IP, tabla `login_attempts`)
   + security headers (`X-Frame-Options`, `nosniff`, `Referrer-Policy`) en el middleware.

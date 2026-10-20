@@ -180,6 +180,24 @@ const mensajeAnular =
             {formatCOP(venta.total)}
           </td>
         </tr>
+        {
+          venta.credito && !venta.anulada && (
+            <>
+              <tr>
+                <td colspan="3" class="text-right text-sm text-ink-muted">Abonado</td>
+                <td class="text-right num text-sm text-sage">
+                  {formatCOP(venta.total - venta.saldo)}
+                </td>
+              </tr>
+              <tr>
+                <td colspan="3" class="text-right font-display text-base font-medium">Saldo pendiente</td>
+                <td class="text-right num font-display text-lg font-medium text-ochre">
+                  {formatCOP(venta.saldo)}
+                </td>
+              </tr>
+            </>
+          )
+        }
       </tfoot>
     </table>
   </div>

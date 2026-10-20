@@ -22,8 +22,13 @@ Para no re-descubrir por qué el código es así. Stack/convenciones básicas en
 - **Reglas de negocio**: a crédito exige clienta (deuda anónima no tiene sentido);
   anular una venta con abonos queda **bloqueada** (hubo plata real de por medio);
   `registrarAbono` valida `monto ≤ saldo` en el servidor.
+- **Ingresos = caja** (corregido 2026-10-20): el KPI Ingresos y la serie mensual suman
+  **solo lo cobrado**: ventas de contado (total, en su fecha) **+ cada abono** (en la
+  fecha del abono). Una venta fiada NO suma ingreso al crearse; suma cuando cobra.
+  Antes el total fiado inflaba el mes de la venta y los abonos no sumaban nunca.
 - UI: badge `wine` "Crédito · debe $X" en listas, "Debe" en clientas, celda
-  "Por cobrar" (total global, sin filtro de mes) en la tira de KPIs de la home.
+  "Por cobrar" (total global, sin filtro de mes) en la tira de KPIs de la home,
+  y desglose Total → Abonado → Saldo en el tfoot del detalle.
 
 ## Rate limit y security headers
 
