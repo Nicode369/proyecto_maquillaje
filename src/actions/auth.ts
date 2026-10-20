@@ -31,12 +31,4 @@ export const auth = {
       return { ok: true };
     },
   }),
-
-  logout: defineAction({
-    accept: 'form',
-    handler: async (_input, context) => {
-      context.cookies.delete(SESSION_COOKIE, { path: '/' });
-      return { ok: true };
-    },
-  }),
 };

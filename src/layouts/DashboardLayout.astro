@@ -20,12 +20,12 @@ const fechaCapitalizada = fecha.charAt(0).toUpperCase() + fecha.slice(1);
 
     <div class="flex min-w-0 flex-1 flex-col">
       <header
-        class="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-hairline bg-paper/90 px-4 backdrop-blur sm:px-6 lg:px-8"
+        class="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-wine/15 bg-blush px-4 sm:px-6 lg:px-8"
       >
         <button
           type="button"
           id="menu-toggle"
-          class="-ml-1 flex h-9 w-9 items-center justify-center rounded text-ink-muted transition-colors hover:bg-ink/5 hover:text-ink lg:hidden"
+          class="-ml-1 flex h-9 w-9 items-center justify-center rounded text-ink/70 transition-colors hover:bg-white/50 hover:text-ink lg:hidden"
           aria-controls="sidebar"
           aria-expanded="false"
           aria-label="Abrir menú de navegación"
@@ -45,7 +45,7 @@ const fechaCapitalizada = fecha.charAt(0).toUpperCase() + fecha.slice(1);
         </button>
 
         <p class="text-[13px] font-medium text-ink">{title}</p>
-        <p class="ml-auto hidden text-[13px] text-ink-muted sm:block">{fechaCapitalizada}</p>
+        <p class="ml-auto hidden text-[13px] text-ink/65 sm:block">{fechaCapitalizada}</p>
       </header>
 
       <main class="mx-auto w-full max-w-[1120px] flex-1 px-4 py-7 sm:px-6 lg:px-8 lg:py-9">

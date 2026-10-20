@@ -5,11 +5,6 @@ interface Props {
 }
 
 const { variant = 'sidebar', class: className = '' } = Astro.props;
-
-const tono =
-  variant === 'sidebar'
-    ? { nombre: 'text-paper', apellido: 'text-rose' }
-    : { nombre: 'text-ink', apellido: 'text-wine' };
 ---
 
 <span class:list={['inline-flex items-center gap-2.5', className]}>
@@ -23,9 +18,9 @@ const tono =
     aria-hidden="true"
   />
   <span
-    class:list={['font-display italic leading-none', tono.nombre]}
+    class:list={['font-display italic leading-none text-ink']}
     style="font-variation-settings: 'opsz' 144, 'wght' 560, 'SOFT' 40, 'WONK' 1;"
   >
-    Valeria <span class={tono.apellido}>Eslava</span>
+    Valeria <span class="text-wine">Eslava</span>
   </span>
 </span>

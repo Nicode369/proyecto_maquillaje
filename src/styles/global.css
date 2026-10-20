@@ -24,6 +24,8 @@
   --color-espresso: #4c2e3d;
   --color-espresso-soft: #5e3b4c;
   --color-espresso-muted: #cdb4be;
+
+  --color-blush: #f3c9d9;
 }
 
 @layer base {
