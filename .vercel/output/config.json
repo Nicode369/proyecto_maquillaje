@@ -40,6 +40,14 @@
 			"dest": "_render"
 		},
 		{
+			"src": "^/gastos/nuevo/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/gastos/([^/]+?)/editar/?$",
+			"dest": "_render"
+		},
+		{
 			"src": "^/gastos/?$",
 			"dest": "_render"
 		},

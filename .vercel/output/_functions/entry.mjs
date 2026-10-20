@@ -1,5 +1,5 @@
 import { Y as isRoute3xx, Zt as LocalsNotAnObject, a as getRouteGenerator, d as validateAndDecodePathname, f as getLogger, gt as ASTRO_ERROR_HEADER, h as AstroIntegrationLogger, hn as AstroError, ht as stripRequestBase, it as collapseDuplicateTrailingSlashes, jt as setGetEnv, mt as removeTrailingForwardSlash, nt as appendForwardSlash, o as getEnvironment, ot as hasFileExtension, p as getResolvedLogger, q as getDefaultStatusCode, st as isInternalPath, ut as prependForwardSlash, xt as clientAddressSymbol, yt as REROUTABLE_STATUS_CODES } from "./chunks/sequence_CIT0iznN.mjs";
-import { A as createCrossOriginForbiddenResponse, D as FetchFeatures, E as ALL_FETCH_FEATURES, F as manifest, M as getRenderOptions, N as setRenderOptions, O as getUsedFeatures, P as getAmbientManifest, _ as handlePages, a as FetchState, b as getI18n, c as renderErrorFromState, d as handleCache, f as provideCache, g as updateRouteTable, h as matchRoute, j as isForbiddenCrossOriginRequest, k as markFeatureUsed, l as renderErrorPage, m as matchAllRoutes, n as getActionContext, o as computePathnameFromDomain, p as getRouteTable, r as serializeActionResult, s as handleMiddleware, u as provideSession, v as prepareResponse, x as getSetCookiesFromResponse, y as finalizeI18n } from "./chunks/server_D5xXc7Zl.mjs";
+import { A as createCrossOriginForbiddenResponse, D as FetchFeatures, E as ALL_FETCH_FEATURES, F as manifest, M as getRenderOptions, N as setRenderOptions, O as getUsedFeatures, P as getAmbientManifest, _ as handlePages, a as FetchState, b as getI18n, c as renderErrorFromState, d as handleCache, f as provideCache, g as updateRouteTable, h as matchRoute, j as isForbiddenCrossOriginRequest, k as markFeatureUsed, l as renderErrorPage, m as matchAllRoutes, n as getActionContext, o as computePathnameFromDomain, p as getRouteTable, r as serializeActionResult, s as handleMiddleware, u as provideSession, v as prepareResponse, x as getSetCookiesFromResponse, y as finalizeI18n } from "./chunks/server_3at7jTLn.mjs";
 import { n as matchPattern } from "./chunks/remote_B72Ad3K3.mjs";
 import { escape } from "html-escaper";
 //#region node_modules/@astrojs/vercel/dist/serverless/constants.js
@@ -25,7 +25,7 @@ var ASTRO_LOCALS_HEADER = "x-astro-locals";
 var ASTRO_MIDDLEWARE_SECRET_HEADER = "x-astro-middleware-secret";
 //#endregion
 //#region \0virtual:astro-vercel:config
-var middlewareSecret = "a3e538fa-3921-4f68-840f-71acee4b1044";
+var middlewareSecret = "ea73e194-36c3-456f-87b2-963f97d86f62";
 //#endregion
 //#region node_modules/astro/dist/core/routing/invalid-encoding.js
 /**
@@ -860,7 +860,7 @@ var entrypoint_default = { async fetch(request) {
 	if (hasValidMiddlewareSecret) {
 		overrideTrusted = true;
 		realPath = request.headers.get(ASTRO_PATH_HEADER);
-	} else if (url.searchParams.get("x_astro_path_token") === "a3e538fa-3921-4f68-840f-71acee4b1044") {
+	} else if (url.searchParams.get("x_astro_path_token") === "ea73e194-36c3-456f-87b2-963f97d86f62") {
 		overrideTrusted = true;
 		realPath = url.searchParams.get(ASTRO_PATH_PARAM);
 	}

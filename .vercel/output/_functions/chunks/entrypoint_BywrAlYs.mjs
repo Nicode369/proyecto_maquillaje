@@ -1,8 +1,9 @@
 import { t as DASHBOARD_PASSWORD } from "./server_dIuM2HpK.mjs";
-import { S as ActionError, t as defineAction } from "./server_D5xXc7Zl.mjs";
+import { S as ActionError, t as defineAction } from "./server_3at7jTLn.mjs";
 import { a as verificarSesion, i as opcionesCookie, n as contrasenasIguales, r as firmarSesion, t as SESSION_COOKIE } from "./auth_i7ZmjjbO.mjs";
-import "./_astro_actions_Cl8erTzz.mjs";
+import "./_astro_actions_BMSwLB6E.mjs";
 import { a as getCliente, i as deleteCliente, o as listClientes, r as createCliente, s as updateCliente } from "./clientes_DidxbCz0.mjs";
+import { n as deleteGasto, r as getGasto, s as updateGasto, t as createGasto } from "./gastos_uQD488VL.mjs";
 import { c as updateProducto, i as getProducto, n as createProducto, r as deleteProducto } from "./productos_uqc73N35.mjs";
 import { n as createVenta, r as getVenta, t as anularVenta } from "./ventas_BqCxlPsa.mjs";
 import * as mod from "zod/v4";
@@ -83,6 +84,44 @@ var clientes = {
 			await exigirSesion(context);
 			if (!await getCliente(input.id)) return { ok: true };
 			await deleteCliente(input.id);
+			return { ok: true };
+		}
+	})
+};
+//#endregion
+//#region src/actions/gastos.ts
+var esquemaGasto = mod.object({
+	fecha: mod.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha no válida"),
+	categoria: mod.string().trim().min(1, "Elige una categoría").max(40),
+	descripcion: mod.string().trim().min(3, "Describe el gasto (mínimo 3 caracteres)").max(200),
+	monto: mod.coerce.number({ message: "El monto debe ser un número" }).min(1, "El monto debe ser mayor a cero")
+});
+var gastos = {
+	crear: defineAction({
+		accept: "form",
+		input: esquemaGasto,
+		handler: async (input, context) => {
+			await exigirSesion(context);
+			return { id: await createGasto(input) };
+		}
+	}),
+	actualizar: defineAction({
+		accept: "form",
+		input: esquemaGasto.extend({ id: mod.uuid("Identificador no válido") }),
+		handler: async (input, context) => {
+			await exigirSesion(context);
+			if (!await getGasto(input.id)) throw new Error("El gasto ya no existe.");
+			await updateGasto(input.id, input);
+			return { id: input.id };
+		}
+	}),
+	eliminar: defineAction({
+		accept: "form",
+		input: mod.object({ id: mod.uuid("Identificador no válido") }),
+		handler: async (input, context) => {
+			await exigirSesion(context);
+			if (!await getGasto(input.id)) return { ok: true };
+			await deleteGasto(input.id);
 			return { ok: true };
 		}
 	})
@@ -181,6 +220,7 @@ var esquemaVenta = mod.object({
 var server = {
 	auth,
 	clientes,
+	gastos,
 	productos,
 	ventas: {
 		crear: defineAction({

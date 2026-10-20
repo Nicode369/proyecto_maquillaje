@@ -1,4 +1,4 @@
-import { c as createLucideIcon } from "./PageHeader_BRSlfRBK.mjs";
+import { c as createLucideIcon } from "./PageHeader_C1KzfuB3.mjs";
 //#region node_modules/@lucide/astro/src/icons/plus.ts
 /**
 * @component @name Plus

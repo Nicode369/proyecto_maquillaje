@@ -1,0 +1,108 @@
+---
+import { actions, isInputError } from 'astro:actions';
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+import Button from '../../components/ui/Button.astro';
+import Input from '../../components/ui/Input.astro';
+import Textarea from '../../components/ui/Textarea.astro';
+import { listCategoriasGasto } from '../../lib/queries/gastos';
+import { hoyISO } from '../../lib/format';
+
+const resultado = Astro.getActionResult(actions.gastos.crear);
+if (resultado && !resultado.error) {
+  return Astro.redirect('/gastos');
+}
+
+const categorias = await listCategoriasGasto();
+
+const err = resultado?.error;
+const campos = isInputError(err) ? err.fields : {};
+const errorGenerico = err && !isInputError(err) ? err.message : null;
+---
+
+<DashboardLayout title="Nuevo gasto" active="gastos">
+  <PageHeader
+    title="Nuevo gasto"
+    description="Registra un gasto operativo del negocio"
+  />
+
+  <form
+    method="POST"
+    action={actions.gastos.crear}
+    class="mt-6 max-w-xl space-y-4"
+  >
+    {
+      errorGenerico && (
+        <div
+          class="rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
+          role="alert"
+        >
+          {errorGenerico}
+        </div>
+      )
+    }
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <Input
+        name="fecha"
+        label="Fecha"
+        type="date"
+        required
+        value={hoyISO()}
+        error={campos.fecha?.[0]}
+      />
+      <div class="space-y-1.5">
+        <label for="categoria" class="block text-[13px] font-medium text-ink">
+          Categoría
+        </label>
+        <input
+          id="categoria"
+          name="categoria"
+          list="categorias-gasto"
+          required
+          placeholder="Ej: Insumos"
+          class="h-9.5 w-full rounded border border-ink/15 bg-surface px-3 text-sm text-ink placeholder:text-ink-muted/60 focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15"
+          aria-invalid={campos.categoria ? 'true' : undefined}
+          aria-describedby={campos.categoria ? 'categoria-error' : undefined}
+        />
+        <datalist id="categorias-gasto">
+          {categorias.map((c) => (
+            <option value={c} />
+          ))}
+        </datalist>
+        {
+          campos.categoria && (
+            <p id="categoria-error" class="text-[13px] text-danger">
+              {campos.categoria[0]}
+            </p>
+          )
+        }
+      </div>
+    </div>
+
+    <Textarea
+      name="descripcion"
+      label="Descripción"
+      placeholder="Ej: Compra de paletas y labiales"
+      rows={2}
+      required
+      error={campos.descripcion?.[0]}
+    />
+
+    <Input
+      name="monto"
+      label="Monto (COP)"
+      type="number"
+      min="1"
+      step="100"
+      placeholder="Ej: 275000"
+      required
+      error={campos.monto?.[0]}
+    />
+
+    <div class="flex gap-2 border-t border-hairline pt-4">
+      <Button type="submit">Guardar gasto</Button>
+      <Button variant="outline" href="/gastos">Cancelar</Button>
+    </div>
+  </form>
+</DashboardLayout>

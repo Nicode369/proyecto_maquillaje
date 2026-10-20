@@ -1,12 +1,231 @@
 ---
+import { actions, isInputError } from 'astro:actions';
+import { Pencil, Plus, Search, Trash } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
-import Card from '../../components/ui/Card.astro';
+import Button from '../../components/ui/Button.astro';
+import Input from '../../components/ui/Input.astro';
+import Badge from '../../components/ui/Badge.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
+import {
+  listGastos,
+  listCategoriasGasto,
+  totalGastos,
+} from '../../lib/queries/gastos';
+import { formatCOP, formatFechaCorta, mesISO } from '../../lib/format';
+
+const mes = Astro.url.searchParams.get('mes')?.trim() || undefined;
+const categoria = Astro.url.searchParams.get('categoria')?.trim() || undefined;
+
+const eliminar = Astro.getActionResult(actions.gastos.eliminar);
+if (eliminar && !eliminar.error) {
+  const params = new URLSearchParams();
+  if (mes) params.set('mes', mes);
+  if (categoria) params.set('categoria', categoria);
+  const qs = params.toString();
+  return Astro.redirect(`/gastos${qs ? `?${qs}` : ''}`);
+}
+
+const [lista, categorias, total] = await Promise.all([
+  listGastos({ mes, categoria }),
+  listCategoriasGasto(),
+  totalGastos({ mes, categoria }),
+]);
+
+const hayFiltro = Boolean(mes || categoria);
+const mesActual = mesISO();
+
+const errDel = eliminar?.error;
+const errorEliminar =
+  errDel && !isInputError(errDel) ? errDel.message : null;
+
+const mensajeConfirmar = '¿Eliminar este gasto? Esta acción no se puede deshacer.';
+
+const tonos: Record<string, 'neutral' | 'wine' | 'warning' | 'success' | 'danger'> = {
+  Alquiler: 'wine',
+  Insumos: 'neutral',
+  Transporte: 'neutral',
+  Servicios: 'neutral',
+  Publicidad: 'warning',
+  Domicilio: 'neutral',
+};
 ---
 
 <DashboardLayout title="Gastos" active="gastos">
-  <PageHeader title="Gastos" description="Salidas y costos del negocio" />
-  <Card class="mt-6">
-    <p class="text-sm text-ink-muted">Módulo de gastos (próxima fase).</p>
-  </Card>
+  <PageHeader
+    title="Gastos"
+    description={`${lista.length} ${lista.length === 1 ? 'registro' : 'registros'}${hayFiltro ? '' : ' en total'} · ${formatCOP(total)}`}
+  >
+    <Button href="/gastos/nuevo"><Plus size={15} /> Nuevo gasto</Button>
+  </PageHeader>
+
+  <form method="GET" action="/gastos" class="mt-6 flex flex-wrap items-end gap-3">
+    <Input
+      name="mes"
+      label="Mes"
+      type="month"
+      value={mes ?? ''}
+      class="w-44"
+    />
+    <label class="space-y-1.5">
+      <span class="block text-[13px] font-medium text-ink">Categoría</span>
+      <select
+        name="categoria"
+        class="h-9.5 w-44 rounded border border-ink/15 bg-surface px-2.5 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15"
+      >
+        <option value="">Todas</option>
+        {categorias.map((c) => (
+          <option value={c} selected={c === categoria}>
+            {c}
+          </option>
+        ))}
+      </select>
+    </label>
+    <Button variant="outline" type="submit" class="shrink-0">
+      <Search size={15} /> Filtrar
+    </Button>
+  </form>
+
+  {
+    errorEliminar && (
+      <div
+        class="mt-4 rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
+        role="alert"
+      >
+        {errorEliminar}
+      </div>
+    )
+  }
+
+  <div class="mt-6 overflow-hidden rounded-md border border-hairline bg-surface">
+    {
+      lista.length === 0 && (
+        <EmptyState
+          title={hayFiltro ? 'Sin resultados' : 'Aún no hay gastos'}
+          description={
+            hayFiltro
+              ? 'Prueba con otros filtros o registra un gasto nuevo.'
+              : 'Registra tus gastos operativos para conocer tu ganancia real.'
+          }
+        >
+          {hayFiltro ? (
+            <Button variant="outline" href="/gastos">
+              Ver todos
+            </Button>
+          ) : (
+            <Button href="/gastos/nuevo">Registrar gasto</Button>
+          )}
+        </EmptyState>
+      )
+    }
+
+    {
+      lista.length > 0 && (
+        <>
+          <table class="data-table hidden md:table">
+            <thead>
+              <tr>
+                <th scope="col">Fecha</th>
+                <th scope="col">Categoría</th>
+                <th scope="col">Descripción</th>
+                <th scope="col" class="text-right">Monto</th>
+                <th scope="col">
+                  <span class="sr-only">Acciones</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {lista.map((g) => (
+                <tr>
+                  <td class="text-ink-muted">{formatFechaCorta(g.fecha)}</td>
+                  <td>
+                    <Badge tone={tonos[g.categoria] ?? 'neutral'}>{g.categoria}</Badge>
+                  </td>
+                  <td class="text-ink">{g.descripcion}</td>
+                  <td class="text-right num font-display">{formatCOP(g.monto)}</td>
+                  <td>
+                    <div class="flex justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        href={`/gastos/${g.id}/editar`}
+                        aria-label="Editar gasto"
+                      >
+                        <Pencil size={14} />
+                      </Button>
+                      <form method="POST" action={actions.gastos.eliminar}>
+                        <input type="hidden" name="id" value={g.id} />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          type="submit"
+                          class="text-danger hover:bg-danger/10 hover:text-danger"
+                          aria-label="Eliminar gasto"
+                          onclick={`return confirm('${mensajeConfirmar}')`}
+                        >
+                          <Trash size={14} />
+                        </Button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <ul class="divide-y divide-hairline md:hidden">
+            {lista.map((g) => (
+              <li class="flex items-start gap-3 p-4">
+                <div class="min-w-0 flex-1">
+                  <p class="truncate font-medium text-ink">{g.descripcion}</p>
+                  <p class="mt-0.5 text-xs text-ink-muted">
+                    {formatFechaCorta(g.fecha)} · {g.categoria}
+                  </p>
+                </div>
+                <div class="flex shrink-0 items-center gap-2">
+                  <p class="num font-display text-sm">{formatCOP(g.monto)}</p>
+                  <div class="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      href={`/gastos/${g.id}/editar`}
+                      aria-label="Editar gasto"
+                    >
+                      <Pencil size={14} />
+                    </Button>
+                    <form method="POST" action={actions.gastos.eliminar}>
+                      <input type="hidden" name="id" value={g.id} />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        type="submit"
+                        class="text-danger hover:bg-danger/10 hover:text-danger"
+                        aria-label="Eliminar gasto"
+                        onclick={`return confirm('${mensajeConfirmar}')`}
+                      >
+                        <Trash size={14} />
+                      </Button>
+                    </form>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
+      )
+    }
+  </div>
+
+  <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+    {
+      hayFiltro && (
+        <a href="/gastos" class="text-xs text-ink-muted hover:text-wine">
+          Limpiar filtros
+        </a>
+      )
+    }
+    <p class="text-xs text-ink-muted sm:ml-auto">
+      Total: <span class="num font-display text-sm text-ink">{formatCOP(total)}</span>
+    </p>
+  </div>
 </DashboardLayout>
