@@ -1,11 +1,11 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
 import { A as renderTemplate, N as addAttribute, j as maybeRenderHead, w as renderComponent } from "./sequence_CIT0iznN.mjs";
-import { T as isInputError } from "./server_BfFa7LNg.mjs";
+import { T as isInputError } from "./server_D09RoBAT.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { a as formatFechaLarga, l as createLucideIcon, n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_RrQ_Q38w.mjs";
-import { t as actions } from "./_astro_actions_BzY1ztXX.mjs";
+import { a as formatFechaLarga, l as createLucideIcon, n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_DzIx8Xkx.mjs";
+import { t as actions } from "./_astro_actions_DPmcJliR.mjs";
 import { r as getVenta } from "./ventas_BqCxlPsa.mjs";
-import { t as $$Button } from "./Button_CtbRWa0R.mjs";
+import { t as $$Button } from "./Button_CJFhS884.mjs";
 import { t as $$Badge } from "./Badge_SraFlFXP.mjs";
 import { t as $$Card } from "./Card_bgah6ivS.mjs";
 //#region node_modules/@lucide/astro/src/icons/arrow-left.ts

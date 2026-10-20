@@ -44,6 +44,36 @@
     color: var(--color-wine);
   }
 
+  input,
+  textarea,
+  select {
+    caret-color: var(--color-wine);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-ink-muted) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(107, 88, 92, 0.45);
+    border: 3px solid var(--color-paper);
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(107, 88, 92, 0.7);
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-wine);
     outline-offset: 2px;
