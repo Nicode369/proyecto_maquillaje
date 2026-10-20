@@ -1,13 +1,13 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
 import { A as renderTemplate, N as addAttribute, T as Fragment, j as maybeRenderHead, w as renderComponent } from "./sequence_CIT0iznN.mjs";
-import { T as isInputError } from "./server_3at7jTLn.mjs";
+import { T as isInputError } from "./server_BfFa7LNg.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { i as formatFechaCorta, n as $$DashboardLayout, r as formatCOP, s as mesISO, t as $$PageHeader } from "./PageHeader_C1KzfuB3.mjs";
-import { t as actions } from "./_astro_actions_BMSwLB6E.mjs";
+import { c as mesISO, i as formatFechaCorta, n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_RrQ_Q38w.mjs";
+import { t as actions } from "./_astro_actions_BzY1ztXX.mjs";
 import { n as countClientesNuevasEsteMes, o as listClientes, t as countClientes } from "./clientes_DidxbCz0.mjs";
-import { n as Pencil, t as Trash } from "./trash_DD_sBBhI.mjs";
-import { n as Plus, t as Search } from "./search_BYe3CUWH.mjs";
-import { t as $$Button } from "./Button_Dg178JBz.mjs";
+import { t as $$Button } from "./Button_CtbRWa0R.mjs";
+import { n as Pencil, t as Trash } from "./trash_COYMoakB.mjs";
+import { n as Plus, t as Search } from "./search_C5pMHH8P.mjs";
 import { t as $$Input } from "./Input_gzsjanpf.mjs";
 import { t as $$EmptyState } from "./EmptyState_s9NtGM7p.mjs";
 //#region src/pages/clientas/index.astro

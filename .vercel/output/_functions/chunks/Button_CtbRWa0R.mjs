@@ -1,5 +1,14 @@
-import { A as renderTemplate, D as renderSlot, N as addAttribute, j as maybeRenderHead, x as spreadAttributes } from "./sequence_CIT0iznN.mjs";
+import { A as renderTemplate, D as renderSlot, M as renderHead, N as addAttribute, j as maybeRenderHead, x as spreadAttributes } from "./sequence_CIT0iznN.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
+//#region src/layouts/BaseLayout.astro
+createAstro("https://astro.build");
+var $$BaseLayout = createComponent(($$result, $$props, $$slots) => {
+	const Astro = $$result.createAstro($$props, $$slots);
+	Astro.self = $$BaseLayout;
+	const { title, description = "Panel de control" } = Astro.props;
+	return renderTemplate`<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description"${addAttribute(description, "content")}><meta name="generator"${addAttribute(Astro.generator, "content")}><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>${title}</title>${renderHead($$result)}</head><body>${renderSlot($$result, $$slots["default"])}</body></html>`;
+}, "/home/nicode/Proyectos/proyecto_maquillaje/src/layouts/BaseLayout.astro", void 0);
+//#endregion
 //#region src/components/ui/Button.astro
 createAstro("https://astro.build");
 var $$Button = createComponent(($$result, $$props, $$slots) => {
@@ -18,4 +27,4 @@ var $$Button = createComponent(($$result, $$props, $$slots) => {
 	return renderTemplate`${href ? renderTemplate`${maybeRenderHead($$result)}<a${addAttribute(href, "href")}${addAttribute(classes, "class")}${spreadAttributes(rest)}>${renderSlot($$result, $$slots["default"])}</a>` : renderTemplate`<button${addAttribute(type, "type")}${addAttribute(classes, "class")}${addAttribute(disabled, "disabled")}${spreadAttributes(rest)}>${renderSlot($$result, $$slots["default"])}</button>`}`;
 }, "/home/nicode/Proyectos/proyecto_maquillaje/src/components/ui/Button.astro", void 0);
 //#endregion
-export { $$Button as t };
+export { $$BaseLayout as n, $$Button as t };

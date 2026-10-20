@@ -12,7 +12,7 @@ import {
   listCategoriasGasto,
   totalGastos,
 } from '../../lib/queries/gastos';
-import { formatCOP, formatFechaCorta, mesISO } from '../../lib/format';
+import { formatCOP, formatFechaCorta } from '../../lib/format';
 
 const mes = Astro.url.searchParams.get('mes')?.trim() || undefined;
 const categoria = Astro.url.searchParams.get('categoria')?.trim() || undefined;
@@ -33,7 +33,6 @@ const [lista, categorias, total] = await Promise.all([
 ]);
 
 const hayFiltro = Boolean(mes || categoria);
-const mesActual = mesISO();
 
 const errDel = eliminar?.error;
 const errorEliminar =

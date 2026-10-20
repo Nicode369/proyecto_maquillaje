@@ -1,7 +1,7 @@
 import { A as renderTemplate, D as renderSlot, F as createRenderInstruction, N as addAttribute, j as maybeRenderHead, w as renderComponent, x as spreadAttributes } from "./sequence_CIT0iznN.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { t as actions } from "./_astro_actions_BMSwLB6E.mjs";
-import { t as $$BaseLayout } from "./BaseLayout_Cp7cnQLR.mjs";
+import { t as actions } from "./_astro_actions_BzY1ztXX.mjs";
+import { n as $$BaseLayout } from "./Button_CtbRWa0R.mjs";
 //#region node_modules/astro/dist/runtime/server/render/script.js
 /**
 * Relies on the `renderScript: true` compiler option
@@ -381,7 +381,7 @@ var shortDateFormatter = new Intl.DateTimeFormat("es-CO", {
 	month: "2-digit",
 	year: "numeric"
 });
-new Intl.DateTimeFormat("es-CO", {
+var monthNameFormatter = new Intl.DateTimeFormat("es-CO", {
 	month: "long",
 	year: "numeric"
 });
@@ -393,6 +393,9 @@ function formatFechaLarga(date) {
 }
 function formatFechaCorta(date) {
 	return shortDateFormatter.format(toDate(date));
+}
+function formatMes(date) {
+	return monthNameFormatter.format(toDate(date));
 }
 function hoyISO() {
 	const now = /* @__PURE__ */ new Date();
@@ -430,4 +433,4 @@ var $$PageHeader = createComponent(($$result, $$props, $$slots) => {
 	return renderTemplate`${maybeRenderHead($$result)}<header${addAttribute(["border-b border-hairline pb-5", className], "class:list")}><div class="flex flex-wrap items-end justify-between gap-4"><div class="space-y-1"><h1 class="display-number text-[28px] leading-tight text-ink" style="font-variation-settings: 'opsz' 90;">${title}</h1>${description && renderTemplate`<p class="text-sm text-ink-muted">${description}</p>`}</div><div class="flex items-center gap-2">${renderSlot($$result, $$slots["default"])}</div></div></header>`;
 }, "/home/nicode/Proyectos/proyecto_maquillaje/src/components/ui/PageHeader.astro", void 0);
 //#endregion
-export { formatFechaLarga as a, createLucideIcon as c, formatFechaCorta as i, $$DashboardLayout as n, hoyISO as o, formatCOP as r, mesISO as s, $$PageHeader as t };
+export { formatFechaLarga as a, mesISO as c, formatFechaCorta as i, createLucideIcon as l, $$DashboardLayout as n, formatMes as o, formatCOP as r, hoyISO as s, $$PageHeader as t, renderScript as u };

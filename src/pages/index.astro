@@ -1,14 +1,375 @@
 ---
+import { TrendingDown, TrendingUp } from '@lucide/astro';
 import DashboardLayout from '../layouts/DashboardLayout.astro';
 import PageHeader from '../components/ui/PageHeader.astro';
 import Card from '../components/ui/Card.astro';
+import Badge from '../components/ui/Badge.astro';
+import Button from '../components/ui/Button.astro';
+import EmptyState from '../components/ui/EmptyState.astro';
+import {
+  kpisMes,
+  serieMensual,
+  stockBajo,
+  topClientes,
+  topProductos,
+  ultimasVentas,
+} from '../lib/queries/reportes';
+import { formatCOP, formatFechaCorta, formatMes, mesISO } from '../lib/format';
+
+const mes = Astro.url.searchParams.get('mes')?.trim() || mesISO();
+
+const [kpis, serie, bajoStock, topsC, topsP, recientes] = await Promise.all([
+  kpisMes(mes),
+  serieMensual(6),
+  stockBajo(),
+  topClientes(5),
+  topProductos(5),
+  ultimasVentas(5),
+]);
+
+function delta(actual: number, anterior: number): { pct: number | null; texto: string } {
+  if (anterior === 0) {
+    return { pct: null, texto: actual > 0 ? 'nuevo' : 'sin cambio' };
+  }
+  const pct = Math.round(((actual - anterior) / anterior) * 100);
+  return { pct, texto: `${pct > 0 ? '+' : ''}${pct}% vs mes anterior` };
+}
+
+const dGanancia = delta(kpis.ganancia, kpis.prevIngresos - kpis.prevGastos);
+const dIngresos = delta(kpis.ingresos, kpis.prevIngresos);
+const dGastos = delta(kpis.gastos, kpis.prevGastos);
+const dVentas = delta(kpis.nVentas, kpis.prevNVentas);
+
+const etiquetas = serie.map((p) => formatMes(`${p.mes}-01`).slice(0, 3));
+const datosGrafica = {
+  etiquetas,
+  ingresos: serie.map((p) => p.ingresos),
+  gastos: serie.map((p) => p.gastos),
+};
+
+function tonoDelta(valor: { pct: number | null; buenSube: boolean }): string {
+  if (valor.pct === null || valor.pct === 0) return 'text-ink-muted';
+  const sube = valor.pct > 0;
+  const bueno = sube === valor.buenSube;
+  return bueno ? 'text-sage' : 'text-danger';
+}
+
+const deltas: { label: string; valor: number; d: { pct: number | null; texto: string }; buenSube: boolean; hero?: boolean }[] = [
+  { label: 'Ganancia', valor: kpis.ganancia, d: dGanancia, buenSube: true, hero: true },
+  { label: 'Ingresos', valor: kpis.ingresos, d: dIngresos, buenSube: true },
+  { label: 'Gastos', valor: kpis.gastos, d: dGastos, buenSube: false },
+];
 ---
 
 <DashboardLayout title="Resumen" active="resumen">
-  <PageHeader title="Resumen" description="Vista general del negocio" />
-  <Card class="mt-6">
-    <p class="text-sm text-ink-muted">
-      Los indicadores del mes se muestran aquí (próxima fase).
-    </p>
-  </Card>
+  <PageHeader title="Resumen" description={formatMes(`${mes}-01`)}>
+    <form method="GET" action="/" class="flex items-center gap-2">
+      <input
+        type="month"
+        name="mes"
+        value={mes}
+        aria-label="Mes a consultar"
+        class="h-9.5 rounded border border-ink/15 bg-surface px-3 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15"
+      />
+      <Button variant="outline" type="submit">Ver</Button>
+    </form>
+  </PageHeader>
+
+  {/* Tira de KPIs: una sola celda dividida por hairlines */}
+  <div
+    class="mt-6 grid grid-cols-1 divide-y divide-hairline overflow-hidden rounded-md border border-hairline bg-surface sm:grid-cols-2 lg:grid-cols-6 lg:divide-x lg:divide-y-0"
+  >
+    {
+      deltas.map(({ label, valor, d, buenSube, hero }) => (
+        <div class:list={['p-5', hero && 'lg:col-span-2']}>
+          <p class="text-xs tracking-wide text-ink-muted uppercase">{label}</p>
+          <p
+            class:list={[
+              'display-number mt-1',
+              hero ? 'text-[32px] text-wine' : 'text-2xl text-ink',
+            ]}
+          >
+            {formatCOP(valor)}
+          </p>
+          <p class:list={['mt-1 flex items-center gap-1 text-[12px]', tonoDelta({ ...d, buenSube })]}>
+            {d.pct !== null && d.pct !== 0 &&
+              (d.pct > 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />)}
+            {d.texto}
+          </p>
+        </div>
+      ))
+    }
+    <div class="p-5">
+      <p class="text-xs tracking-wide text-ink-muted uppercase">Ventas</p>
+      <p class="display-number mt-1 text-2xl text-ink">{kpis.nVentas}</p>
+      <p class:list={['mt-1 flex items-center gap-1 text-[12px]', tonoDelta({ ...dVentas, buenSube: true })]}>
+        {dVentas.pct !== null && dVentas.pct !== 0 &&
+          (dVentas.pct > 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />)}
+        {dVentas.texto}
+      </p>
+    </div>
+    <div class="p-5">
+      <p class="text-xs tracking-wide text-ink-muted uppercase">Ticket promedio</p>
+      <p class="display-number mt-1 text-2xl text-ink">
+        {formatCOP(kpis.ticketPromedio)}
+      </p>
+      <p class="mt-1 text-[12px] text-ink-muted">por venta</p>
+    </div>
+  </div>
+
+  <div class="mt-6 grid gap-6 lg:grid-cols-3">
+    {/* Gráfica */}
+    <Card class="lg:col-span-2">
+      <div class="flex items-baseline justify-between">
+        <h2 class="font-display text-lg text-ink" style="font-variation-settings: 'opsz' 40;">
+          Ingresos y gastos
+        </h2>
+        <div class="flex items-center gap-4 text-[12px] text-ink-muted">
+          <span class="flex items-center gap-1.5">
+            <span class="inline-block h-2 w-2 rounded-full bg-wine"></span>
+            Ingresos
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="inline-block h-2 w-2 rounded-full bg-espresso"></span>
+            Gastos
+          </span>
+        </div>
+      </div>
+      <div class="relative mt-4 h-64">
+        <canvas
+          id="grafica-mes"
+          data-datos={JSON.stringify(datosGrafica)}
+          aria-label="Gráfica de ingresos y gastos de los últimos 6 meses"
+          role="img"
+        ></canvas>
+      </div>
+    </Card>
+
+    {/* Alertas de stock */}
+    <Card class="flex flex-col">
+      <h2 class="font-display text-lg text-ink" style="font-variation-settings: 'opsz' 40;">
+        Stock bajo
+      </h2>
+      {
+        bajoStock.length === 0 ? (
+          <p class="mt-3 text-sm text-ink-muted">
+            Todo el inventario está por encima del mínimo.
+          </p>
+        ) : (
+          <ul class="mt-3 divide-y divide-hairline">
+            {bajoStock.map((p) => (
+              <li class="flex items-center justify-between gap-2 py-2.5">
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-medium text-ink">{p.nombre}</p>
+                  <p class="truncate text-xs text-ink-muted">{p.marca ?? 'Sin marca'}</p>
+                </div>
+                <Badge tone={p.stock === 0 ? 'danger' : 'warning'}>
+                  {p.stock === 0 ? 'Agotado' : `${p.stock} und.`}
+                </Badge>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+      <a
+        href="/productos?stock=bajo"
+        class="mt-auto pt-3 text-[13px] text-wine hover:underline"
+      >
+        Ver inventario →
+      </a>
+    </Card>
+  </div>
+
+  <div class="mt-6 grid gap-6 lg:grid-cols-2">
+    {/* Top clientas */}
+    <Card>
+      <h2 class="font-display text-lg text-ink" style="font-variation-settings: 'opsz' 40;">
+        Mejores clientas
+      </h2>
+      {
+        topsC.length === 0 ? (
+          <p class="mt-3 text-sm text-ink-muted">Aún no hay ventas registradas.</p>
+        ) : (
+          <ul class="mt-3 divide-y divide-hairline">
+            {topsC.map((c) => (
+              <li class="flex items-center justify-between gap-3 py-2.5">
+                <a href={`/clientas/${c.id}`} class="min-w-0 hover:text-wine">
+                  <p class="truncate text-sm font-medium text-ink">{c.nombre}</p>
+                  <p class="text-xs text-ink-muted">
+                    {c.compras} {c.compras === 1 ? 'compra' : 'compras'}
+                  </p>
+                </a>
+                <p class="num font-display text-sm">{formatCOP(c.gasto)}</p>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </Card>
+
+    {/* Top productos */}
+    <Card>
+      <h2 class="font-display text-lg text-ink" style="font-variation-settings: 'opsz' 40;">
+        Productos más vendidos
+      </h2>
+      {
+        topsP.length === 0 ? (
+          <p class="mt-3 text-sm text-ink-muted">Aún no hay ventas registradas.</p>
+        ) : (
+          <ul class="mt-3 divide-y divide-hairline">
+            {topsP.map((p) => (
+              <li class="flex items-center justify-between gap-3 py-2.5">
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-medium text-ink">{p.nombre}</p>
+                  <p class="text-xs text-ink-muted">
+                    {p.unidades} {p.unidades === 1 ? 'unidad' : 'unidades'}
+                  </p>
+                </div>
+                <p class="num font-display text-sm">{formatCOP(p.ingresos)}</p>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </Card>
+  </div>
+
+  {/* Últimas ventas */}
+  <h2
+    class="mt-10 border-b border-hairline pb-2 font-display text-lg text-ink"
+    style="font-variation-settings: 'opsz' 40;"
+  >
+    Últimas ventas
+  </h2>
+  {
+    recientes.length === 0 ? (
+      <div class="mt-4 overflow-hidden rounded-md border border-hairline bg-surface">
+        <EmptyState
+          title="Sin ventas todavía"
+          description="Cuando registres tu primera venta aparecerá aquí."
+        >
+          <Button href="/ventas/nueva">Registrar venta</Button>
+        </EmptyState>
+      </div>
+    ) : (
+      <div class="mt-4 overflow-hidden rounded-md border border-hairline bg-surface">
+        <ul class="divide-y divide-hairline">
+          {recientes.map((v) => (
+            <li>
+              <a href={`/ventas/${v.id}`} class="flex items-center gap-4 p-4 hover:bg-wine/3">
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-sm font-medium text-ink">
+                    {v.cliente_nombre ?? 'Sin clienta'}
+                  </p>
+                  <p class="text-xs text-ink-muted">{formatFechaCorta(v.fecha)}</p>
+                </div>
+                {v.anulada && <Badge tone="danger">Anulada</Badge>}
+                <p class="num font-display text-sm">{formatCOP(v.total)}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
 </DashboardLayout>
+
+<script>
+  import Chart from 'chart.js/auto';
+
+  const canvas = document.getElementById('grafica-mes') as HTMLCanvasElement | null;
+  if (canvas) {
+    const datos = JSON.parse(canvas.dataset.datos ?? '{}');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    Chart.defaults.font.family = "'Inter Variable', ui-sans-serif, system-ui, sans-serif";
+    Chart.defaults.color = '#6b585c';
+
+    new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: datos.etiquetas ?? [],
+        datasets: [
+          {
+            label: 'Ingresos',
+            data: datos.ingresos ?? [],
+            borderColor: '#7a2233',
+            backgroundColor: 'rgba(122, 34, 51, 0.08)',
+            fill: true,
+            tension: 0.35,
+            borderWidth: 2,
+            pointRadius: 3,
+            pointBackgroundColor: '#7a2233',
+            pointBorderColor: '#fffcf8',
+            pointBorderWidth: 1.5,
+            pointHoverRadius: 5,
+          },
+          {
+            label: 'Gastos',
+            data: datos.gastos ?? [],
+            borderColor: '#261a1d',
+            backgroundColor: 'transparent',
+            borderDash: [5, 4],
+            fill: false,
+            tension: 0.35,
+            borderWidth: 1.5,
+            pointRadius: 2.5,
+            pointBackgroundColor: '#261a1d',
+            pointBorderColor: '#fffcf8',
+            pointBorderWidth: 1.5,
+            pointHoverRadius: 5,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: reduceMotion ? false : { duration: 400 },
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#261a1d',
+            titleColor: '#fffcf8',
+            bodyColor: '#fffcf8',
+            padding: 10,
+            cornerRadius: 4,
+            displayColors: true,
+            callbacks: {
+              label(context) {
+                const valor = context.parsed.y ?? 0;
+                const cop = new Intl.NumberFormat('es-CO', {
+                  style: 'currency',
+                  currency: 'COP',
+                  maximumFractionDigits: 0,
+                });
+                return ` ${context.dataset.label}: ${cop.format(valor)}`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            border: { color: 'rgba(34, 23, 25, 0.12)' },
+            ticks: { font: { size: 12 } },
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(34, 23, 25, 0.07)' },
+            border: { display: false },
+            ticks: {
+              font: { size: 11 },
+              callback(valor) {
+                const n = Number(valor);
+                if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+                if (n >= 1_000) return `$${Math.round(n / 1_000)}k`;
+                return `$${n}`;
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+</script>
