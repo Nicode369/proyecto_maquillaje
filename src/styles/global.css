@@ -150,4 +150,48 @@
     opacity: 0.035;
     mix-blend-mode: multiply;
   }
+
+  /* --- Figuras decorativas del panel (flores, aros, puntos, onda) --- */
+  .figura {
+    position: absolute;
+    pointer-events: none;
+    animation: deriva-panel var(--dur, 24s) ease-in-out var(--delay, 0s) infinite alternate;
+  }
+
+  .figura-flor {
+    color: var(--color-rose);
+    opacity: 0.1;
+  }
+
+  .figura-aro {
+    width: var(--size, 200px);
+    height: var(--size, 200px);
+    border-radius: 9999px;
+    border: 1px solid rgba(189, 63, 102, 0.12);
+  }
+
+  .figura-punto {
+    border-radius: 9999px;
+    background-color: rgba(189, 63, 102, 0.15);
+  }
+
+  .figura-onda {
+    color: var(--color-rose);
+    opacity: 0.18;
+  }
+
+  @keyframes deriva-panel {
+    from {
+      transform: rotate(var(--r0, 0deg)) translateY(0);
+    }
+    to {
+      transform: rotate(calc(var(--r0, 0deg) + var(--dr, 6deg))) translateY(var(--dy, -12px));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .figura {
+      animation: none;
+    }
+  }
 }
