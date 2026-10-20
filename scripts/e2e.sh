@@ -84,6 +84,24 @@ grep -qi "anulada" $D/venta.html && pass "venta marcada como anulada" || fail "b
 curl -s -b $J -o $D/prod-editar.html "$BASE/productos/$PID/editar"
 S=$(stock); [ "$S" = "7" ] && pass "stock restaurado 5 → 7" || fail "stock esperaba 7, obtuve $S"
 
+# --- Reactivar → stock vuelve a 5 y sale de "anulada" ---
+c=$(curl -s -b $J -o /dev/null -w "%{http_code}" -X POST "$BASE/ventas/$VID?_action=ventas.reactivar" \
+  -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "id=$VID")
+case $c in 200|302) pass "ventas.reactivar → $c";; *) fail "ventas.reactivar → $c";; esac
+curl -s -b $J -o $D/venta.html "$BASE/ventas/$VID"
+grep -qi "anulada" $D/venta.html && fail "venta sigue anulada tras reactivar" || pass "venta ya no está anulada"
+curl -s -b $J -o $D/prod-editar.html "$BASE/productos/$PID/editar"
+S=$(stock); [ "$S" = "5" ] && pass "stock re-descontado 7 → 5" || fail "stock esperaba 5, obtuve $S"
+
+# --- Reactivar sobre venta no anulada → bloqueado ---
+c=$(curl -s -b $J -o $D/reactivar-again.txt -w "%{http_code}" -X POST "$BASE/ventas/$VID?_action=ventas.reactivar" \
+  -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "id=$VID")
+grep -qi "no está anulada" $D/reactivar-again.txt && pass "reactivar venta activa → bloqueado" || fail "reactivar venta activa no bloqueado ($c)"
+
+# --- Dejar $VID anulada de nuevo (el resto del e2e asume esa venta sin contar) ---
+curl -s -b $J -o /dev/null -w "%{http_code}" -X POST "$BASE/ventas/$VID?_action=ventas.anular" \
+  -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "id=$VID" > /dev/null
+
 # --- Venta a crédito + abonos (fingerprint limpio: fecha/40000/Efectivo) ---
 c=$(curl -s -b $J -o $D/crear-vc.txt -w "%{http_code}" -X POST "$BASE/ventas/nueva?_action=ventas.crear" \
   -H "Content-Type: application/x-www-form-urlencoded" \

@@ -6,6 +6,7 @@ import {
   anularVenta,
   createVenta,
   getVenta,
+  reactivarVenta,
   registrarAbono,
 } from '../lib/queries/ventas';
 
@@ -105,6 +106,23 @@ export const ventas = {
         );
       }
       await anularVenta(input.id);
+      return { ok: true };
+    },
+  }),
+
+  reactivar: defineAction({
+    accept: 'form',
+    input: z.object({ id: z.uuid('Identificador no válido') }),
+    handler: async (input, context) => {
+      await exigirSesion(context);
+      const venta = await getVenta(input.id);
+      if (!venta) {
+        throw new Error('La venta ya no existe.');
+      }
+      if (!venta.anulada) {
+        throw new Error('Esta venta no está anulada.');
+      }
+      await reactivarVenta(input.id);
       return { ok: true };
     },
   }),

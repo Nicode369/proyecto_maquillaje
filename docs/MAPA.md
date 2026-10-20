@@ -28,7 +28,7 @@ src/
 │   ├── sesion.ts            exigirSesion(): guard de actions (ActionError UNAUTHORIZED)
 │   ├── clientes.ts          crear/actualizar/eliminar (eliminación dura)
 │   ├── productos.ts         CRUD + campo `imagen` (zod data-URL) + limpiar()
-│   ├── ventas.ts            crear (transacción, credito) + anular (guard abonos) + registrarAbono
+│   ├── ventas.ts            crear (transacción, credito) + anular (guard abonos) + reactivar + registrarAbono
 │   └── gastos.ts            CRUD de gastos
 │
 ├── components/
@@ -48,7 +48,7 @@ src/
 │       ├── types.ts         Tipos de filas (+Abono; Venta con credito/saldo; ClienteResumen con saldo)
 │       ├── clientes.ts      CRUD + búsqueda + saldo pendiente por clienta
 │       ├── productos.ts     CRUD + resumenStockActivo() + búsquedas (incluye imagen)
-│       ├── ventas.ts        Lista/filtros + detalle (items+abonos) + saldo calculado + create/anular/registrarAbono
+│       ├── ventas.ts        Lista/filtros + detalle (items+abonos) + saldo calculado + create/anular/reactivar/registrarAbono
 │       ├── gastos.ts        CRUD + filtros + totales por mes
 │       └── reportes.ts      Datos de la home (KPIs, serie, stock bajo, tops, porCobrar)
 │

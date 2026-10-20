@@ -1,6 +1,6 @@
 ---
 import { actions, isInputError } from 'astro:actions';
-import { Ban, ArrowLeft } from '@lucide/astro';
+import { Ban, ArrowLeft, RotateCcw } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 import Button from '../../components/ui/Button.astro';
@@ -30,6 +30,14 @@ if (abono && !abono.error) {
 const errorAnular =
   anular?.error && !isInputError(anular.error) ? anular.error.message : null;
 
+const reactivar = Astro.getActionResult(actions.ventas.reactivar);
+if (reactivar && !reactivar.error) {
+  return Astro.redirect(`/ventas/${venta.id}`);
+}
+
+const errorReactivar =
+  reactivar?.error && !isInputError(reactivar.error) ? reactivar.error.message : null;
+
 const errAbono = abono?.error;
 const camposAbono = isInputError(errAbono) ? errAbono.fields : {};
 const errorAbono = errAbono && !isInputError(errAbono) ? errAbono.message : null;
@@ -47,6 +55,9 @@ const subtotal = venta.items.reduce((sum, it) => sum + it.subtotal, 0);
 
 const mensajeAnular =
   '¿Anular esta venta? El stock de los productos se restaurará.';
+
+const mensajeReactivar =
+  '¿Reactivar esta venta? El stock de los productos se descontará de nuevo.';
 ---
 
 <DashboardLayout title={`Venta · ${formatCOP(venta.total)}`} active="ventas">
@@ -72,6 +83,20 @@ const mensajeAnular =
         </form>
       )
     }
+    {
+      venta.anulada && (
+        <form method="POST" action={actions.ventas.reactivar}>
+          <input type="hidden" name="id" value={venta.id} />
+          <Button
+            variant="outline"
+            type="submit"
+            onclick={`return confirm('${mensajeReactivar}')`}
+          >
+            <RotateCcw size={15} /> Reactivar venta
+          </Button>
+        </form>
+      )
+    }
   </PageHeader>
 
   {
@@ -81,6 +106,17 @@ const mensajeAnular =
         role="alert"
       >
         {errorAnular}
+      </div>
+    )
+  }
+
+  {
+    errorReactivar && (
+      <div
+        class="mt-4 rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
+        role="alert"
+      >
+        {errorReactivar}
       </div>
     )
   }

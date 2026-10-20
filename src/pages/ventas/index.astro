@@ -1,6 +1,6 @@
 ---
 import { actions, isInputError } from 'astro:actions';
-import { Plus, Search } from '@lucide/astro';
+import { Plus, Search, Ban } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 import LimpiarFiltros from '../../components/LimpiarFiltros.astro';
@@ -45,6 +45,9 @@ const metodos: Record<string, string> = {
   transferencia: 'Transferencia',
   tarjeta: 'Tarjeta',
 };
+
+const mensajeAnular =
+  '¿Anular esta venta? El stock de los productos se restaurará.';
 ---
 
 <DashboardLayout title="Ventas" active="ventas">
@@ -180,14 +183,31 @@ const metodos: Record<string, string> = {
                     )}
                   </td>
                   <td>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      href={`/ventas/${v.id}`}
-                      aria-label="Ver detalle"
-                    >
-                      Ver
-                    </Button>
+                    <div class="flex items-center justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        href={`/ventas/${v.id}`}
+                        aria-label="Ver detalle"
+                      >
+                        Ver
+                      </Button>
+                      {!v.anulada && (
+                        <form method="POST" action={actions.ventas.anular}>
+                          <input type="hidden" name="id" value={v.id} />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            type="submit"
+                            class="text-danger hover:bg-danger/10 hover:text-danger"
+                            aria-label="Anular venta"
+                            onclick={`return confirm('${mensajeAnular}')`}
+                          >
+                            <Ban size={14} /> Anular
+                          </Button>
+                        </form>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -196,36 +216,49 @@ const metodos: Record<string, string> = {
 
           <ul class="divide-y divide-hairline md:hidden">
             {lista.map((v) => (
-              <li>
-                <a href={`/ventas/${v.id}`} class="block p-4">
-                  <div class="flex items-start gap-3">
-                    <div class="min-w-0 flex-1">
-                      <p class="font-medium text-ink">
-                        {v.cliente_nombre ?? 'Sin clienta'}
-                      </p>
-                      <p class="text-xs text-ink-muted">
-                        {formatFechaCorta(v.fecha)} ·{' '}
-                        {metodos[v.metodo_pago.toLowerCase()] ?? v.metodo_pago}
-                      </p>
-                    </div>
-                    <div class="text-right">
-                      <p class="num font-display text-sm">{formatCOP(v.total)}</p>
-                      <p class="mt-0.5">
-                        {v.anulada ? (
-                          <Badge tone="danger">Anulada</Badge>
-                        ) : v.credito ? (
-                          <Badge tone="wine">
-                            {v.saldo > 0
-                              ? `Debe ${formatCOP(v.saldo)}`
-                              : 'Crédito · pagada'}
-                          </Badge>
-                        ) : (
-                          <Badge tone="success">Validada</Badge>
-                        )}
-                      </p>
-                    </div>
+              <li class="flex items-start gap-3 p-4">
+                <a href={`/ventas/${v.id}`} class="flex min-w-0 flex-1 items-start gap-3">
+                  <div class="min-w-0 flex-1">
+                    <p class="font-medium text-ink">
+                      {v.cliente_nombre ?? 'Sin clienta'}
+                    </p>
+                    <p class="text-xs text-ink-muted">
+                      {formatFechaCorta(v.fecha)} ·{' '}
+                      {metodos[v.metodo_pago.toLowerCase()] ?? v.metodo_pago}
+                    </p>
+                  </div>
+                  <div class="text-right">
+                    <p class="num font-display text-sm">{formatCOP(v.total)}</p>
+                    <p class="mt-0.5">
+                      {v.anulada ? (
+                        <Badge tone="danger">Anulada</Badge>
+                      ) : v.credito ? (
+                        <Badge tone="wine">
+                          {v.saldo > 0
+                            ? `Debe ${formatCOP(v.saldo)}`
+                            : 'Crédito · pagada'}
+                        </Badge>
+                      ) : (
+                        <Badge tone="success">Validada</Badge>
+                      )}
+                    </p>
                   </div>
                 </a>
+                {!v.anulada && (
+                  <form method="POST" action={actions.ventas.anular} class="shrink-0">
+                    <input type="hidden" name="id" value={v.id} />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      type="submit"
+                      class="text-danger hover:bg-danger/10 hover:text-danger"
+                      aria-label="Anular venta"
+                      onclick={`return confirm('${mensajeAnular}')`}
+                    >
+                      <Ban size={14} />
+                    </Button>
+                  </form>
+                )}
               </li>
             ))}
           </ul>
