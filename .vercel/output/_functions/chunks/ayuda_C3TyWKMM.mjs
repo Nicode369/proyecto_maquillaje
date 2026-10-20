@@ -12,6 +12,17 @@ var ayuda_exports = /* @__PURE__ */ __exportAll({
 var $$Ayuda = createComponent(($$result, $$props, $$slots) => {
 	const secciones = [
 		{
+			titulo: "Para empezar (primeros pasos)",
+			pasos: [
+				"1. Productos: registra primero todo lo que vendes (nombre, precios, stock y foto). Sin productos no puedes registrar ventas.",
+				"2. Clientas: crea las fichas de tus clientas con su teléfono; son las que comprarán y podrían quedar a crédito.",
+				"3. Primera venta: ya con productos y clientas, registra tu primera venta para que el resumen empiece a mostrar números.",
+				"4. Gastos: cada vez que compres insumos o pagues un gasto del negocio, regístralo el mismo día.",
+				"5. Crédito: si fías, marca la venta como \"a crédito\" y registra cada abono cuando te paguen.",
+				"A partir de ahí, entra cada día al Resumen: verás ingresos, gastos, ganancia, stock bajo y lo que te deben."
+			]
+		},
+		{
 			titulo: "Resumen (pantalla principal)",
 			pasos: [
 				"Muestra los números del mes elegido: ganancia, ingresos, gastos, ventas y ticket promedio (promedio por venta).",
