@@ -1,38 +1,29 @@
 import { t as DASHBOARD_PASSWORD } from "./server_DcDs3kpP.mjs";
-import { S as ActionError, t as defineAction } from "./server_BEVzeFh0.mjs";
+import { S as ActionError, t as defineAction } from "./server_C7IBEsZC.mjs";
 import { a as verificarSesion, i as opcionesCookie, n as contrasenasIguales, r as firmarSesion, t as SESSION_COOKIE } from "./auth_Cowi-BmK.mjs";
-import "./_astro_actions_Dafzj-nN.mjs";
+import "./_astro_actions_CN5Qzb7G.mjs";
 import { a as getCliente, i as deleteCliente, o as listClientes, r as createCliente, s as updateCliente } from "./clientes_DmH0mKyw.mjs";
 import { n as deleteGasto, r as getGasto, s as updateGasto, t as createGasto } from "./gastos_uFnzIew9.mjs";
 import { i as getProducto, l as updateProducto, n as createProducto, r as deleteProducto } from "./productos_DJAPQyIZ.mjs";
 import { n as createVenta, r as getVenta, t as anularVenta } from "./ventas_BBpED52g.mjs";
 import * as mod from "zod/v4";
 //#region src/actions/auth.ts
-var auth = {
-	login: defineAction({
-		accept: "form",
-		input: mod.object({ password: mod.string().min(1, "Escribe tu contraseña") }),
-		handler: async (input, context) => {
-			if (!DASHBOARD_PASSWORD) throw new ActionError({
-				code: "INTERNAL_SERVER_ERROR",
-				message: "Falta configurar DASHBOARD_PASSWORD en el servidor."
-			});
-			if (!contrasenasIguales(input.password, DASHBOARD_PASSWORD)) throw new ActionError({
-				code: "UNAUTHORIZED",
-				message: "Contraseña incorrecta."
-			});
-			context.cookies.set(SESSION_COOKIE, await firmarSesion(), opcionesCookie());
-			return { ok: true };
-		}
-	}),
-	logout: defineAction({
-		accept: "form",
-		handler: async (_input, context) => {
-			context.cookies.delete(SESSION_COOKIE, { path: "/" });
-			return { ok: true };
-		}
-	})
-};
+var auth = { login: defineAction({
+	accept: "form",
+	input: mod.object({ password: mod.string().min(1, "Escribe tu contraseña") }),
+	handler: async (input, context) => {
+		if (!DASHBOARD_PASSWORD) throw new ActionError({
+			code: "INTERNAL_SERVER_ERROR",
+			message: "Falta configurar DASHBOARD_PASSWORD en el servidor."
+		});
+		if (!contrasenasIguales(input.password, DASHBOARD_PASSWORD)) throw new ActionError({
+			code: "UNAUTHORIZED",
+			message: "Contraseña incorrecta."
+		});
+		context.cookies.set(SESSION_COOKIE, await firmarSesion(), opcionesCookie());
+		return { ok: true };
+	}
+}) };
 //#endregion
 //#region src/actions/sesion.ts
 async function exigirSesion(context) {
