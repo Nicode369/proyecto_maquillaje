@@ -1,14 +1,4 @@
-import { n as NEON_DATABASE_URL } from "./server_DO_fYqGA.mjs";
-import { neon } from "@neondatabase/serverless";
-//#region src/lib/db.ts
-function crearCliente() {
-	return neon(NEON_DATABASE_URL);
-}
-function sinBaseDeDatos() {
-	throw new Error("Falta NEON_DATABASE_URL. Copia .env.example a .env, configura la URL de Neon y reinicia el servidor.");
-}
-var sql = NEON_DATABASE_URL ? crearCliente() : sinBaseDeDatos;
-//#endregion
+import { t as sql } from "./db_DwG4jB1T.mjs";
 //#region src/lib/queries/clientes.ts
 async function listClientes(q) {
 	return await sql`
@@ -98,4 +88,4 @@ async function deleteCliente(id) {
 	await sql`DELETE FROM clientes WHERE id = ${id}`;
 }
 //#endregion
-export { getCliente as a, sql as c, deleteCliente as i, countClientesNuevasEsteMes as n, listClientes as o, createCliente as r, updateCliente as s, countClientes as t };
+export { getCliente as a, deleteCliente as i, countClientesNuevasEsteMes as n, listClientes as o, createCliente as r, updateCliente as s, countClientes as t };

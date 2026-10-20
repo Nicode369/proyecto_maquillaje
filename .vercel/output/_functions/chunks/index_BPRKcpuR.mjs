@@ -1,53 +1,14 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
 import { A as renderTemplate, N as addAttribute, T as Fragment, j as maybeRenderHead, w as renderComponent } from "./sequence_DxXwX9gt.mjs";
-import { T as isInputError } from "./server_UmxkaEb9.mjs";
+import { T as isInputError } from "./server_BG99tpHI.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_Ij6EkFK0.mjs";
-import { a as mesISO, i as formatFechaCorta, n as $$DashboardLayout, o as createLucideIcon, r as formatCOP, t as $$PageHeader } from "./PageHeader_iP2MHsvI.mjs";
-import { t as actions } from "./_astro_actions_B_qDQafb.mjs";
-import { n as countClientesNuevasEsteMes, o as listClientes, t as countClientes } from "./clientes_fbSkGmRO.mjs";
-import { n as Trash, r as Pencil, t as $$EmptyState } from "./EmptyState_D_zndXjN.mjs";
+import { a as mesISO, i as formatFechaCorta, n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_BGGF_Y7l.mjs";
+import { t as actions } from "./_astro_actions_DcrbtUNb.mjs";
+import { n as countClientesNuevasEsteMes, o as listClientes, t as countClientes } from "./clientes_DnFz0CLs.mjs";
+import { n as Trash, r as Pencil, t as $$EmptyState } from "./EmptyState_DH02ht5M.mjs";
+import { n as Plus, t as Search } from "./search_C-EDkDIK.mjs";
 import { t as $$Button } from "./Button_0TjvdLdx.mjs";
 import { t as $$Input } from "./Input_G8hRatvb.mjs";
-//#region node_modules/@lucide/astro/src/icons/plus.ts
-/**
-* @component @name Plus
-* @description Lucide SVG icon component, renders SVG Element with children.
-*
-* @preview ![img](data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzAwMCIgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmZmY7IGJvcmRlci1yYWRpdXM6IDJweCIKICBzdHJva2Utd2lkdGg9IjIiCiAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogIHN0cm9rZS1saW5lam9pbj0icm91bmQiCj4KICA8cGF0aCBkPSJNNSAxMmgxNCIgLz4KICA8cGF0aCBkPSJNMTIgNXYxNCIgLz4KPC9zdmc+Cg==) - https://lucide.dev/icons/plus
-* @see https://lucide.dev/guide/packages/lucide-astro - Documentation
-*
-* @param {import('../types').IconProps} props - Lucide icons props and any valid SVG attribute
-* @returns {any} Astro Component
-* 
-*/
-var Plus = createLucideIcon({
-	"name": "plus",
-	"size": 24,
-	"node": [["path", { "d": "M5 12h14" }], ["path", { "d": "M12 5v14" }]]
-});
-//#endregion
-//#region node_modules/@lucide/astro/src/icons/search.ts
-/**
-* @component @name Search
-* @description Lucide SVG icon component, renders SVG Element with children.
-*
-* @preview ![img](data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzAwMCIgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmZmY7IGJvcmRlci1yYWRpdXM6IDJweCIKICBzdHJva2Utd2lkdGg9IjIiCiAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogIHN0cm9rZS1saW5lam9pbj0icm91bmQiCj4KICA8cGF0aCBkPSJtMjEgMjEtNC4zNC00LjM0IiAvPgogIDxjaXJjbGUgY3g9IjExIiBjeT0iMTEiIHI9IjgiIC8+Cjwvc3ZnPgo=) - https://lucide.dev/icons/search
-* @see https://lucide.dev/guide/packages/lucide-astro - Documentation
-*
-* @param {import('../types').IconProps} props - Lucide icons props and any valid SVG attribute
-* @returns {any} Astro Component
-* 
-*/
-var Search = createLucideIcon({
-	"name": "search",
-	"size": 24,
-	"node": [["path", { "d": "m21 21-4.34-4.34" }], ["circle", {
-		"cx": "11",
-		"cy": "11",
-		"r": "8"
-	}]]
-});
-//#endregion
 //#region src/pages/clientas/index.astro
 var clientas_exports = /* @__PURE__ */ __exportAll({
 	default: () => $$Index,

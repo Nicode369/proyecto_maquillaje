@@ -48,6 +48,14 @@
 			"dest": "_render"
 		},
 		{
+			"src": "^/productos/nuevo/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/productos/([^/]+?)/editar/?$",
+			"dest": "_render"
+		},
+		{
 			"src": "^/productos/?$",
 			"dest": "_render"
 		},

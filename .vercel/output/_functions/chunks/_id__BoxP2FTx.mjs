@@ -1,32 +1,15 @@
 import { t as __exportAll } from "./rolldown-runtime_D7D4PA-g.mjs";
-import { A as renderTemplate, D as renderSlot, N as addAttribute, T as Fragment, j as maybeRenderHead, w as renderComponent } from "./sequence_DxXwX9gt.mjs";
-import { T as isInputError } from "./server_UmxkaEb9.mjs";
+import { A as renderTemplate, N as addAttribute, T as Fragment, j as maybeRenderHead, w as renderComponent } from "./sequence_DxXwX9gt.mjs";
+import { T as isInputError } from "./server_BG99tpHI.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_Ij6EkFK0.mjs";
-import { i as formatFechaCorta, n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_iP2MHsvI.mjs";
-import { t as actions } from "./_astro_actions_B_qDQafb.mjs";
-import { a as getCliente, c as sql } from "./clientes_fbSkGmRO.mjs";
-import { n as Trash, r as Pencil, t as $$EmptyState } from "./EmptyState_D_zndXjN.mjs";
+import { i as formatFechaCorta, n as $$DashboardLayout, r as formatCOP, t as $$PageHeader } from "./PageHeader_BGGF_Y7l.mjs";
+import { t as actions } from "./_astro_actions_DcrbtUNb.mjs";
+import { t as sql } from "./db_DwG4jB1T.mjs";
+import { a as getCliente } from "./clientes_DnFz0CLs.mjs";
+import { n as Trash, r as Pencil, t as $$EmptyState } from "./EmptyState_DH02ht5M.mjs";
 import { t as $$Button } from "./Button_0TjvdLdx.mjs";
+import { t as $$Badge } from "./Badge_CWwXwTqX.mjs";
 import { t as $$Card } from "./Card_8fk1xYlF.mjs";
-//#region src/components/ui/Badge.astro
-createAstro("https://astro.build");
-var $$Badge = createComponent(($$result, $$props, $$slots) => {
-	const Astro = $$result.createAstro($$props, $$slots);
-	Astro.self = $$Badge;
-	const { tone = "neutral", class: className = "" } = Astro.props;
-	return renderTemplate`${maybeRenderHead($$result)}<span${addAttribute([
-		"inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium whitespace-nowrap",
-		{
-			neutral: "bg-ink/6 text-ink-muted",
-			success: "bg-sage/10 text-sage",
-			warning: "bg-ochre/10 text-ochre",
-			danger: "bg-danger/10 text-danger",
-			wine: "bg-wine-soft text-wine"
-		}[tone],
-		className
-	], "class:list")}>${renderSlot($$result, $$slots["default"])}</span>`;
-}, "/home/nicode/Proyectos/proyecto_maquillaje/src/components/ui/Badge.astro", void 0);
-//#endregion
 //#region src/lib/queries/ventas.ts
 async function listVentasDeCliente(clienteId) {
 	return await sql`

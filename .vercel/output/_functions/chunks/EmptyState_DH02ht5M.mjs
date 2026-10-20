@@ -1,6 +1,6 @@
 import { A as renderTemplate, D as renderSlot, N as addAttribute, j as maybeRenderHead } from "./sequence_DxXwX9gt.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_Ij6EkFK0.mjs";
-import { o as createLucideIcon } from "./PageHeader_iP2MHsvI.mjs";
+import { o as createLucideIcon } from "./PageHeader_BGGF_Y7l.mjs";
 //#region node_modules/@lucide/astro/src/icons/pencil.ts
 /**
 * @component @name Pencil

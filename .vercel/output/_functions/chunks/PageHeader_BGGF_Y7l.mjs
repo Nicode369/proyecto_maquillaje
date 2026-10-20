@@ -1,7 +1,7 @@
 import { A as renderTemplate, D as renderSlot, N as addAttribute, P as createRenderInstruction, j as maybeRenderHead, w as renderComponent, x as spreadAttributes } from "./sequence_DxXwX9gt.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_Ij6EkFK0.mjs";
-import { t as actions } from "./_astro_actions_B_qDQafb.mjs";
-import { t as $$BaseLayout } from "./BaseLayout_DIagtaxn.mjs";
+import { t as actions } from "./_astro_actions_DcrbtUNb.mjs";
+import { t as $$BaseLayout } from "./BaseLayout_DPSXsF87.mjs";
 //#region node_modules/astro/dist/runtime/server/render/script.js
 /**
 * Relies on the `renderScript: true` compiler option

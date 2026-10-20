@@ -1,0 +1,57 @@
+---
+interface Props {
+  name: string;
+  label: string;
+  checked?: boolean;
+  value?: string;
+  error?: string;
+  hint?: string;
+  [key: string]: unknown;
+}
+
+const {
+  name,
+  label,
+  checked = false,
+  value = 'true',
+  error,
+  hint,
+  ...rest
+} = Astro.props;
+
+const inputId = name;
+const describedBy = error ? `${name}-error` : hint ? `${name}-hint` : undefined;
+---
+
+<div class="space-y-1.5">
+  <label for={inputId} class="flex cursor-pointer items-start gap-2.5 text-sm text-ink">
+    <input
+      id={inputId}
+      name={name}
+      type="checkbox"
+      value={value}
+      checked={checked}
+      aria-invalid={error ? 'true' : undefined}
+      aria-describedby={describedBy}
+      class="mt-0.5 size-4 shrink-0 accent-wine"
+      {...rest}
+    />
+    <span>
+      {label}
+      {
+        hint && (
+          <span id={`${name}-hint`} class="mt-0.5 block text-[13px] text-ink-muted">
+            {hint}
+          </span>
+        )
+      }
+    </span>
+  </label>
+  {
+    error && (
+      <p id={`${name}-error`} class="text-[13px] text-danger">
+        {error}
+      </p>
+    )
+  }
+</div>
