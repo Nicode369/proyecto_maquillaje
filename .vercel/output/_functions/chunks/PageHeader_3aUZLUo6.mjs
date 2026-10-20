@@ -1,7 +1,7 @@
 import { A as renderTemplate, D as renderSlot, F as createRenderInstruction, N as addAttribute, j as maybeRenderHead, w as renderComponent, x as spreadAttributes } from "./sequence_CIT0iznN.mjs";
 import { n as createComponent, t as createAstro } from "./compiler_D5p6FHCN.mjs";
-import { t as actions } from "./_astro_actions_Bb_80P29.mjs";
-import { i as $$BaseLayout, n as $$Footer, r as $$Valeria } from "./Button_Dm_iL_zf.mjs";
+import { t as actions } from "./_astro_actions_Dafzj-nN.mjs";
+import { i as $$BaseLayout, n as $$Footer, r as $$Valeria } from "./Button_DJ9kh447.mjs";
 //#region node_modules/astro/dist/runtime/server/render/script.js
 /**
 * Relies on the `renderScript: true` compiler option
