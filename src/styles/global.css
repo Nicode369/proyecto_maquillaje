@@ -159,25 +159,28 @@
   }
 
   .figura-flor {
-    color: var(--color-rose);
-    opacity: 0.1;
+    fill: none;
+    stroke: var(--color-wine);
+    stroke-width: 1.5;
+    opacity: 0.3;
   }
 
   .figura-aro {
     width: var(--size, 200px);
     height: var(--size, 200px);
     border-radius: 9999px;
-    border: 1px solid rgba(189, 63, 102, 0.12);
+    border: 1px solid rgba(189, 63, 102, 0.28);
   }
 
   .figura-punto {
     border-radius: 9999px;
-    background-color: rgba(189, 63, 102, 0.15);
+    background-color: rgba(189, 63, 102, 0.3);
   }
 
   .figura-onda {
     color: var(--color-rose);
-    opacity: 0.18;
+    stroke-width: 2;
+    opacity: 0.3;
   }
 
   @keyframes deriva-panel {
