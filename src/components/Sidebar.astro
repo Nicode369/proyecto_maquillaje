@@ -76,21 +76,24 @@ const items = [
           class:list={[
             'group mb-0.5 flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
             active === key
-              ? 'bg-white/75 text-wine'
+              ? 'relative isolate overflow-hidden bg-white/75 text-wine'
               : 'text-ink/70 hover:bg-white/50 hover:text-ink',
           ]}
         >
+          {active === key && (
+            <>
+              <span class="sidebar-item-borde pointer-events-none absolute inset-0 rounded-lg" aria-hidden="true" />
+              <span class="sidebar-item-brillo pointer-events-none absolute inset-0 rounded-lg" aria-hidden="true" />
+            </>
+          )}
           <Icon
             size={17}
             class:list={[
-              'shrink-0 transition-colors',
+              'relative z-10 shrink-0 transition-colors',
               active === key ? 'text-wine' : 'text-ink/60 group-hover:text-ink',
             ]}
           />
-          {label}
-          {active === key && (
-            <span class="ml-auto h-1.5 w-1.5 rounded-full bg-wine" aria-hidden="true" />
-          )}
+          <span class="relative z-10">{label}</span>
         </a>
       ))
     }
@@ -156,3 +159,80 @@ const items = [
     });
   }
 </script>
+
+<style>
+  @supports ((mask-composite: exclude) or (-webkit-mask-composite: xor)) {
+    .sidebar-item-borde {
+      overflow: hidden;
+      padding: 1px;
+      border-radius: inherit;
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      mask-composite: exclude;
+    }
+
+    .sidebar-item-borde::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 220%;
+      aspect-ratio: 1;
+      translate: -50% -50%;
+      background: conic-gradient(
+        from 0deg,
+        transparent 0deg 296deg,
+        rgba(232, 162, 184, 0.5) 320deg,
+        rgba(238, 141, 177, 0.9) 344deg,
+        rgba(189, 63, 102, 0.95) 358deg,
+        transparent 360deg
+      );
+      animation: sidebar-item-recorrido 3s linear infinite;
+    }
+  }
+
+  .sidebar-item-brillo {
+    background-image: linear-gradient(
+      115deg,
+      transparent 36%,
+      rgba(255, 255, 255, 0.8) 50%,
+      transparent 64%
+    );
+    background-size: 240% 100%;
+    background-repeat: no-repeat;
+    animation: sidebar-item-brillo 900ms ease-out 80ms 1 both;
+  }
+
+  @keyframes sidebar-item-recorrido {
+    to {
+      rotate: 360deg;
+    }
+  }
+
+  @keyframes sidebar-item-brillo {
+    from {
+      background-position: 130% 0;
+    }
+    to {
+      background-position: -130% 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sidebar-item-brillo,
+    .sidebar-item-borde::before {
+      animation: none;
+    }
+
+    .sidebar-item-brillo,
+    .sidebar-item-borde {
+      display: none;
+    }
+  }
+</style>
+
