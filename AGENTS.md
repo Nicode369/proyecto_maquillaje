@@ -60,8 +60,9 @@ Evita re-escanear el repo — leer bajo demanda:
 - `npm run dev` (o `astro dev --background`)
 - **Verificar siempre al terminar**: `npm run astro check && npm run build`
 - `bash scripts/e2e.sh` (e2e; requiere dev server; funciona con DB vacía) ·
-  `node scripts/clean-e2e.mjs` (limpieza de residuos E2E)
+  `npm run db:clean-e2e` (limpieza de residuos E2E; no toca datos reales)
 - `npm run db:init` / `npm run db:seed` (requieren `.env` con `DATABASE_URL`; usan la directa)
+- `npm run db:reset` (**destructivo**: vacía todas las tablas; deja la BD como en la entrega)
 - Neon CLI: `neon env pull` (refresca `.env`), `neon deploy` (aplica `neon.ts`), `neon status`
 
 ## Development

@@ -40,12 +40,11 @@ const { valor = null, error, class: className = '' } = Astro.props;
         <input
           type="file"
           accept="image/*"
-          capture="environment"
           class="sr-only"
           data-archivo
         />
       </label>
-      <p class="text-xs text-ink-muted">JPG, PNG o WebP · se recorta a 800 px</p>
+      <p class="text-xs text-ink-muted">Cámara o galería · JPG, PNG o WebP · se recorta a 800 px</p>
       <p>
         <button
           type="button"
@@ -141,7 +140,7 @@ const { valor = null, error, class: className = '' } = Astro.props;
         previa.src = dataUrl;
         pintar();
       } catch {
-        fallo('No se pudo leer la imagen. Prueba con otra.');
+        fallo('No se pudo leer la imagen. Usa JPG, PNG o WebP.');
       }
     });
 

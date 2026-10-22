@@ -112,6 +112,11 @@ Otras reglas de diseño:
 - Columna `productos.imagen text` (base64 data-URL en Postgres; validate
   `data:image/(jpeg|jpg|png|webp);base64,` máx ~1.4MB en zod → error 400.
 - Resize client-side en canvas: máx 800px, JPEG calidad 0.82 (`SubirImagen.astro`).
+- El input **no** lleva `capture`: sin ese atributo el selector nativo del
+  sistema ofrece cámara **y** galería (iOS: Cámara / Biblioteca / Buscar;
+  Android: Cámara / Galería / Archivos). Con `capture` se saltaba la galería.
+  `accept="image/*"` a propósito: restringir los tipos puede hacer que Android
+  deje de ofrecer la cámara en el selector.
 
 ## Git
 

@@ -47,10 +47,12 @@ Crea el esquema y, si quieres datos de ejemplo:
 ```sh
 npm run db:init     # crea las tablas (db/schema.sql)
 npm run db:seed     # datos de ejemplo — NO correr sobre datos reales
+npm run db:reset    # vacía todas las tablas (deja la BD como en la entrega)
 ```
 
 > ⚠️ `db:seed` **borra e inserta** datos de demostración. En una base que ya tiene
-> información real, **no lo ejecutes**.
+> información real, **no lo ejecutes**. `db:reset` también es destructivo: borra
+> todo, incluidos los datos reales.
 
 Levanta el servidor:
 
@@ -70,6 +72,8 @@ Entra con la contraseña definida en `DASHBOARD_PASSWORD`.
 | `npm run check`    | `astro check` (tipos y diagnósticos)                    |
 | `npm run db:init`  | Crea el esquema en la base (`db/schema.sql`)            |
 | `npm run db:seed`  | Inserta datos de ejemplo (**destructivo**)              |
+| `npm run db:reset` | Vacía todas las tablas (**destructivo**)                |
+| `npm run db:clean-e2e` | Borra solo los datos que crea el e2e              |
 
 ## Estructura
 
@@ -84,7 +88,7 @@ src/
 └── styles/global.css   Tailwind v4 con tokens @theme
 
 db/                     schema.sql + seed
-scripts/                db-init.ts, db-seed.ts, e2e.sh, clean-e2e.mjs
+scripts/                db-init.ts, db-seed.ts, reset-db.mjs, e2e.sh, clean-e2e.mjs
 docs/                   memoria, decisiones, mapa y verificación
 ```
 
@@ -118,7 +122,7 @@ la base vacía):
 ```sh
 npm run dev            # en otra terminal
 bash scripts/e2e.sh
-node scripts/clean-e2e.mjs   # limpia los residuos del e2e
+npm run db:clean-e2e   # limpia los residuos del e2e (no toca datos reales)
 ```
 
 ## Despliegue en Vercel

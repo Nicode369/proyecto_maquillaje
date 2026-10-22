@@ -117,6 +117,9 @@ if grep -q "A crédito" $D/venta-credito.html && grep -q "Debe" $D/venta-credito
 else
   fail "detalle sin badges de crédito"
 fi
+# Línea base de KPIs antes del abono (para comparar por diferencia: así el
+# check no depende de que la BD esté vacía).
+curl -s -b $J -o $D/home-antes-abono.html "$BASE/"
 c=$(curl -s -b $J -o $D/abono.txt -w "%{http_code}" -X POST "$BASE/ventas/$VID2?_action=ventas.registrarAbono" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   --data-urlencode "venta_id=$VID2" --data-urlencode "fecha=$FECHA" --data-urlencode "monto=15000" --data-urlencode "notas=pago parcial e2e")
@@ -127,12 +130,22 @@ grep -q "Abonado" $D/venta-credito.html && pass "desglose Abonado presente en de
 curl -s -b $J -o $D/home-ingresos.html "$BASE/"
 python3 -c "
 import re
-h=open('$D/home-ingresos.html').read()
-nums=[n.replace(chr(160),' ') for n in re.findall(r'class=\"display-number[^\"]*\"[^>]*>([^<]+)<',h)]
-ok_ing='\$ 15.000' in nums   # ingresos = solo abono recibido (la fiada no suma)
-ok_cob='\$ 25.000' in nums   # por cobrar = 40000 - 15000
+def kpis(ruta):
+    h=open(ruta).read()
+    out={}
+    for m in re.finditer(r'uppercase\"[^>]*>([^<]+)</p>\s*<p class=\"display-number[^\"]*\"[^>]*>([^<]+)<', h):
+        out[m.group(1)]=m.group(2).replace(chr(160),' ')
+    return out
+def num(v):
+    return int(re.sub(r'[^0-9]','', v))
+a=kpis('$D/home-antes-abono.html'); d=kpis('$D/home-ingresos.html')
+# el abono suma 15.000 a ingresos (la fiada no suma hasta cobrarse) y
+# descuenta 15.000 de lo que queda por cobrar
+ok_ing = num(d['Ingresos']) - num(a['Ingresos']) == 15000
+ok_cob = num(d['Por cobrar']) - num(a['Por cobrar']) == -15000
+print('   ingresos %s -> %s | por cobrar %s -> %s' % (a.get('Ingresos'), d.get('Ingresos'), a.get('Por cobrar'), d.get('Por cobrar')), file=__import__('sys').stderr)
 raise SystemExit(0 if ok_ing and ok_cob else 1)" \
-  && pass "ingresos=\$ 15.000 (solo abono) y por cobrar=\$ 25.000" || fail "KPIs de ingresos/por cobrar no reflejan el cobro del abono"
+  && pass "ingresos +15.000 (solo abono) y por cobrar +25.000" || fail "KPIs de ingresos/por cobrar no reflejan el cobro del abono"
 c=$(curl -s -b $J -o /dev/null -w "%{http_code}" -X POST "$BASE/ventas/$VID2?_action=ventas.registrarAbono" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   --data-urlencode "venta_id=$VID2" --data-urlencode "fecha=$FECHA" --data-urlencode "monto=999999" --data-urlencode "notas=")

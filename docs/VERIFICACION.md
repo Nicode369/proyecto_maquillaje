@@ -29,19 +29,28 @@ bash scripts/e2e.sh
 - Lee `DASHBOARD_PASSWORD` de `.env` del cwd (no hardcodear).
 - **Funciona con DB vacía**: los 3 checks de seed (`Valentina Ríos`, `Master Matte`,
   `Arriendo`) y el de la gráfica emiten **AVISO**, no FAIL, si no hay datos.
+- El check de KPIs compara **por diferencia** (línea base antes del abono → después),
+  así que no falla aunque la base ya tenga datos reales.
 - El logout exige `302|303` con `Location: /login`.
 - Deja residuo: la venta E2E (anulada) permanece → correr el paso 4.
 
 ## 4. Limpieza de residuos E2E
 
 ```
-export DATABASE_URL=$(grep "^DATABASE_URL=" .env | cut -d= -f2- | tr -d "\"\n")
-unset DATABASE_URL_UNPOOLED          # el directo dio timeout; usar solo el pooler
-node scripts/clean-e2e.mjs
+npm run db:clean-e2e
 ```
 
-- Usa fecha dinámica (`new Date()`); borra solo filas `E2E%`.
-- Reporta los counts de las 5 tablas al final.
+- Borra **solo** lo que crea el e2e: ventas ligadas al producto `E2E Producto Temp`
+  (items y abonos caen en CASCADE), ese producto, clientas `E2E%` y gastos `E2E%`.
+- **No toca datos reales**: las ventas se localizan por el producto E2E, no por
+  monto o fecha (una venta real de $40.000 en efectivo no se borra).
+- Reporta los counts de las 6 tablas al final.
+
+Para vaciar la base por completo (destructivo, deja la BD como en la entrega):
+
+```
+npm run db:reset
+```
 
 ## 5. Detector de diseño (impeccable)
 
