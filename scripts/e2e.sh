@@ -30,6 +30,7 @@ c=$(curl -s -c $J -o /dev/null -w "%{http_code}" -X POST "$BASE/login?_action=au
 # --- Páginas ---
 c=$(curl -s -b $J -o $D/home.html -w "%{http_code}" "$BASE/")
 grep -q "Ganancia" $D/home.html && [ "$c" = "200" ] && pass "home → 200 con KPIs" || fail "home → $c"
+grep -q "Sesión iniciada" $D/home.html && pass "login → aviso de sesión iniciada" || fail "login → sin aviso de sesión iniciada"
 grep -q "Chart\|chart" $D/home.html && pass "gráfica Chart.js presente" || warn "gráfica ausente en HTML (canvas puede existir sin texto)"
 for r in clientas productos ventas gastos; do
   c=$(curl -s -b $J -o $D/$r.html -w "%{http_code}" "$BASE/$r")

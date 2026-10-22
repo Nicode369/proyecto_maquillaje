@@ -4,9 +4,11 @@ import AuthLayout from '../layouts/AuthLayout.astro';
 import Button from '../components/ui/Button.astro';
 import Input from '../components/ui/Input.astro';
 import Alert from '../components/ui/Alert.astro';
+import { ponerFlash } from '../lib/flash';
 
 const resultado = Astro.getActionResult(actions.auth.login);
 if (resultado && !resultado.error) {
+  ponerFlash(Astro.cookies, { tipo: 'success', texto: 'Sesión iniciada' });
   return Astro.redirect('/');
 }
 
