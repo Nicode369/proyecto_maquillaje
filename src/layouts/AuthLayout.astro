@@ -49,46 +49,93 @@ const { title = 'Iniciar sesión' } = Astro.props;
         aria-hidden="true"
         class="pointer-events-none absolute inset-0 -z-10 overflow-hidden lg:hidden"
       >
+        <div class="mancha -top-16 -right-16 h-56 w-56 bg-blush/50"></div>
+        <div class="mancha -bottom-20 -left-16 h-64 w-64 bg-rose/30"></div>
+
         <svg
-          class="petalo absolute top-[9%] left-[8%] h-9 w-9 fill-rose opacity-30"
+          class="petalo absolute top-[7%] left-[6%] h-12 w-12 fill-rose opacity-40"
           viewBox="0 0 24 24"
           aria-hidden="true"
-          style="--dur: 11s; --delay: 0s; --dy: -16px; --dr: 9deg; --r0: 12deg"
+          style="--dur: 11s; --delay: 0s; --dy: -26px; --dr: 16deg; --r0: 12deg"
         >
           <path d="M12 2c3.4 4 6.5 7.8 6.5 11.5a6.5 6.5 0 1 1-13 0C5.5 9.8 8.6 6 12 2Z"></path>
         </svg>
         <svg
-          class="petalo absolute top-[20%] right-[10%] h-7 w-7 fill-pink opacity-25 blur-[1.5px]"
+          class="petalo absolute top-[16%] right-[8%] h-8 w-8 fill-pink opacity-40 blur-[1px]"
           viewBox="0 0 24 24"
           aria-hidden="true"
-          style="--dur: 13s; --delay: 1.2s; --dy: -12px; --dr: -11deg; --r0: -18deg"
+          style="--dur: 13s; --delay: 1.2s; --dy: -22px; --dr: -18deg; --r0: -18deg"
         >
           <path d="M12 2c3.4 4 6.5 7.8 6.5 11.5a6.5 6.5 0 1 1-13 0C5.5 9.8 8.6 6 12 2Z"></path>
         </svg>
         <svg
-          class="petalo absolute bottom-[22%] left-[12%] h-6 w-6 fill-wine opacity-15"
+          class="petalo absolute bottom-[20%] left-[10%] h-7 w-7 fill-wine opacity-25"
           viewBox="0 0 24 24"
           aria-hidden="true"
-          style="--dur: 15s; --delay: 0.6s; --dy: -14px; --dr: 8deg; --r0: 35deg"
+          style="--dur: 15s; --delay: 0.6s; --dy: -20px; --dr: 14deg; --r0: 35deg"
         >
           <path d="M12 2c3.4 4 6.5 7.8 6.5 11.5a6.5 6.5 0 1 1-13 0C5.5 9.8 8.6 6 12 2Z"></path>
         </svg>
         <svg
-          class="petalo absolute right-[16%] bottom-[10%] h-11 w-11 fill-rose opacity-25"
+          class="petalo absolute right-[12%] bottom-[9%] h-14 w-14 fill-rose opacity-35"
           viewBox="0 0 24 24"
           aria-hidden="true"
-          style="--dur: 16s; --delay: 2s; --dy: -10px; --dr: -7deg; --r0: 24deg"
+          style="--dur: 16s; --delay: 2s; --dy: -18px; --dr: -12deg; --r0: 24deg"
         >
           <path d="M12 2c3.4 4 6.5 7.8 6.5 11.5a6.5 6.5 0 1 1-13 0C5.5 9.8 8.6 6 12 2Z"></path>
         </svg>
         <svg
-          class="petalo absolute right-[6%] bottom-[34%] h-5 w-5 fill-pink opacity-20 blur-[1.5px]"
+          class="petalo absolute right-[5%] bottom-[36%] h-6 w-6 fill-pink opacity-30 blur-[1px]"
           viewBox="0 0 24 24"
           aria-hidden="true"
-          style="--dur: 9s; --delay: 1.6s; --dy: -15px; --dr: 12deg; --r0: -8deg"
+          style="--dur: 10s; --delay: 1.6s; --dy: -24px; --dr: 20deg; --r0: -8deg"
         >
           <path d="M12 2c3.4 4 6.5 7.8 6.5 11.5a6.5 6.5 0 1 1-13 0C5.5 9.8 8.6 6 12 2Z"></path>
         </svg>
+
+        <svg
+          class="figura figura-flor top-[40%] left-[3%] h-28 w-28 opacity-[0.14]"
+          viewBox="0 0 64 64"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          style="--dur: 26s; --dy: -14px; --dr: 8deg; --r0: -10deg"
+        >
+          <ellipse cx="32" cy="17.5" rx="9.5" ry="14"></ellipse>
+          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(72 32 34)"></ellipse>
+          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(144 32 34)"></ellipse>
+          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(216 32 34)"></ellipse>
+          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(288 32 34)"></ellipse>
+        </svg>
+        <svg
+          class="figura figura-flor right-[4%] bottom-[26%] h-32 w-32 opacity-[0.12]"
+          viewBox="0 0 64 64"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          style="--dur: 30s; --dy: -12px; --dr: -9deg; --r0: 22deg"
+        >
+          <ellipse cx="32" cy="17.5" rx="9.5" ry="14"></ellipse>
+          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(72 32 34)"></ellipse>
+          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(144 32 34)"></ellipse>
+          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(216 32 34)"></ellipse>
+          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(288 32 34)"></ellipse>
+        </svg>
+
+        <div
+          class="figura figura-aro -left-10 top-[16%]"
+          style="--size: 150px; --dur: 32s; --dy: -14px; --dr: 5deg"
+        >
+        </div>
+        <div
+          class="figura figura-aro -right-14 top-[54%]"
+          style="--size: 190px; --dur: 36s; --dy: -12px; --dr: -5deg"
+        >
+        </div>
+
+        <span class="figura figura-punto top-[28%] right-[22%] h-2 w-2 opacity-[0.4]" style="--dur: 22s"></span>
+        <span class="figura figura-punto bottom-[16%] left-[20%] h-2.5 w-2.5 opacity-[0.4]" style="--dur: 26s; --delay: 0.8s"></span>
+        <span class="figura figura-punto top-[58%] left-[40%] h-1.5 w-1.5 opacity-[0.4]" style="--dur: 24s; --delay: 1.4s"></span>
       </div>
 
       <div class="entrada w-full max-w-[380px]">
@@ -134,9 +181,25 @@ const { title = 'Iniciar sesión' } = Astro.props;
     animation: entrada 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
+  @keyframes entrada-item {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
+
+  :global(.entrada-item) {
+    animation: entrada-item 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: var(--delay, 0s);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .petalo,
     .entrada {
+      animation: none;
+    }
+
+    :global(.entrada-item) {
       animation: none;
     }
   }

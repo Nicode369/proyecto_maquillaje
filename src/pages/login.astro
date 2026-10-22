@@ -16,10 +16,12 @@ const errorGeneral =
 
 <AuthLayout>
   <div
-    class="rounded-xl border border-hairline bg-surface px-5 py-7 shadow-[0_1px_3px_rgba(42,27,32,0.06)] sm:px-7"
+    class="overflow-hidden rounded-xl border border-hairline bg-surface shadow-[0_10px_30px_-12px_rgba(42,27,32,0.22)]"
   >
-    <form method="POST" action={actions.auth.login} class="space-y-5">
-      <div class="space-y-1.5">
+    <div class="h-1.5 w-full bg-gradient-to-r from-wine via-pink to-rose" aria-hidden="true"></div>
+
+    <form method="POST" action={actions.auth.login} class="space-y-5 px-5 py-7 sm:px-7">
+      <div class="entrada-item space-y-1.5" style="--delay: 0.05s">
         <h1
           class="display-number text-[26px] leading-tight text-ink"
           style="font-variation-settings: 'opsz' 90;"
@@ -36,25 +38,30 @@ const errorGeneral =
         errorGeneral && (
           <p
             role="alert"
-            class="rounded-lg border border-danger/30 bg-danger/5 px-3 py-2 text-[13px] text-danger"
+            class="entrada-item rounded-lg border border-danger/30 bg-danger/5 px-3 py-2 text-[13px] text-danger"
+            style="--delay: 0.1s"
           >
             {errorGeneral}
           </p>
         )
       }
 
-      <Input
-        name="password"
-        label="Contraseña"
-        type="password"
-        size="lg"
-        autocomplete="current-password"
-        placeholder="••••••••"
-        error={erroresCampos.password?.[0]}
-        autofocus
-      />
+      <div class="entrada-item" style="--delay: 0.15s">
+        <Input
+          name="password"
+          label="Contraseña"
+          type="password"
+          size="lg"
+          autocomplete="current-password"
+          placeholder="••••••••"
+          error={erroresCampos.password?.[0]}
+          autofocus
+        />
+      </div>
 
-      <Button type="submit" size="lg" class="w-full">Entrar al panel</Button>
+      <div class="entrada-item" style="--delay: 0.22s">
+        <Button type="submit" size="lg" class="w-full">Entrar al panel</Button>
+      </div>
     </form>
   </div>
 </AuthLayout>
