@@ -1,7 +1,13 @@
 import { defineMiddleware } from 'astro:middleware';
 import { SESSION_COOKIE, verificarSesion } from './lib/auth';
 
-const RUTAS_PUBLICAS = new Set(['/login', '/favicon.svg', '/robots.txt']);
+const RUTAS_PUBLICAS = new Set([
+  '/login',
+  '/favicon.svg',
+  '/favicon.ico',
+  '/og-image.jpg',
+  '/robots.txt',
+]);
 
 function conSeguridad(res: Response): Response {
   res.headers.set('X-Frame-Options', 'DENY');
