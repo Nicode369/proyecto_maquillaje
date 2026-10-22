@@ -4,7 +4,7 @@ Una línea por archivo para localizar todo sin escanear el repo.
 
 ```
 src/
-├── middleware.ts            Protege todas las rutas salvo /login + security headers (conSeguridad)
+├── middleware.ts            Protege todas las rutas salvo /login + security headers (conSeguridad, incl. noindex)
 ├── env.d.ts                 Tipos de ambiente (astro:env)
 │
 ├── layouts/
@@ -37,7 +37,7 @@ src/
 │
 ├── components/
 │   ├── Sidebar.astro        Nav drawer blush: items (+Respaldo, badge stock bajo), POST /logout, script drawer (inert)
-│   ├── Valeria.astro        Wordmark Fraunces itálico + logo; variantes sidebar/auth
+│   ├── Valeria.astro        Wordmark Fraunces itálico + logo; variantes sidebar/auth y tono tinta/claro
 │   ├── Footer.astro         © año · Desarrollado por Nicode (dashboard y login)
 │   ├── LimpiarFiltros.astro Píldora con X para borrar filtros (ventas/gastos/productos/clientas)
 │   ├── SubirImagen.astro    Dos inputs image/* (cámara + galería) + resize canvas 800px + preview + quitar
@@ -78,4 +78,4 @@ scripts/
 ```
 
 Assets: `public/logo.svg` (flor con degradado), `public/favicon.svg`, `public/favicon.ico`,
-`public/og-image.jpg` (1200×630 para WhatsApp/redes).
+`public/og-image.jpg` (1200×630 para WhatsApp/redes), `public/robots.txt` (Disallow: /).

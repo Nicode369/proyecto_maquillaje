@@ -76,8 +76,11 @@ Para no re-descubrir por qué el código es así. Stack/convenciones básicas en
 - IP desde `x-forwarded-for` (primer hop) con fallback a `clientAddress`.
 - **Security headers** en el middleware vía wrapper `conSeguridad()` (también en
   redirects): `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
-  `Referrer-Policy: strict-origin-when-cross-origin`. **Sin CSP**: rompería los
-  scripts inline de Chart.js.
+  `Referrer-Policy: strict-origin-when-cross-origin` y `X-Robots-Tag: noindex, nofollow`.
+  **Sin CSP**: rompería los scripts inline de Chart.js.
+- **Panel fuera de buscadores**: `public/robots.txt` con `Disallow: /` + el header
+  `X-Robots-Tag` en todas las respuestas (el header es la garantía real; el archivo
+  solo evita el rastreo). `/robots.txt` está en `RUTAS_PUBLICAS` y tiene que existir.
 
 ## Auth y logout
 
@@ -126,6 +129,9 @@ Otras reglas de diseño:
 - Estilo del wordmark: Fraunces itálico con
   `font-variation-settings: 'opsz' 144, 'wght' 560, 'SOFT' 40, 'WONK' 1`.
 - Títulos de página: `${título} · Valeria Eslava` (en `BaseLayout`/layouts).
+- **Wordmark sobre fondo oscuro**: `tono="claro"` (paper + rose). Sobre espresso da
+  10.9:1 y 5.8:1; la variante tinta daba 1.38:1 y Lighthouse la marcaba como
+  inaccesible. El `tono` por defecto sigue siendo tinta para sidebar y login móvil.
 
 ## Login mobile
 

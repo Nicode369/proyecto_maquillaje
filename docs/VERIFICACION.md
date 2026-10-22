@@ -99,6 +99,10 @@ done
 - `?pagina=999` en ventas/gastos debe seguir devolviendo 200 (clampea a la última).
 - `/ventas/recibo/<uuid inexistente>` debe dar 404; con una venta real debe renderizar
   el comprobante y `window.print()` debe abrir el diálogo.
+- `/robots.txt` debe dar 200 con `Disallow: /`, y cualquier respuesta debe llevar
+  `X-Robots-Tag: noindex, nofollow`.
+- Eliminar una clienta con saldo debe devolver error con el mensaje "saldo pendiente";
+  una clienta sin deuda sí se elimina. El e2e cubre ambos casos.
 
 ⚠️ El login de actions es `POST /login?_action=auth.login` (a `/login`, NO a `/` —
 a `/` el middleware redirige sin setear cookie).
@@ -118,7 +122,7 @@ a `/` el middleware redirige sin setear cookie).
 
 ```
 git status --short
-git add src/ docs/ scripts/ package.json .gitignore   # solo fuentes (nunca .env ni backups/)
+git add src/ docs/ scripts/ public/ package.json .gitignore   # solo fuentes (nunca .env ni backups/)
 grep -E "^\.env$" <(git diff --cached --name-only) && echo PELIGRO   # verificar
 git -c user.name="nicode" -c user.email="nicode@users.noreply.github.com" commit -q -m "…"
 ```

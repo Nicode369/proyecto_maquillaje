@@ -168,8 +168,25 @@ c=$(curl -s -b $J -o /dev/null -w "%{http_code}" -X POST "$BASE/gastos?_action=g
 case $c in 200|302) pass "gastos.eliminar → $c";; *) fail "gastos.eliminar → $c";; esac
 c=$(curl -s -b $J -o /dev/null -w "%{http_code}" -X POST "$BASE/productos?_action=productos.eliminar" -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "id=$PID")
 case $c in 200|302) pass "productos.eliminar → $c";; *) fail "productos.eliminar → $c";; esac
-c=$(curl -s -b $J -o /dev/null -w "%{http_code}" -X POST "$BASE/clientas?_action=clientes.eliminar" -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "id=$CID")
-case $c in 200|302) pass "clientes.eliminar → $c";; *) fail "clientes.eliminar → $c";; esac
+# --- Guarda: clienta con saldo pendiente no se elimina ---
+c=$(curl -s -b $J -o $D/eliminar-c.txt -w "%{http_code}" -X POST "$BASE/clientas?_action=clientes.eliminar" -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "id=$CID")
+if grep -qi "saldo pendiente" $D/eliminar-c.txt; then
+  case $c in 4??|5??) pass "clientes.eliminar con saldo → bloqueado ($c)";; *) fail "clientes.eliminar con saldo → $c sin bloqueo";; esac
+else
+  fail "clientes.eliminar con saldo no mostró el motivo ($c)"
+fi
+
+# --- Clienta sin deuda sí se elimina ---
+curl -s -b $J -o /dev/null -w "%{http_code}" -X POST "$BASE/clientas/nueva?_action=clientes.crear" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "nombre=E2E Clienta Borrar" --data-urlencode "telefono=" --data-urlencode "email=" --data-urlencode "notas=" > /dev/null
+CID2=$(curl -s -b $J "$BASE/clientas?q=E2E" | grep -oE '/clientas/[0-9a-f-]{36}' | sed 's#/clientas/##' | sort -u | grep -v "^$CID$" | head -1)
+if [ -n "$CID2" ]; then
+  c=$(curl -s -b $J -o /dev/null -w "%{http_code}" -X POST "$BASE/clientas?_action=clientes.eliminar" -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "id=$CID2")
+  case $c in 200|302) pass "clientes.eliminar sin deuda → $c";; *) fail "clientes.eliminar sin deuda → $c";; esac
+else
+  fail "no se encontró la clienta sin deuda para borrar"
+fi
 
 # --- Logout ---
 out=$(curl -s -b $J -c $J -o /dev/null -w "%{http_code} %{redirect_url}" -X POST "$BASE/logout" -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "x=1")

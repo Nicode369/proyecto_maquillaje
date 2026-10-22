@@ -1,7 +1,7 @@
 # Memoria — estado actual del proyecto
 
-> Última actualización: 2026-10-22 — OG, toast de login, respaldo/exportación, recibo,
-> paginación y guardas de stock/clientas; DB vacía.
+> Última actualización: 2026-10-22 — pulido de entrega: contraste del login, e2e en
+> verde, `robots.txt`/noindex y respaldo probado con datos; DB vacía.
 
 ## Entrega
 
@@ -9,8 +9,8 @@
   primero crear productos (con imagen), luego clientas y ventas.
 - Verificado con DB vacía: las 6 páginas devuelven 200 con sus EmptyStates y KPIs en `$ 0`;
   login/logout intactos; check 0/0/0 y build Complete.
-- **Antes de entregar**: cambiar `DASHBOARD_PASSWORD` (hoy `juanmartin`) en `.env` **y**
-  en las env vars de Vercel (`DATABASE_URL`, `SESSION_SECRET`, `DASHBOARD_PASSWORD`).
+- **Contraseña**: la de entrega ya se cambió en Vercel. Ojo: `.env` local todavía tiene
+  `juanmartin`; sincronizarlo si se quiere probar el login local con la nueva.
 
 ## Hecho y verificado
 
@@ -45,19 +45,26 @@
 - **Recibo imprimible**: `/ventas/recibo/[id]` con `@media print` y botón en el detalle.
 - **Guardas**: no se elimina una clienta con saldo pendiente; badge de stock bajo en el
   sidebar desde `countStockBajo()`.
+- **Pulido de entrega** (2026-10-22): wordmark del login desktop con `tono="claro"`
+  (paper + rose sobre espresso; Lighthouse a11y **100**), `robots.txt` + `X-Robots-Tag:
+  noindex, nofollow` en todas las respuestas, y e2e actualizado a la guarda de clientas
+  (con saldo → bloqueado; sin deuda → se elimina). Respaldo/restauración probados con
+  datos reales de prueba (2 ventas, 1 abono, 1 clienta, 1 producto).
 
 ## Últimas verificaciones (2026-10-22)
 
 - `astro check`: 0/0/0 · `build`: Complete.
 - Smoke con sesión: login 302; `/ventas`, `/gastos`, `/clientas`, `/respaldo` 200;
   `/respaldo.json` 200 JSON; los 5 CSV 200; tabla inválida y recibo inexistente 404.
-- `npm run db:backup` y `db:restore --reemplazar` probados con DB vacía (0 filas).
-- e2e completo previo: **38 PASS / 0 FALLOS** (2026-10-20).
-- DB tras pruebas: 0/0/0/0/0.
+- `npm run db:backup` y `db:restore --reemplazar` probados dos veces: con DB vacía y
+  con datos (restaura conteos, totales y abonos sin pérdida).
+- e2e completo: **0 fallos** (2026-10-22, incluye la guarda de clientas con saldo).
+- DB tras pruebas: 0/0/0/0/0 y `login_attempts` vacía.
 
 ## Pendientes (propuestos, esperando decisión — opcionales)
 
-1. **Cambiar `DASHBOARD_PASSWORD`** de entrega (`juanmartin`) en `.env` y Vercel.
-2. **Editar/eliminar abonos** (hoy solo se registran; corregir un abono requiere SQL).
-3. Futuro: imágenes a Vercel Blob (el base64 infla la DB y el JSON de respaldo),
-   `robots.txt`/`noindex`, multi-usuario, PWA offline, CI.
+1. **Sincronizar `DASHBOARD_PASSWORD` local**: Vercel ya tiene la nueva, `.env` no.
+2. **Integridad**: stock/anulación atómicos, validación real de fechas, editar/eliminar
+   abonos, costo congelado en `venta_items` (ganancia real).
+3. Futuro: imágenes a Vercel Blob + thumbnails, migraciones, CI, backups automáticos,
+   multi-usuario, PWA offline.
