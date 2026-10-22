@@ -38,7 +38,7 @@ const { valor = null, error, class: className = '' } = Astro.props;
     <div class="min-w-0 space-y-2">
       <div class="flex flex-wrap gap-2">
         <label
-          class="inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border border-wine/40 bg-surface px-4 text-[13px] font-medium text-wine transition-colors hover:border-wine/60 hover:bg-wine-soft"
+          class="inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border border-wine/40 bg-surface px-4 text-[13px] font-medium text-wine transition-colors hover:border-wine/60 hover:bg-wine-soft lg:hidden"
         >
           <Camera size={14} />
           Tomar foto
@@ -52,11 +52,18 @@ const { valor = null, error, class: className = '' } = Astro.props;
           />
         </label>
         <label
-          class="inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border border-wine/40 bg-surface px-4 text-[13px] font-medium text-wine transition-colors hover:border-wine/60 hover:bg-wine-soft"
+          class="inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border border-wine/40 bg-surface px-4 text-[13px] font-medium text-wine transition-colors hover:border-wine/60 hover:bg-wine-soft lg:hidden"
         >
           <Images size={14} />
           Galería
           <input type="file" accept="image/*" class="sr-only" data-archivo data-galeria />
+        </label>
+        <label
+          class="hidden h-9 cursor-pointer items-center gap-2 rounded-full border border-wine/40 bg-surface px-4 text-[13px] font-medium text-wine transition-colors hover:border-wine/60 hover:bg-wine-soft lg:inline-flex"
+        >
+          <Images size={14} />
+          Cargar archivo
+          <input type="file" accept="image/*" class="sr-only" data-archivo data-escritorio />
         </label>
       </div>
       <p class="text-xs text-ink-muted">Cámara o galería · JPG, PNG o WebP · se recorta a 800 px</p>
