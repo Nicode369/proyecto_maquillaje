@@ -11,6 +11,8 @@ import EmptyState from '../../components/ui/EmptyState.astro';
 import { listVentas, totalesVentas } from '../../lib/queries/ventas';
 import { listClientes } from '../../lib/queries/clientes';
 import { formatCOP, formatFechaCorta } from '../../lib/format';
+import Alert from '../../components/ui/Alert.astro';
+import { ponerFlash } from '../../lib/flash';
 
 const mes = Astro.url.searchParams.get('mes')?.trim() || undefined;
 const clienteId = Astro.url.searchParams.get('cliente')?.trim() || undefined;
@@ -23,6 +25,10 @@ if (anular && !anular.error) {
   if (clienteId) params.set('cliente', clienteId);
   if (q) params.set('q', q);
   const qs = params.toString();
+  ponerFlash(Astro.cookies, {
+    tipo: 'success',
+    texto: 'Venta anulada · el stock se restauró',
+  });
   return Astro.redirect(`/ventas${qs ? `?${qs}` : ''}`);
 }
 
@@ -95,12 +101,9 @@ const mensajeAnular =
 
   {
     errorAnular && (
-      <div
-        class="mt-4 rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
-        role="alert"
-      >
+      <Alert variant="danger" class="mt-4">
         {errorAnular}
-      </div>
+      </Alert>
     )
   }
 
@@ -201,7 +204,9 @@ const mensajeAnular =
                             type="submit"
                             class="text-danger hover:bg-danger/10 hover:text-danger"
                             aria-label="Anular venta"
-                            onclick={`return confirm('${mensajeAnular}')`}
+                            data-confirm={mensajeAnular}
+                            data-confirm-titulo="Anular venta"
+                            data-confirm-ok="Anular"
                           >
                             <Ban size={14} /> Anular
                           </Button>
@@ -253,7 +258,9 @@ const mensajeAnular =
                       type="submit"
                       class="text-danger hover:bg-danger/10 hover:text-danger"
                       aria-label="Anular venta"
-                      onclick={`return confirm('${mensajeAnular}')`}
+                      data-confirm={mensajeAnular}
+                      data-confirm-titulo="Anular venta"
+                      data-confirm-ok="Anular"
                     >
                       <Ban size={14} />
                     </Button>

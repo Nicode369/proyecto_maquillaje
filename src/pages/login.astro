@@ -3,6 +3,7 @@ import { actions, isInputError } from 'astro:actions';
 import AuthLayout from '../layouts/AuthLayout.astro';
 import Button from '../components/ui/Button.astro';
 import Input from '../components/ui/Input.astro';
+import Alert from '../components/ui/Alert.astro';
 
 const resultado = Astro.getActionResult(actions.auth.login);
 if (resultado && !resultado.error) {
@@ -36,13 +37,9 @@ const errorGeneral =
 
       {
         errorGeneral && (
-          <p
-            role="alert"
-            class="entrada-item rounded-lg border border-danger/30 bg-danger/5 px-3 py-2 text-[13px] text-danger"
-            style="--delay: 0.1s"
-          >
+          <Alert variant="danger" compact class="entrada-item" style="--delay: 0.1s">
             {errorGeneral}
-          </p>
+          </Alert>
         )
       }
 

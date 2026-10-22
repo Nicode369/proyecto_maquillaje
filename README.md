@@ -82,8 +82,10 @@ src/
 ├── layouts/            BaseLayout (shell HTML), DashboardLayout (sidebar + topbar), AuthLayout
 ├── pages/              login, logout, index (resumen), ventas/, productos/, gastos/, clientas/, ayuda
 ├── actions/            auth, clientes, productos, ventas, gastos (+ index que re-exporta)
-├── components/ui/      Button, Card, Badge, Input, Select, Textarea, EmptyState, PageHeader
-├── lib/                db.ts (Neon), auth.ts (HMAC), format.ts (COP/es-CO), queries/
+├── components/ui/      Button, Card, Badge, Input, Select, Textarea, EmptyState, PageHeader,
+│                       Alert (avisos), Toast (flash post-redirect)
+├── components/         Sidebar, Footer, Valeria, SubirImagen, ConfirmDialog (<dialog>)
+├── lib/                db.ts (Neon), auth.ts (HMAC), format.ts (COP/es-CO), flash.ts, queries/
 ├── middleware.ts       Protección de rutas + cabeceras de seguridad
 └── styles/global.css   Tailwind v4 con tokens @theme
 

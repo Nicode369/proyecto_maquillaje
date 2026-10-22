@@ -1,0 +1,83 @@
+---
+import { CircleAlert, CircleCheck, TriangleAlert, Info } from '@lucide/astro';
+
+interface Props {
+  variant?: 'danger' | 'success' | 'warning' | 'info';
+  title?: string;
+  compact?: boolean;
+  class?: string;
+  role?: 'alert' | 'status' | null;
+  [key: string]: unknown;
+}
+
+const {
+  variant = 'danger',
+  title,
+  compact = false,
+  class: className = '',
+  role,
+  ...rest
+} = Astro.props;
+
+const estilos = {
+  danger: {
+    caja: 'border-danger/25 bg-danger/5',
+    chip: 'bg-danger/10 text-danger',
+    texto: 'text-danger',
+  },
+  success: {
+    caja: 'border-sage/25 bg-sage/5',
+    chip: 'bg-sage/10 text-sage',
+    texto: 'text-sage',
+  },
+  warning: {
+    caja: 'border-ochre/25 bg-ochre/5',
+    chip: 'bg-ochre/10 text-ochre',
+    texto: 'text-ochre',
+  },
+  info: {
+    caja: 'border-wine/20 bg-wine-soft/60',
+    chip: 'bg-wine/10 text-wine',
+    texto: 'text-ink',
+  },
+};
+
+const Icono = {
+  danger: CircleAlert,
+  success: CircleCheck,
+  warning: TriangleAlert,
+  info: Info,
+}[variant];
+
+const estilo = estilos[variant];
+const rol = role ?? (variant === 'danger' ? 'alert' : 'status');
+---
+
+<div
+  class:list={[
+    'flex items-start gap-3 rounded-xl border',
+    compact ? 'px-3 py-2' : 'px-4 py-3',
+    estilo.caja,
+    className,
+  ]}
+  role={rol}
+  {...rest}
+>
+  <span
+    class:list={[
+      'flex shrink-0 items-center justify-center rounded-full',
+      compact ? 'mt-px h-5 w-5' : 'mt-0.5 h-6 w-6',
+      estilo.chip,
+    ]}
+    aria-hidden="true"
+  >
+    <Icono size={compact ? 12 : 14} />
+  </span>
+
+  <div class="min-w-0 flex-1">
+    {title && <p class:list={['font-semibold', compact ? 'text-[13px]' : 'text-sm']}>{title}</p>}
+    <div class:list={['leading-relaxed', compact ? 'text-[13px]' : 'text-sm', estilo.texto]}>
+      <slot />
+    </div>
+  </div>
+</div>

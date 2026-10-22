@@ -10,6 +10,8 @@ import Input from '../../components/ui/Input.astro';
 import Textarea from '../../components/ui/Textarea.astro';
 import { getVenta } from '../../lib/queries/ventas';
 import { formatCOP, formatFechaCorta, formatFechaLarga, hoyISO } from '../../lib/format';
+import Alert from '../../components/ui/Alert.astro';
+import { ponerFlash } from '../../lib/flash';
 
 const { id } = Astro.params;
 const venta = id ? await getVenta(id) : null;
@@ -19,11 +21,16 @@ if (!venta) {
 
 const anular = Astro.getActionResult(actions.ventas.anular);
 if (anular && !anular.error) {
+  ponerFlash(Astro.cookies, {
+    tipo: 'success',
+    texto: 'Venta anulada · el stock se restauró',
+  });
   return Astro.redirect(`/ventas/${venta.id}`);
 }
 
 const abono = Astro.getActionResult(actions.ventas.registrarAbono);
 if (abono && !abono.error) {
+  ponerFlash(Astro.cookies, { tipo: 'success', texto: 'Abono registrado' });
   return Astro.redirect(`/ventas/${venta.id}`);
 }
 
@@ -32,6 +39,10 @@ const errorAnular =
 
 const reactivar = Astro.getActionResult(actions.ventas.reactivar);
 if (reactivar && !reactivar.error) {
+  ponerFlash(Astro.cookies, {
+    tipo: 'success',
+    texto: 'Venta reactivada · el stock se descontó de nuevo',
+  });
   return Astro.redirect(`/ventas/${venta.id}`);
 }
 
@@ -76,7 +87,9 @@ const mensajeReactivar =
             variant="ghost"
             type="submit"
             class="text-danger hover:bg-danger/10 hover:text-danger"
-            onclick={`return confirm('${mensajeAnular}')`}
+            data-confirm={mensajeAnular}
+            data-confirm-titulo="Anular venta"
+            data-confirm-ok="Anular"
           >
             <Ban size={15} /> Anular venta
           </Button>
@@ -90,7 +103,10 @@ const mensajeReactivar =
           <Button
             variant="outline"
             type="submit"
-            onclick={`return confirm('${mensajeReactivar}')`}
+            data-confirm={mensajeReactivar}
+            data-confirm-titulo="Reactivar venta"
+            data-confirm-ok="Reactivar"
+            data-confirm-peligro="false"
           >
             <RotateCcw size={15} /> Reactivar venta
           </Button>
@@ -101,23 +117,17 @@ const mensajeReactivar =
 
   {
     errorAnular && (
-      <div
-        class="mt-4 rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
-        role="alert"
-      >
+      <Alert variant="danger" class="mt-4">
         {errorAnular}
-      </div>
+      </Alert>
     )
   }
 
   {
     errorReactivar && (
-      <div
-        class="mt-4 rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
-        role="alert"
-      >
+      <Alert variant="danger" class="mt-4">
         {errorReactivar}
-      </div>
+      </Alert>
     )
   }
 
@@ -249,12 +259,9 @@ const mensajeReactivar =
         </h2>
 
         {errorAbono && (
-          <div
-            class="mt-4 rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
-            role="alert"
-          >
+          <Alert variant="danger" class="mt-4">
             {errorAbono}
-          </div>
+          </Alert>
         )}
 
         {venta.abonos.length > 0 && (

@@ -13,11 +13,14 @@ import {
   listClientes,
 } from '../../lib/queries/clientes';
 import { formatCOP, formatFechaCorta, mesISO } from '../../lib/format';
+import Alert from '../../components/ui/Alert.astro';
+import { ponerFlash } from '../../lib/flash';
 
 const q = Astro.url.searchParams.get('q')?.trim() || undefined;
 
 const eliminar = Astro.getActionResult(actions.clientes.eliminar);
 if (eliminar && !eliminar.error) {
+  ponerFlash(Astro.cookies, { tipo: 'success', texto: 'Clienta eliminada' });
   return Astro.redirect(`/clientas${q ? `?q=${encodeURIComponent(q)}` : ''}`);
 }
 
@@ -62,12 +65,9 @@ const mensajeConfirmar =
 
   {
     errorEliminar && (
-      <div
-        class="mt-4 rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
-        role="alert"
-      >
+      <Alert variant="danger" class="mt-4">
         {errorEliminar}
-      </div>
+      </Alert>
     )
   }
 
@@ -163,7 +163,9 @@ const mensajeConfirmar =
                           type="submit"
                           class="text-danger hover:bg-danger/10 hover:text-danger"
                           aria-label={`Eliminar a ${c.nombre}`}
-                          onclick={`return confirm('${mensajeConfirmar}')`}
+                          data-confirm={mensajeConfirmar}
+                          data-confirm-titulo="Eliminar clienta"
+                          data-confirm-ok="Eliminar"
                         >
                           <Trash size={14} />
                         </Button>
@@ -224,7 +226,9 @@ const mensajeConfirmar =
                         type="submit"
                         class="text-danger hover:bg-danger/10 hover:text-danger"
                         aria-label={`Eliminar a ${c.nombre}`}
-                        onclick={`return confirm('${mensajeConfirmar}')`}
+                        data-confirm={mensajeConfirmar}
+                        data-confirm-titulo="Eliminar clienta"
+                        data-confirm-ok="Eliminar"
                       >
                         <Trash size={14} />
                       </Button>

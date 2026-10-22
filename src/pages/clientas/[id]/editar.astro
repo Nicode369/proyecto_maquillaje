@@ -6,6 +6,8 @@ import Button from '../../../components/ui/Button.astro';
 import Input from '../../../components/ui/Input.astro';
 import Textarea from '../../../components/ui/Textarea.astro';
 import { getCliente } from '../../../lib/queries/clientes';
+import Alert from '../../../components/ui/Alert.astro';
+import { ponerFlash } from '../../../lib/flash';
 
 const { id } = Astro.params;
 const cliente = id ? await getCliente(id) : null;
@@ -15,6 +17,7 @@ if (!cliente) {
 
 const resultado = Astro.getActionResult(actions.clientes.actualizar);
 if (resultado && !resultado.error) {
+  ponerFlash(Astro.cookies, { tipo: 'success', texto: 'Clienta actualizada' });
   return Astro.redirect(`/clientas/${cliente.id}`);
 }
 
@@ -51,12 +54,9 @@ const valor = (campo: string, guardado: string | null): string =>
 
     {
       errorGenerico && (
-        <div
-          class="rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
-          role="alert"
-        >
+        <Alert variant="danger">
           {errorGenerico}
-        </div>
+        </Alert>
       )
     }
 

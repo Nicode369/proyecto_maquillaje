@@ -6,9 +6,12 @@ import Button from '../../components/ui/Button.astro';
 import Input from '../../components/ui/Input.astro';
 import Checkbox from '../../components/ui/Checkbox.astro';
 import SubirImagen from '../../components/SubirImagen.astro';
+import Alert from '../../components/ui/Alert.astro';
+import { ponerFlash } from '../../lib/flash';
 
 const resultado = Astro.getActionResult(actions.productos.crear);
 if (resultado && !resultado.error) {
+  ponerFlash(Astro.cookies, { tipo: 'success', texto: 'Producto creado' });
   return Astro.redirect('/productos');
 }
 
@@ -30,12 +33,9 @@ const errorGenerico = err && !isInputError(err) ? err.message : null;
   >
     {
       errorGenerico && (
-        <div
-          class="rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
-          role="alert"
-        >
+        <Alert variant="danger">
           {errorGenerico}
-        </div>
+        </Alert>
       )
     }
 
@@ -67,7 +67,7 @@ const errorGenerico = err && !isInputError(err) ? err.message : null;
         name="stock"
         label="Stock inicial"
         type="number"
-        min="0"
+        min="1"
         step="1"
         value="0"
         required

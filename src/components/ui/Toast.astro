@@ -1,0 +1,108 @@
+---
+import { CircleCheck, CircleX, TriangleAlert, Info, X } from '@lucide/astro';
+import type { FlashTipo } from '../../lib/flash';
+
+interface Props {
+  tipo?: FlashTipo;
+  texto: string;
+}
+
+const { tipo = 'success', texto } = Astro.props;
+
+const estilos = {
+  success: { chip: 'bg-sage/10 text-sage', Icono: CircleCheck },
+  error: { chip: 'bg-danger/10 text-danger', Icono: CircleX },
+  warning: { chip: 'bg-ochre/10 text-ochre', Icono: TriangleAlert },
+  info: { chip: 'bg-wine/10 text-wine', Icono: Info },
+};
+
+const { chip, Icono } = estilos[tipo];
+---
+
+<div
+  class="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pb-4 sm:justify-end sm:pr-6 sm:pb-6"
+  data-toast-zona
+>
+  <div
+    class="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border border-hairline bg-surface px-4 py-3 shadow-[0_10px_30px_rgba(42,27,32,0.14)]"
+    role="status"
+    aria-live="polite"
+    data-toast
+  >
+    <span
+      class:list={[
+        'mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full',
+        chip,
+      ]}
+      aria-hidden="true"
+    >
+      <Icono size={14} />
+    </span>
+
+    <p class="min-w-0 flex-1 pt-0.5 text-sm leading-snug text-ink">{texto}</p>
+
+    <button
+      type="button"
+      data-toast-cerrar
+      class="-mt-0.5 -mr-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-ink/5 hover:text-ink"
+      aria-label="Cerrar aviso"
+    >
+      <X size={14} />
+    </button>
+  </div>
+</div>
+
+<style>
+  [data-toast] {
+    animation: toast-entra 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  [data-toast].saliendo {
+    animation: toast-sale 200ms ease-in both;
+  }
+
+  @keyframes toast-entra {
+    from {
+      opacity: 0;
+      transform: translateY(14px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes toast-sale {
+    to {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-toast],
+    [data-toast].saliendo {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  const zona = document.querySelector('[data-toast-zona]');
+  const toast = zona?.querySelector<HTMLElement>('[data-toast]');
+
+  if (toast) {
+    const cerrar = () => {
+      toast.classList.add('saliendo');
+      window.setTimeout(() => toast.remove(), 220);
+    };
+
+    toast.querySelector('[data-toast-cerrar]')?.addEventListener('click', cerrar);
+
+    let temporizador = window.setTimeout(cerrar, 4500);
+    toast.addEventListener('mouseenter', () => window.clearTimeout(temporizador));
+    toast.addEventListener('mouseleave', () => {
+      temporizador = window.setTimeout(cerrar, 2000);
+    });
+  }
+</script>

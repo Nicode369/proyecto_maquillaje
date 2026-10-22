@@ -8,6 +8,8 @@ import Input from '../../../components/ui/Input.astro';
 import Checkbox from '../../../components/ui/Checkbox.astro';
 import SubirImagen from '../../../components/SubirImagen.astro';
 import { getProducto } from '../../../lib/queries/productos';
+import Alert from '../../../components/ui/Alert.astro';
+import { ponerFlash } from '../../../lib/flash';
 
 const { id } = Astro.params;
 const producto = id ? await getProducto(id) : null;
@@ -17,6 +19,7 @@ if (!producto) {
 
 const resultado = Astro.getActionResult(actions.productos.actualizar);
 if (resultado && !resultado.error) {
+  ponerFlash(Astro.cookies, { tipo: 'success', texto: 'Producto actualizado' });
   return Astro.redirect('/productos');
 }
 
@@ -63,12 +66,9 @@ const imagenPrevia =
 
     {
       errorGenerico && (
-        <div
-          class="rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
-          role="alert"
-        >
+        <Alert variant="danger">
           {errorGenerico}
-        </div>
+        </Alert>
       )
     }
 

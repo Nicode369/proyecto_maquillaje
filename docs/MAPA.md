@@ -37,12 +37,16 @@ src/
 │   ├── Footer.astro         © año · Desarrollado por Nicode (dashboard y login)
 │   ├── LimpiarFiltros.astro Píldora con X para borrar filtros (ventas/gastos/productos/clientas)
 │   ├── SubirImagen.astro    Input file (cámara o galería) + resize canvas 800px + preview + quitar
+│   ├── ConfirmDialog.astro  <dialog> de confirmación (data-confirm / titulo / ok / peligro) + script delegado
 │   └── ui/                  Button (rounded-full, size sm|md|lg), Input (size md|lg), Select, Textarea,
-│                            Checkbox, Card (rounded-xl), Badge (rounded-full), PageHeader, EmptyState
+│                            Checkbox, Card (rounded-xl), Badge (rounded-full), PageHeader, EmptyState,
+│                            Alert (variantes danger|success|warning|info, iconos lucide, compact),
+│                            Toast (aviso flotante con autocierre, lee flash)
 │
 ├── lib/
 │   ├── db.ts                Cliente Neon (pooler, astro:env/server)
 │   ├── auth.ts              firmarSesion/verificarSesion (HMAC), opcionesCookie, SESSION_COOKIE
+│   ├── flash.ts             Mensajes flash post-redirect (cookie httpOnly 60s) + leerFlash/borrarFlash
 │   ├── format.ts            COP (Intl es-CO sin decimales), fechas es-CO
 │   └── queries/             SQL crudo, uno por módulo:
 │       ├── types.ts         Tipos de filas (+Abono; Venta con credito/saldo; ClienteResumen con saldo)

@@ -14,6 +14,8 @@ import {
   totalGastos,
 } from '../../lib/queries/gastos';
 import { formatCOP, formatFechaCorta } from '../../lib/format';
+import Alert from '../../components/ui/Alert.astro';
+import { ponerFlash } from '../../lib/flash';
 
 const mes = Astro.url.searchParams.get('mes')?.trim() || undefined;
 const categoria = Astro.url.searchParams.get('categoria')?.trim() || undefined;
@@ -24,6 +26,7 @@ if (eliminar && !eliminar.error) {
   if (mes) params.set('mes', mes);
   if (categoria) params.set('categoria', categoria);
   const qs = params.toString();
+  ponerFlash(Astro.cookies, { tipo: 'success', texto: 'Gasto eliminado' });
   return Astro.redirect(`/gastos${qs ? `?${qs}` : ''}`);
 }
 
@@ -88,12 +91,9 @@ const tonos: Record<string, 'neutral' | 'wine' | 'warning' | 'success' | 'danger
 
   {
     errorEliminar && (
-      <div
-        class="mt-4 rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
-        role="alert"
-      >
+      <Alert variant="danger" class="mt-4">
         {errorEliminar}
-      </div>
+      </Alert>
     )
   }
 
@@ -161,7 +161,9 @@ const tonos: Record<string, 'neutral' | 'wine' | 'warning' | 'success' | 'danger
                           type="submit"
                           class="text-danger hover:bg-danger/10 hover:text-danger"
                           aria-label="Eliminar gasto"
-                          onclick={`return confirm('${mensajeConfirmar}')`}
+                          data-confirm={mensajeConfirmar}
+                          data-confirm-titulo="Eliminar gasto"
+                          data-confirm-ok="Eliminar"
                         >
                           <Trash size={14} />
                         </Button>
@@ -201,7 +203,9 @@ const tonos: Record<string, 'neutral' | 'wine' | 'warning' | 'success' | 'danger
                         type="submit"
                         class="text-danger hover:bg-danger/10 hover:text-danger"
                         aria-label="Eliminar gasto"
-                        onclick={`return confirm('${mensajeConfirmar}')`}
+                        data-confirm={mensajeConfirmar}
+                        data-confirm-titulo="Eliminar gasto"
+                        data-confirm-ok="Eliminar"
                       >
                         <Trash size={14} />
                       </Button>

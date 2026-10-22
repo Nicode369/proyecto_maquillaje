@@ -6,6 +6,8 @@ import Button from '../../../components/ui/Button.astro';
 import Input from '../../../components/ui/Input.astro';
 import Textarea from '../../../components/ui/Textarea.astro';
 import { getGasto, listCategoriasGasto } from '../../../lib/queries/gastos';
+import Alert from '../../../components/ui/Alert.astro';
+import { ponerFlash } from '../../../lib/flash';
 
 const { id } = Astro.params;
 const gasto = id ? await getGasto(id) : null;
@@ -15,6 +17,7 @@ if (!gasto) {
 
 const resultado = Astro.getActionResult(actions.gastos.actualizar);
 if (resultado && !resultado.error) {
+  ponerFlash(Astro.cookies, { tipo: 'success', texto: 'Gasto actualizado' });
   return Astro.redirect('/gastos');
 }
 
@@ -53,12 +56,9 @@ const valor = (campo: string, guardado: string | number): string =>
 
     {
       errorGenerico && (
-        <div
-          class="rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
-          role="alert"
-        >
+        <Alert variant="danger">
           {errorGenerico}
-        </div>
+        </Alert>
       )
     }
 

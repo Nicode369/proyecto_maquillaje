@@ -5,9 +5,12 @@ import PageHeader from '../../components/ui/PageHeader.astro';
 import Button from '../../components/ui/Button.astro';
 import Input from '../../components/ui/Input.astro';
 import Textarea from '../../components/ui/Textarea.astro';
+import Alert from '../../components/ui/Alert.astro';
+import { ponerFlash } from '../../lib/flash';
 
 const resultado = Astro.getActionResult(actions.clientes.crear);
 if (resultado && !resultado.error) {
+  ponerFlash(Astro.cookies, { tipo: 'success', texto: 'Clienta registrada' });
   return Astro.redirect('/clientas');
 }
 
@@ -29,12 +32,9 @@ const errorGenerico = err && !isInputError(err) ? err.message : null;
   >
     {
       errorGenerico && (
-        <div
-          class="rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
-          role="alert"
-        >
+        <Alert variant="danger">
           {errorGenerico}
-        </div>
+        </Alert>
       )
     }
 

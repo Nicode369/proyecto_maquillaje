@@ -80,7 +80,18 @@ curl -s -b /tmp/c.txt http://localhost:4321/ -o /tmp/home.html                  
 ⚠️ El login de actions es `POST /login?_action=auth.login` (a `/login`, NO a `/` —
 a `/` el middleware redirige sin setear cookie).
 
-## 7. Commit
+## 7. Avisos (Alert / Toast / ConfirmDialog)
+
+- `Alert`: los errores de actions deben renderizar `<Alert variant="danger">`; los
+  formularios muestran el campo en rojo y el aviso general arriba del form.
+- `ConfirmDialog`: click en cualquier `[data-confirm]` (Eliminar/Anular/Reactivar) debe
+  abrir el `<dialog>` con el título y mensaje correctos; Cancelar/Esc no envía el form;
+  Confirmar hace el submit real.
+- `Toast`: tras crear/editar/eliminar un redirect debe mostrar el aviso flotante
+  (`[data-toast]`), autocerarse a los ~4.5 s y desaparecer con la X. Probar en móvil
+  (390x844) y escritorio.
+
+## 8. Commit
 
 ```
 git status --short

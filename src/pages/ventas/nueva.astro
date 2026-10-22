@@ -9,9 +9,12 @@ import Textarea from '../../components/ui/Textarea.astro';
 import { listClientes } from '../../lib/queries/clientes';
 import { listProductosParaVenta } from '../../lib/queries/productos';
 import { hoyISO } from '../../lib/format';
+import Alert from '../../components/ui/Alert.astro';
+import { ponerFlash } from '../../lib/flash';
 
 const resultado = Astro.getActionResult(actions.ventas.crear);
 if (resultado && !resultado.error) {
+  ponerFlash(Astro.cookies, { tipo: 'success', texto: 'Venta registrada' });
   return Astro.redirect(`/ventas/${resultado.data.id}`);
 }
 
@@ -50,12 +53,9 @@ const metodos = ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia', 'Transferencia
   >
     {
       errorGenerico && (
-        <div
-          class="rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
-          role="alert"
-        >
+        <Alert variant="danger">
           {errorGenerico}
-        </div>
+        </Alert>
       )
     }
 
@@ -126,13 +126,9 @@ const metodos = ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia', 'Transferencia
         {/* línea inicial; el script JS la clona/expande */}
       </div>
 
-      <p
-        id="error-items"
-        class="mt-3 hidden rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
-        role="alert"
-      >
-        Agrega al menos un producto o servicio.
-      </p>
+      <Alert variant="danger" id="error-items" class="mt-3 hidden">
+        <span id="error-items-texto">Agrega al menos un producto o servicio.</span>
+      </Alert>
     </div>
 
     <input type="hidden" name="items_json" id="items_json" value="[]" />
@@ -183,6 +179,7 @@ const metodos = ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia', 'Transferencia
   const inputDescuento = document.querySelector('input[name="descuento"]');
   const totalDisplay = document.getElementById('total-display');
   const errorItems = document.getElementById('error-items');
+  const errorItemsTexto = document.getElementById('error-items-texto');
   const form = document.getElementById('form-venta');
 
   let contador = 0;
@@ -352,7 +349,7 @@ const metodos = ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia', 'Transferencia
     for (const linea of lineas) {
       if (!linea.descripcion || linea.cantidad < 1) {
         e.preventDefault();
-        errorItems.textContent = 'Revisa la descripción y cantidad de cada línea.';
+        errorItemsTexto.textContent = 'Revisa la descripción y cantidad de cada línea.';
         errorItems.classList.remove('hidden');
         return;
       }

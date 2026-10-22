@@ -1,0 +1,155 @@
+---
+import { TriangleAlert, X } from '@lucide/astro';
+import Button from './ui/Button.astro';
+---
+
+<dialog
+  id="dialogo-confirmar"
+  class="m-auto w-[calc(100%-2rem)] max-w-sm rounded-2xl border border-hairline bg-surface p-0 text-ink shadow-[0_18px_50px_rgba(42,27,32,0.22)] backdrop:bg-ink/40 backdrop:backdrop-blur-[2px]"
+  aria-labelledby="dialogo-confirmar-titulo"
+>
+  <div class="flex items-start gap-3 px-5 pt-5">
+    <span
+      class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-danger/10 text-danger"
+      aria-hidden="true"
+    >
+      <TriangleAlert size={18} />
+    </span>
+
+    <div class="min-w-0 flex-1">
+      <h2 id="dialogo-confirmar-titulo" class="font-display text-lg leading-snug">
+        ¿Confirmas la acción?
+      </h2>
+      <p id="dialogo-confirmar-texto" class="mt-1 text-sm leading-relaxed text-ink-muted"></p>
+    </div>
+
+    <button
+      type="button"
+      data-confirmar-cerrar
+      class="-mt-1 -mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-ink/5 hover:text-ink"
+      aria-label="Cerrar"
+    >
+      <X size={16} />
+    </button>
+  </div>
+
+  <div class="mt-5 flex flex-col-reverse gap-2 border-t border-hairline bg-paper/60 px-5 py-4 sm:flex-row sm:justify-end">
+    <Button variant="outline" size="md" data-confirmar-cancelar>Cancelar</Button>
+    <Button variant="danger" size="md" data-confirmar-aceptar>Confirmar</Button>
+    <Button variant="primary" size="md" data-confirmar-aceptar-ok hidden>Confirmar</Button>
+  </div>
+</dialog>
+
+<style>
+  dialog[open] {
+    animation: dialogo-entra 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  dialog[open]::backdrop {
+    animation: fondo-entra 200ms ease-out both;
+  }
+
+  @keyframes dialogo-entra {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes fondo-entra {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    dialog[open],
+    dialog[open]::backdrop {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  const dialogo = document.querySelector<HTMLDialogElement>('#dialogo-confirmar');
+
+  if (dialogo) {
+    const titulo = dialogo.querySelector('#dialogo-confirmar-titulo');
+    const texto = dialogo.querySelector('#dialogo-confirmar-texto');
+    const botonPeligro = dialogo.querySelector<HTMLButtonElement>('[data-confirmar-aceptar]');
+    const botonNormal = dialogo.querySelector<HTMLButtonElement>('[data-confirmar-aceptar-ok]');
+    const botonCancelar = dialogo.querySelector<HTMLButtonElement>('[data-confirmar-cancelar]');
+    const botonCerrar = dialogo.querySelector<HTMLButtonElement>('[data-confirmar-cerrar]');
+
+    let disparador: HTMLElement | null = null;
+
+    const cerrar = () => {
+      disparador = null;
+      if (dialogo.open) dialogo.close();
+    };
+
+    dialogo.addEventListener('close', () => {
+      disparador = null;
+    });
+
+    botonCancelar?.addEventListener('click', cerrar);
+    botonCerrar?.addEventListener('click', cerrar);
+
+    const aceptar = () => {
+      const origen = disparador;
+      disparador = null;
+      if (dialogo.open) dialogo.close();
+      if (!origen) return;
+
+      const form = origen.closest('form');
+      if (form) {
+        form.requestSubmit();
+        return;
+      }
+
+      if (origen instanceof HTMLAnchorElement && origen.href) {
+        window.location.href = origen.href;
+      }
+    };
+
+    botonPeligro?.addEventListener('click', aceptar);
+    botonNormal?.addEventListener('click', aceptar);
+
+    document.addEventListener('click', (evento) => {
+      const objetivo = (evento.target as Element | null)?.closest<HTMLElement>('[data-confirm]');
+      if (!objetivo) return;
+
+      evento.preventDefault();
+
+      disparador = objetivo;
+
+      if (titulo) titulo.textContent = objetivo.dataset.confirmTitulo ?? '¿Confirmas la acción?';
+      if (texto) texto.textContent = objetivo.dataset.confirm ?? '';
+
+      const etiqueta = objetivo.dataset.confirmOk ?? 'Confirmar';
+      const peligroso = objetivo.dataset.confirmPeligro !== 'false';
+
+      if (botonPeligro) {
+        botonPeligro.textContent = etiqueta;
+        botonPeligro.hidden = !peligroso;
+      }
+      if (botonNormal) {
+        botonNormal.textContent = etiqueta;
+        botonNormal.hidden = peligroso;
+      }
+
+      if (typeof dialogo.showModal === 'function') {
+        dialogo.showModal();
+      } else if (window.confirm(objetivo.dataset.confirm ?? '')) {
+        aceptar();
+      }
+    });
+  }
+</script>

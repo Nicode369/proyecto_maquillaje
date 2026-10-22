@@ -10,6 +10,8 @@ import EmptyState from '../../components/ui/EmptyState.astro';
 import { getCliente } from '../../lib/queries/clientes';
 import { listVentasDeCliente } from '../../lib/queries/ventas';
 import { formatCOP, formatFechaCorta } from '../../lib/format';
+import Alert from '../../components/ui/Alert.astro';
+import { ponerFlash } from '../../lib/flash';
 
 const { id } = Astro.params;
 const cliente = id ? await getCliente(id) : null;
@@ -19,6 +21,7 @@ if (!cliente) {
 
 const eliminar = Astro.getActionResult(actions.clientes.eliminar);
 if (eliminar && !eliminar.error) {
+  ponerFlash(Astro.cookies, { tipo: 'success', texto: 'Clienta eliminada' });
   return Astro.redirect('/clientas');
 }
 
@@ -57,7 +60,9 @@ const metodos: Record<string, string> = {
         variant="ghost"
         type="submit"
         class="text-danger hover:bg-danger/10 hover:text-danger"
-        onclick={`return confirm('${mensajeConfirmar}')`}
+        data-confirm={mensajeConfirmar}
+        data-confirm-titulo="Eliminar clienta"
+        data-confirm-ok="Eliminar"
       >
         <Trash size={15} /> Eliminar
       </Button>
@@ -66,12 +71,9 @@ const metodos: Record<string, string> = {
 
   {
     errorEliminar && (
-      <div
-        class="mt-4 rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
-        role="alert"
-      >
+      <Alert variant="danger" class="mt-4">
         {errorEliminar}
-      </div>
+      </Alert>
     )
   }
 

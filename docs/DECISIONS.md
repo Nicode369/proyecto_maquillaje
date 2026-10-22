@@ -118,6 +118,27 @@ Otras reglas de diseño:
   `accept="image/*"` a propósito: restringir los tipos puede hacer que Android
   deje de ofrecer la cámara en el selector.
 
+## Avisos y notificaciones
+
+- **Mensajes de error de formularios/listados**: componente `Alert.astro`
+  (variantes `danger|success|warning|info`, icono lucide, `compact` para
+  espacios chicos). Reemplaza los bloques `role="alert"` repetidos. El cuerpo
+  usa el color de la variante (danger/sage/ochre; info en tinta).
+- **Confirmaciones destructivas**: `ConfirmDialog.astro`, un único `<dialog>`
+  nativo montado en `DashboardLayout`. Los botones llevan `data-confirm`
+  (mensaje), `data-confirm-titulo`, `data-confirm-ok` y opcional
+  `data-confirm-peligro="false"` (botón rosa en vez de rojo). El script
+  delegado en `document` previene el submit, abre el modal y, al aceptar,
+  hace `form.requestSubmit()`. Nunca más `confirm()` nativo.
+- **Éxitos post-redirect (PRG)**: cookie flash `maquillaje_flash` (httpOnly,
+  SameSite=Lax, 60 s) con `{tipo, texto}` en JSON; se escribe con
+  `ponerFlash(Astro.cookies, …)` justo antes de `Astro.redirect` y
+  `DashboardLayout` la lee con `leerFlash`, pinta un `Toast` flotante
+  (autocierre 4.5 s, `aria-live="polite"`, se pausa al pasar el mouse) y la
+  borra. Evita `?aviso=` en la URL (el de productos se migró a flash).
+- Cualquier confirmación nueva: usar `data-confirm*`, no `onclick`.
+- Cualquier error nuevo: usar `<Alert>`, no repetir clases a mano.
+
 ## Git
 
 - `.env` **jamás** se hace stage (verificar con grep antes de cada commit).
