@@ -43,7 +43,7 @@ const { title = 'Iniciar sesión' } = Astro.props;
     </section>
 
     <main
-      class="fondo-polvo relative flex min-h-dvh flex-col items-center justify-center overflow-hidden px-4 pt-10 pb-[max(2.5rem,calc(env(safe-area-inset-bottom)_+_1rem))] sm:px-6 sm:pt-12 sm:pb-12"
+      class="fondo-polvo relative isolate flex min-h-dvh flex-col items-center justify-center overflow-hidden px-4 pt-10 pb-[max(2.5rem,calc(env(safe-area-inset-bottom)_+_1rem))] sm:px-6 sm:pt-12 sm:pb-12"
     >
       <div
         aria-hidden="true"
@@ -55,30 +55,32 @@ const { title = 'Iniciar sesión' } = Astro.props;
         <div class="mancha right-[10%] bottom-[6%] h-40 w-40 bg-wine/10"></div>
 
         <svg
-          class="figura figura-flor top-[6%] left-[6%] h-44 w-44"
+          class="figura flor-login top-[6%] left-[6%] h-44 w-44"
           viewBox="0 0 64 64"
-          fill="currentColor"
-          style="--dur: 26s; --dy: -16px; --dr: 8deg; --r0: 10deg; opacity: 0.22; color: var(--color-wine)"
+          style="--dur: 26s; --dy: -16px; --dr: 8deg; --r0: 10deg; color: var(--color-wine)"
         >
-          <ellipse cx="32" cy="17.5" rx="9.5" ry="14"></ellipse>
-          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(72 32 34)"></ellipse>
-          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(144 32 34)"></ellipse>
-          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(216 32 34)"></ellipse>
-          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(288 32 34)"></ellipse>
-          <circle cx="32" cy="34" r="7" fill="#fff9fa"></circle>
+          <g fill="currentColor" opacity="0.22">
+            <ellipse cx="32" cy="17.5" rx="9.5" ry="14"></ellipse>
+            <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(72 32 34)"></ellipse>
+            <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(144 32 34)"></ellipse>
+            <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(216 32 34)"></ellipse>
+            <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(288 32 34)"></ellipse>
+          </g>
+          <circle cx="32" cy="34" r="7" fill="#fff9fa" opacity="0.9"></circle>
         </svg>
         <svg
-          class="figura figura-flor right-[3%] bottom-[24%] h-52 w-52"
+          class="figura flor-login right-[3%] bottom-[24%] h-52 w-52"
           viewBox="0 0 64 64"
-          fill="currentColor"
-          style="--dur: 30s; --dy: -14px; --dr: -9deg; --r0: 24deg; opacity: 0.18; color: var(--color-wine)"
+          style="--dur: 30s; --dy: -14px; --dr: -9deg; --r0: 24deg; color: var(--color-wine)"
         >
-          <ellipse cx="32" cy="17.5" rx="9.5" ry="14"></ellipse>
-          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(72 32 34)"></ellipse>
-          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(144 32 34)"></ellipse>
-          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(216 32 34)"></ellipse>
-          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(288 32 34)"></ellipse>
-          <circle cx="32" cy="34" r="7" fill="#fff9fa"></circle>
+          <g fill="currentColor" opacity="0.18">
+            <ellipse cx="32" cy="17.5" rx="9.5" ry="14"></ellipse>
+            <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(72 32 34)"></ellipse>
+            <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(144 32 34)"></ellipse>
+            <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(216 32 34)"></ellipse>
+            <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(288 32 34)"></ellipse>
+          </g>
+          <circle cx="32" cy="34" r="7" fill="#fff9fa" opacity="0.9"></circle>
         </svg>
 
         <svg
