@@ -94,11 +94,11 @@ const { title = 'Iniciar sesión' } = Astro.props;
         </svg>
 
         <svg
-          class="figura figura-flor top-[40%] left-[3%] h-28 w-28 opacity-[0.14]"
+          class="figura figura-flor top-[40%] left-[3%] h-28 w-28 opacity-[0.45]"
           viewBox="0 0 64 64"
           fill="none"
           stroke="currentColor"
-          stroke-width="1.5"
+          stroke-width="2"
           style="--dur: 26s; --dy: -14px; --dr: 8deg; --r0: -10deg"
         >
           <ellipse cx="32" cy="17.5" rx="9.5" ry="14"></ellipse>
@@ -108,12 +108,26 @@ const { title = 'Iniciar sesión' } = Astro.props;
           <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(288 32 34)"></ellipse>
         </svg>
         <svg
-          class="figura figura-flor right-[4%] bottom-[26%] h-32 w-32 opacity-[0.12]"
+          class="figura figura-flor right-[4%] bottom-[26%] h-32 w-32 opacity-[0.4]"
           viewBox="0 0 64 64"
           fill="none"
           stroke="currentColor"
-          stroke-width="1.5"
+          stroke-width="2"
           style="--dur: 30s; --dy: -12px; --dr: -9deg; --r0: 22deg"
+        >
+          <ellipse cx="32" cy="17.5" rx="9.5" ry="14"></ellipse>
+          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(72 32 34)"></ellipse>
+          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(144 32 34)"></ellipse>
+          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(216 32 34)"></ellipse>
+          <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(288 32 34)"></ellipse>
+        </svg>
+        <svg
+          class="figura figura-flor -top-6 -left-6 h-24 w-24 opacity-[0.35]"
+          viewBox="0 0 64 64"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          style="--dur: 28s; --dy: -10px; --dr: 7deg; --r0: 5deg"
         >
           <ellipse cx="32" cy="17.5" rx="9.5" ry="14"></ellipse>
           <ellipse cx="32" cy="17.5" rx="9.5" ry="14" transform="rotate(72 32 34)"></ellipse>
@@ -133,9 +147,10 @@ const { title = 'Iniciar sesión' } = Astro.props;
         >
         </div>
 
-        <span class="figura figura-punto top-[28%] right-[22%] h-2 w-2 opacity-[0.4]" style="--dur: 22s"></span>
-        <span class="figura figura-punto bottom-[16%] left-[20%] h-2.5 w-2.5 opacity-[0.4]" style="--dur: 26s; --delay: 0.8s"></span>
-        <span class="figura figura-punto top-[58%] left-[40%] h-1.5 w-1.5 opacity-[0.4]" style="--dur: 24s; --delay: 1.4s"></span>
+        <span class="figura figura-punto top-[28%] right-[22%] h-3 w-3" style="--dur: 22s"></span>
+        <span class="figura figura-punto bottom-[16%] left-[20%] h-3 w-3" style="--dur: 26s; --delay: 0.8s"></span>
+        <span class="figura figura-punto top-[58%] left-[40%] h-2.5 w-2.5" style="--dur: 24s; --delay: 1.4s"></span>
+        <span class="figura figura-punto top-[12%] left-[46%] h-2.5 w-2.5" style="--dur: 25s; --delay: 1s"></span>
       </div>
 
       <div class="entrada w-full max-w-[380px]">
@@ -155,6 +170,15 @@ const { title = 'Iniciar sesión' } = Astro.props;
 <style>
   .fondo-polvo {
     background-image: linear-gradient(180deg, #fbf3f4 0%, #fce8ee 42%, #f6d3e0 100%);
+  }
+
+  /* Figuras del login móvil: más visibles sobre el fondo rosa (no afecta al panel) */
+  :global(.figura-aro) {
+    border: 2px solid rgba(189, 63, 102, 0.45);
+  }
+
+  :global(.figura-punto) {
+    background-color: rgba(189, 63, 102, 0.55);
   }
 
   @keyframes deriva {
