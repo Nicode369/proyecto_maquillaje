@@ -1,4 +1,5 @@
 ---
+import { Camera, Images } from '@lucide/astro';
 import Alert from './ui/Alert.astro';
 
 interface Props {
@@ -35,17 +36,29 @@ const { valor = null, error, class: className = '' } = Astro.props;
     </div>
 
     <div class="min-w-0 space-y-2">
-      <label
-        class="inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border border-wine/40 bg-surface px-4 text-[13px] font-medium text-wine transition-colors hover:border-wine/60 hover:bg-wine-soft"
-      >
-        Elegir foto
-        <input
-          type="file"
-          accept="image/*"
-          class="sr-only"
-          data-archivo
-        />
-      </label>
+      <div class="flex flex-wrap gap-2">
+        <label
+          class="inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border border-wine/40 bg-surface px-4 text-[13px] font-medium text-wine transition-colors hover:border-wine/60 hover:bg-wine-soft"
+        >
+          <Camera size={14} />
+          Tomar foto
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            class="sr-only"
+            data-archivo
+            data-camara
+          />
+        </label>
+        <label
+          class="inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border border-wine/40 bg-surface px-4 text-[13px] font-medium text-wine transition-colors hover:border-wine/60 hover:bg-wine-soft"
+        >
+          <Images size={14} />
+          Galería
+          <input type="file" accept="image/*" class="sr-only" data-archivo data-galeria />
+        </label>
+      </div>
       <p class="text-xs text-ink-muted">Cámara o galería · JPG, PNG o WebP · se recorta a 800 px</p>
       <p>
         <button
@@ -109,14 +122,14 @@ const { valor = null, error, class: className = '' } = Astro.props;
   }
 
   document.querySelectorAll<HTMLElement>('[data-uploader]').forEach((raiz) => {
-    const archivo = raiz.querySelector<HTMLInputElement>('[data-archivo]');
+    const archivos = Array.from(raiz.querySelectorAll<HTMLInputElement>('[data-archivo]'));
     const oculto = raiz.querySelector<HTMLInputElement>('[data-oculto]');
     const previa = raiz.querySelector<HTMLImageElement>('[data-preview]');
     const marca = raiz.querySelector<HTMLImageElement>('[data-placeholder]');
     const quitar = raiz.querySelector<HTMLButtonElement>('[data-quitar]');
     const aviso = raiz.querySelector<HTMLElement>('[data-aviso]');
     const avisoTexto = raiz.querySelector<HTMLElement>('[data-aviso-texto]');
-    if (!archivo || !oculto || !previa || !quitar || !aviso || !avisoTexto) return;
+    if (!archivos.length || !oculto || !previa || !quitar || !aviso || !avisoTexto) return;
 
     const pintar = () => {
       const hay = Boolean(oculto.value);
@@ -125,17 +138,23 @@ const { valor = null, error, class: className = '' } = Astro.props;
       quitar.hidden = !hay;
     };
 
+    const limpiarInputs = () => {
+      archivos.forEach((input) => {
+        input.value = '';
+      });
+    };
+
     const fallo = (mensaje: string) => {
       avisoTexto.textContent = mensaje;
       aviso.hidden = false;
-      archivo.value = '';
+      limpiarInputs();
     };
 
-    archivo.addEventListener('change', async () => {
+    const procesar = async (input: HTMLInputElement) => {
       aviso.hidden = true;
-      const f = archivo.files?.[0];
+      const f = input.files?.[0];
       if (!f) return;
-      if (!f.type.startsWith('image/')) {
+      if (f.type && !f.type.startsWith('image/')) {
         fallo('Selecciona un archivo de imagen.');
         return;
       }
@@ -148,15 +167,20 @@ const { valor = null, error, class: className = '' } = Astro.props;
         oculto.value = dataUrl;
         previa.src = dataUrl;
         pintar();
+        limpiarInputs();
       } catch {
         fallo('No se pudo leer la imagen. Usa JPG, PNG o WebP.');
       }
+    };
+
+    archivos.forEach((input) => {
+      input.addEventListener('change', () => void procesar(input));
     });
 
     quitar.addEventListener('click', () => {
       oculto.value = '';
       previa.removeAttribute('src');
-      archivo.value = '';
+      limpiarInputs();
       pintar();
     });
 

@@ -133,14 +133,22 @@ Otras reglas de diseño:
 - **Éxitos post-redirect (PRG)**: cookie flash `maquillaje_flash` (httpOnly,
   SameSite=Lax, 60 s) con `{tipo, texto}` en JSON; se escribe con
   `ponerFlash(Astro.cookies, …)` justo antes de `Astro.redirect` y
-  `DashboardLayout` la lee con `leerFlash`, pinta un `Toast` flotante
-  (autocierre 4.5 s, `aria-live="polite"`, se pausa al pasar el mouse) y la
+  `DashboardLayout` la lee con `leerFlash`, pinta un `Toast` flotante y la
   borra. Evita `?aviso=` en la URL (el de productos se migró a flash).
+- **Toast**: aparece debajo del topbar (`top-14`), borde `wine/90` para
+  combinar con `ConfirmDialog`. Tres capas decorativas puramente CSS:
+  barrido de brillo interior una sola vez (0.9 s), luz que recorre el borde
+  con `conic-gradient` + máscara de anillo en bucle de 3 s (`@supports`
+  desactiva el efecto si no hay `mask-composite`), y barra de vida de 4.5 s
+  que se pausa/reinicia con el hover en sincronía con el autocierre.
+  `prefers-reduced-motion` desactiva las tres capas. El `ConfirmDialog`
+  comparte el borde luminoso en bucle y el barrido al abrir (sin barra de
+  vida: no se autocierra).
 - Cualquier confirmación nueva: usar `data-confirm*`, no `onclick`.
 - Cualquier error nuevo: usar `<Alert>`, no repetir clases a mano.
 
 ## Git
 
 - `.env` **jamás** se hace stage (verificar con grep antes de cada commit).
-- `.vercel/output` está trackeado por convención → commit aparte ("Actualiza artefactos de build Vercel").
+- `.vercel/` está en `.gitignore` (se regenera en cada deploy); no se commitea.
 - Autor: `git -c user.name="nicode" -c user.email="nicode@users.noreply.github.com" commit …`.

@@ -36,7 +36,7 @@ src/
 │   ├── Valeria.astro        Wordmark Fraunces itálico + logo; variantes sidebar/auth
 │   ├── Footer.astro         © año · Desarrollado por Nicode (dashboard y login)
 │   ├── LimpiarFiltros.astro Píldora con X para borrar filtros (ventas/gastos/productos/clientas)
-│   ├── SubirImagen.astro    Input file (cámara o galería) + resize canvas 800px + preview + quitar
+│   ├── SubirImagen.astro    Dos inputs image/* (cámara + galería) + resize canvas 800px + preview + quitar
 │   ├── ConfirmDialog.astro  <dialog> de confirmación (data-confirm / titulo / ok / peligro) + script delegado
 │   └── ui/                  Button (rounded-full, size sm|md|lg), Input (size md|lg), Select, Textarea,
 │                            Checkbox, Card (rounded-xl), Badge (rounded-full), PageHeader, EmptyState,
