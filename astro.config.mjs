@@ -4,7 +4,7 @@ import vercel from '@astrojs/vercel';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  site: 'https://proyecto-valeria-six.vercel.app',
+  site: 'https://proyecto-maquillaje.vercel.app',
   output: 'server',
   adapter: vercel(),
   vite: {
