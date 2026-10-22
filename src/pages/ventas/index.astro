@@ -1,22 +1,29 @@
 ---
 import { actions, isInputError } from 'astro:actions';
-import { Plus, Search, Ban } from '@lucide/astro';
+import { Plus, Search, Ban, FileDown } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 import LimpiarFiltros from '../../components/LimpiarFiltros.astro';
+import Pagination from '../../components/Pagination.astro';
 import Button from '../../components/ui/Button.astro';
 import Input from '../../components/ui/Input.astro';
 import Badge from '../../components/ui/Badge.astro';
 import EmptyState from '../../components/ui/EmptyState.astro';
-import { listVentas, totalesVentas } from '../../lib/queries/ventas';
+import { contarVentas, listVentas, totalesVentas } from '../../lib/queries/ventas';
 import { listClientes } from '../../lib/queries/clientes';
 import { formatCOP, formatFechaCorta } from '../../lib/format';
 import Alert from '../../components/ui/Alert.astro';
 import { ponerFlash } from '../../lib/flash';
 
+const POR_PAGINA = 50;
+
 const mes = Astro.url.searchParams.get('mes')?.trim() || undefined;
 const clienteId = Astro.url.searchParams.get('cliente')?.trim() || undefined;
 const q = Astro.url.searchParams.get('q')?.trim() || undefined;
+const paginaSolicitada = Math.max(
+  1,
+  Number.parseInt(Astro.url.searchParams.get('pagina') ?? '1', 10) || 1,
+);
 
 const anular = Astro.getActionResult(actions.ventas.anular);
 if (anular && !anular.error) {
@@ -24,6 +31,7 @@ if (anular && !anular.error) {
   if (mes) params.set('mes', mes);
   if (clienteId) params.set('cliente', clienteId);
   if (q) params.set('q', q);
+  if (paginaSolicitada > 1) params.set('pagina', String(paginaSolicitada));
   const qs = params.toString();
   ponerFlash(Astro.cookies, {
     tipo: 'success',
@@ -32,13 +40,43 @@ if (anular && !anular.error) {
   return Astro.redirect(`/ventas${qs ? `?${qs}` : ''}`);
 }
 
-const [lista, totales, clientas] = await Promise.all([
-  listVentas({ mes, clienteId, q }),
+const [totales, totalRegistros, clientas] = await Promise.all([
   totalesVentas({ mes, clienteId, q }),
+  contarVentas({ mes, clienteId, q }),
   listClientes(),
 ]);
 
+const totalPaginas = Math.max(1, Math.ceil(totalRegistros / POR_PAGINA));
+const pagina = Math.min(paginaSolicitada, totalPaginas);
+const lista = await listVentas({
+  mes,
+  clienteId,
+  q,
+  limit: POR_PAGINA,
+  offset: (pagina - 1) * POR_PAGINA,
+});
+
 const hayFiltro = Boolean(mes || clienteId || q);
+const anuladas = Math.max(totalRegistros - totales.n, 0);
+const desde = totalRegistros === 0 ? 0 : (pagina - 1) * POR_PAGINA + 1;
+const hasta = Math.min(pagina * POR_PAGINA, totalRegistros);
+
+const filtros = new URLSearchParams();
+if (mes) filtros.set('mes', mes);
+if (clienteId) filtros.set('cliente', clienteId);
+if (q) filtros.set('q', q);
+
+const exportHref = `/exportar/ventas${filtros.size ? `?${filtros}` : ''}`;
+
+function hrefPagina(numero: number): string {
+  const params = new URLSearchParams(filtros);
+  if (numero > 1) params.set('pagina', String(numero));
+  const qs = params.toString();
+  return `/ventas${qs ? `?${qs}` : ''}`;
+}
+
+const anteriorHref = pagina > 1 ? hrefPagina(pagina - 1) : null;
+const siguienteHref = pagina < totalPaginas ? hrefPagina(pagina + 1) : null;
 
 const errAnular = anular?.error;
 const errorAnular = errAnular && !isInputError(errAnular) ? errAnular.message : null;
@@ -59,9 +97,14 @@ const mensajeAnular =
 <DashboardLayout title="Ventas" active="ventas">
   <PageHeader
     title="Ventas"
-    description={`${totales.n} ${totales.n === 1 ? 'venta' : 'ventas'} · ${formatCOP(totales.total)} en total`}
+    description={`${totalRegistros} venta${totalRegistros === 1 ? '' : 's'} · ${formatCOP(totales.total)} facturado${anuladas > 0 ? ` · ${anuladas} anulada${anuladas === 1 ? '' : 's'}` : ''}`}
   >
-    <Button href="/ventas/nueva"><Plus size={15} /> Nueva venta</Button>
+    <Button variant="outline" href={exportHref}>
+      <FileDown size={15} /> Exportar CSV
+    </Button>
+    <Button href="/ventas/nueva">
+      <Plus size={15} /> Nueva venta
+    </Button>
   </PageHeader>
 
   <form method="GET" action="/ventas" class="mt-6 flex flex-wrap items-end gap-3">
@@ -273,6 +316,21 @@ const mensajeAnular =
       )
     }
   </div>
+
+  {
+    totalRegistros > 0 && (
+      <Pagination
+        pagina={pagina}
+        totalPaginas={totalPaginas}
+        desde={desde}
+        hasta={hasta}
+        total={totalRegistros}
+        anteriorHref={anteriorHref}
+        siguienteHref={siguienteHref}
+        etiqueta="Paginación de ventas"
+      />
+    )
+  }
 
   {
     hayFiltro && <LimpiarFiltros href="/ventas" class="mt-3" />

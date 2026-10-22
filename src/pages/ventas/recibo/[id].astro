@@ -1,0 +1,185 @@
+---
+import { ArrowLeft, Printer } from '@lucide/astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Button from '../../../components/ui/Button.astro';
+import Badge from '../../../components/ui/Badge.astro';
+import { getVenta } from '../../../lib/queries/ventas';
+import { formatCOP, formatFechaLarga } from '../../../lib/format';
+
+const { id } = Astro.params;
+const venta = id ? await getVenta(id) : null;
+if (!venta) {
+  return new Response('Venta no encontrada', { status: 404 });
+}
+
+const metodos: Record<string, string> = {
+  efectivo: 'Efectivo',
+  nequi: 'Nequi',
+  daviplata: 'Daviplata',
+  bancolombia: 'Bancolombia',
+  transferencia: 'Transferencia',
+  tarjeta: 'Tarjeta',
+};
+
+const subtotal = venta.items.reduce((sum, it) => sum + it.subtotal, 0);
+---
+
+<BaseLayout title={`Recibo · ${formatCOP(venta.total)}`} description="Recibo de venta">
+  <main class="mx-auto min-h-screen max-w-2xl px-4 py-8 print:max-w-none print:px-0 print:py-0">
+    <div class="mb-6 flex items-center justify-between print:hidden">
+      <Button variant="outline" href={`/ventas/${venta.id}`}>
+        <ArrowLeft size={15} /> Volver a la venta
+      </Button>
+      <Button id="imprimir">
+        <Printer size={15} /> Imprimir
+      </Button>
+    </div>
+
+    <article class="rounded-xl border border-hairline bg-white p-6 print:rounded-none print:border-0 print:p-0">
+      <header class="border-b border-hairline pb-5 text-center">
+        <p class="font-display text-2xl text-ink" style="font-variation-settings: 'opsz' 48;">
+          Valeria Eslava
+        </p>
+        <p class="mt-1 text-xs tracking-[0.18em] text-ink-muted uppercase">Maquillaje</p>
+        <p class="mt-3 text-sm text-ink-muted">Recibo de venta</p>
+      </header>
+
+      {
+        venta.anulada && (
+          <p class="mt-4 rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-center text-sm font-medium text-danger">
+            Venta anulada · este recibo no es válido como comprobante
+          </p>
+        )
+      }
+
+      <dl class="mt-5 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+        <div class="flex justify-between gap-4 sm:block">
+          <dt class="text-ink-muted">Fecha</dt>
+          <dd class="text-ink">{formatFechaLarga(venta.fecha)}</dd>
+        </div>
+        <div class="flex justify-between gap-4 sm:block">
+          <dt class="text-ink-muted">Clienta</dt>
+          <dd class="text-ink">{venta.cliente_nombre ?? 'Sin clienta asignada'}</dd>
+        </div>
+        <div class="flex justify-between gap-4 sm:block">
+          <dt class="text-ink-muted">Método de pago</dt>
+          <dd class="text-ink">
+            {metodos[venta.metodo_pago.toLowerCase()] ?? venta.metodo_pago}
+          </dd>
+        </div>
+        <div class="flex justify-between gap-4 sm:block">
+          <dt class="text-ink-muted">Estado</dt>
+          <dd class="text-ink">
+            {
+              venta.anulada ? (
+                <Badge tone="danger">Anulada</Badge>
+              ) : venta.credito ? (
+                <Badge tone="wine">
+                  {venta.saldo > 0 ? 'Crédito pendiente' : 'Crédito pagada'}
+                </Badge>
+              ) : (
+                <Badge tone="success">Pagada</Badge>
+              )
+            }
+          </dd>
+        </div>
+      </dl>
+
+      <table class="mt-6 w-full text-sm">
+        <thead>
+          <tr class="border-b border-hairline text-left text-xs tracking-wide text-ink-muted uppercase">
+            <th scope="col" class="pb-2 font-medium">Descripción</th>
+            <th scope="col" class="pb-2 text-right font-medium">Cant.</th>
+            <th scope="col" class="pb-2 text-right font-medium">Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            venta.items.map((it) => (
+              <tr class="border-b border-hairline/60">
+                <td class="py-2.5 pr-3 text-ink">
+                  {it.descripcion}
+                  {it.cantidad > 1 && (
+                    <span class="block text-xs text-ink-muted">
+                      {formatCOP(it.precio_unitario)} c/u
+                    </span>
+                  )}
+                </td>
+                <td class="py-2.5 text-right num">{it.cantidad}</td>
+                <td class="py-2.5 text-right num">{formatCOP(it.subtotal)}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+
+      <div class="mt-4 ml-auto max-w-xs space-y-1.5 text-sm">
+        <div class="flex justify-between gap-6">
+          <span class="text-ink-muted">Subtotal</span>
+          <span class="num">{formatCOP(subtotal)}</span>
+        </div>
+        {
+          venta.descuento > 0 && (
+            <div class="flex justify-between gap-6">
+              <span class="text-ink-muted">Descuento</span>
+              <span class="num text-danger">−{formatCOP(venta.descuento)}</span>
+            </div>
+          )
+        }
+        <div class="flex justify-between gap-6 border-t border-hairline pt-2">
+          <span class="font-display text-base font-medium">Total</span>
+          <span class="num font-display text-lg font-medium text-wine">
+            {formatCOP(venta.total)}
+          </span>
+        </div>
+        {
+          venta.credito && !venta.anulada && (
+            <>
+              <div class="flex justify-between gap-6">
+                <span class="text-ink-muted">Abonado</span>
+                <span class="num text-sage">{formatCOP(venta.total - venta.saldo)}</span>
+              </div>
+              <div class="flex justify-between gap-6">
+                <span class="font-display text-base font-medium">Saldo pendiente</span>
+                <span class="num font-display text-lg font-medium text-ochre">
+                  {formatCOP(venta.saldo)}
+                </span>
+              </div>
+            </>
+          )
+        }
+      </div>
+
+      {
+        venta.notas && (
+          <div class="mt-5 border-t border-hairline pt-4">
+            <p class="text-xs tracking-wide text-ink-muted uppercase">Notas</p>
+            <p class="mt-1 text-sm whitespace-pre-wrap text-ink">{venta.notas}</p>
+          </div>
+        )
+      }
+
+      <footer class="mt-8 border-t border-hairline pt-4 text-center text-xs text-ink-muted">
+        <p>Gracias por tu compra</p>
+        <p class="mt-1">Valeria Eslava · Maquillaje</p>
+      </footer>
+    </article>
+  </main>
+</BaseLayout>
+
+<style is:global>
+  @media print {
+    @page {
+      margin: 1.5cm;
+    }
+
+    body {
+      background: white;
+    }
+  }
+</style>
+
+<script>
+  const boton = document.getElementById('imprimir');
+  boton?.addEventListener('click', () => window.print());
+</script>

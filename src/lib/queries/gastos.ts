@@ -5,10 +5,11 @@ export interface FiltroGastos {
   mes?: string;
   categoria?: string;
   limit?: number;
+  offset?: number;
 }
 
 export async function listGastos(filtro: FiltroGastos = {}): Promise<Gasto[]> {
-  const { mes, categoria, limit } = filtro;
+  const { mes, categoria, limit, offset } = filtro;
   const rows = await sql`
     SELECT
       id,
@@ -20,8 +21,19 @@ export async function listGastos(filtro: FiltroGastos = {}): Promise<Gasto[]> {
     WHERE (${mes ?? null}::text IS NULL OR to_char(fecha, 'YYYY-MM') = ${mes ?? null})
       AND (${categoria ?? null}::text IS NULL OR categoria = ${categoria ?? null})
     ORDER BY fecha DESC, created_at DESC
-    LIMIT ${limit ?? 300}`;
+    LIMIT ${limit ?? 300}
+    OFFSET ${offset ?? 0}`;
   return rows as unknown as Gasto[];
+}
+
+export async function contarGastos(filtro: FiltroGastos = {}): Promise<number> {
+  const { mes, categoria } = filtro;
+  const [row] = await sql`
+    SELECT COUNT(*)::int AS n
+    FROM gastos
+    WHERE (${mes ?? null}::text IS NULL OR to_char(fecha, 'YYYY-MM') = ${mes ?? null})
+      AND (${categoria ?? null}::text IS NULL OR categoria = ${categoria ?? null})`;
+  return row.n;
 }
 
 export async function totalGastos(filtro: FiltroGastos = {}): Promise<number> {

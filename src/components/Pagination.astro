@@ -1,0 +1,60 @@
+---
+import Button from './ui/Button.astro';
+
+interface Props {
+  pagina: number;
+  totalPaginas: number;
+  desde: number;
+  hasta: number;
+  total: number;
+  anteriorHref: string | null;
+  siguienteHref: string | null;
+  etiqueta?: string;
+}
+
+const {
+  pagina,
+  totalPaginas,
+  desde,
+  hasta,
+  total,
+  anteriorHref,
+  siguienteHref,
+  etiqueta = 'Paginación',
+} = Astro.props;
+---
+
+<nav
+  class="mt-4 flex flex-wrap items-center justify-between gap-3"
+  aria-label={etiqueta}
+>
+  <p class="text-xs text-ink-muted">Mostrando {desde}–{hasta} de {total}</p>
+
+  {
+    totalPaginas > 1 && (
+      <div class="flex items-center gap-2">
+        {anteriorHref ? (
+          <Button variant="outline" size="sm" href={anteriorHref}>
+            Anterior
+          </Button>
+        ) : (
+          <Button variant="outline" size="sm" disabled>
+            Anterior
+          </Button>
+        )}
+        <span class="text-xs text-ink-muted">
+          Página {pagina} de {totalPaginas}
+        </span>
+        {siguienteHref ? (
+          <Button variant="outline" size="sm" href={siguienteHref}>
+            Siguiente
+          </Button>
+        ) : (
+          <Button variant="outline" size="sm" disabled>
+            Siguiente
+          </Button>
+        )}
+      </div>
+    )
+  }
+</nav>

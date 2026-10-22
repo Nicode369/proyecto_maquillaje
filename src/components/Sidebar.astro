@@ -6,15 +6,17 @@ import {
   Wallet,
   Users,
   CircleQuestionMark,
+  DatabaseBackup,
   LogOut,
 } from '@lucide/astro';
 import Valeria from './Valeria.astro';
 
 interface Props {
   active?: string;
+  stockBajo?: number;
 }
 
-const { active } = Astro.props;
+const { active, stockBajo = 0 } = Astro.props;
 
 const year = new Date().getFullYear();
 
@@ -24,6 +26,7 @@ const items = [
   { key: 'productos', href: '/productos', label: 'Productos', icon: Package },
   { key: 'gastos', href: '/gastos', label: 'Gastos', icon: Wallet },
   { key: 'clientas', href: '/clientas', label: 'Clientas', icon: Users },
+  { key: 'respaldo', href: '/respaldo', label: 'Respaldo', icon: DatabaseBackup },
   { key: 'ayuda', href: '/ayuda', label: 'Ayuda', icon: CircleQuestionMark },
 ];
 ---
@@ -94,6 +97,14 @@ const items = [
             ]}
           />
           <span class="relative z-10">{label}</span>
+          {key === 'productos' && stockBajo > 0 && (
+            <span
+              class="relative z-10 ml-auto rounded-full bg-wine px-1.5 py-px text-[10px] font-semibold text-white tabular-nums"
+              aria-label={`${stockBajo} producto${stockBajo === 1 ? '' : 's'} con stock bajo`}
+            >
+              {stockBajo}
+            </span>
+          )}
         </a>
       ))
     }

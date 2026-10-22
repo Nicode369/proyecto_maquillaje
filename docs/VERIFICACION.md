@@ -52,6 +52,21 @@ Para vaciar la base por completo (destructivo, deja la BD como en la entrega):
 npm run db:reset
 ```
 
+## 4.1 Respaldo y exportaciones
+
+Con el dev server arriba y sesión iniciada:
+
+```
+npm run db:backup                    # crea backups/respaldo-*.json (gitignored)
+npm run db:restore -- backups/…json --reemplazar   # solo con autorización: es destructivo
+```
+
+- `/respaldo` debe mostrar las dos tarjetas y descargar el JSON.
+- `/exportar/ventas`, `gastos`, `abonos`, `clientas`, `productos` deben responder
+  `200 text/csv; charset=utf-8`; una tabla inventada debe dar 404.
+- Verificar que el CSV abra bien en Excel (BOM + `;`) y que los filtros de la lista
+  se conserven en el enlace de exportación.
+
 ## 5. Detector de diseño (impeccable)
 
 ```
@@ -75,7 +90,15 @@ PW=$(grep "^DASHBOARD_PASSWORD=" .env | cut -d= -f2- | tr -d "\"\x27\n")
 curl -s -c /tmp/c.txt -o /dev/null -w "%{http_code}\n" -X POST "http://localhost:4321/login?_action=auth.login" \
   -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "password=$PW"   # 302
 curl -s -b /tmp/c.txt http://localhost:4321/ -o /tmp/home.html                            # 200
+for u in /ventas /gastos /clientas /respaldo /respaldo.json /exportar/ventas \
+         /exportar/gastos /exportar/abonos /exportar/clientas /exportar/productos; do
+  curl -s -b /tmp/c.txt -o /dev/null -w "$u %{http_code} %{content_type}\n" "http://localhost:4321$u"
+done
 ```
+
+- `?pagina=999` en ventas/gastos debe seguir devolviendo 200 (clampea a la última).
+- `/ventas/recibo/<uuid inexistente>` debe dar 404; con una venta real debe renderizar
+  el comprobante y `window.print()` debe abrir el diálogo.
 
 ⚠️ El login de actions es `POST /login?_action=auth.login` (a `/login`, NO a `/` —
 a `/` el middleware redirige sin setear cookie).
@@ -95,15 +118,16 @@ a `/` el middleware redirige sin setear cookie).
 
 ```
 git status --short
-git add src/ docs/ scripts/ AGENTS.md       # solo fuentes (nunca .env)
+git add src/ docs/ scripts/ package.json .gitignore   # solo fuentes (nunca .env ni backups/)
 grep -E "^\.env$" <(git diff --cached --name-only) && echo PELIGRO   # verificar
 git -c user.name="nicode" -c user.email="nicode@users.noreply.github.com" commit -q -m "…"
-git add -A && git … commit -q -m "Actualiza artefactos de build Vercel"   # .vercel va trackeado
 ```
 
-Convención: **dos commits** — fuente primero, artefactos `.vercel` aparte.
+`.vercel/` y `backups/` están ignorados: Vercel se regenera en cada deploy y los
+respaldos son datos privados. No stagear `Toast.astro`/`ConfirmDialog.astro` si sus
+cambios vienen de una tarea ajena.
 
-## Estado de la DB (2026-10-20, entrega)
+## Estado de la DB (2026-10-22)
 
 **Vacía (0/0/0/0/0)** a propósito. No hay seed de fábrica: `scripts/db-seed.ts` existe
 como utilidad de desarrollo pero **no se corre** sin confirmar (duplicaría datos si la

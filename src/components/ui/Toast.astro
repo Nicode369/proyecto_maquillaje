@@ -20,35 +20,41 @@ const { chip, Icono } = estilos[tipo];
 ---
 
 <div
-  class="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pb-4 sm:justify-end sm:pr-6 sm:pb-6"
+  class="pointer-events-none fixed inset-x-0 top-14 z-50 flex justify-center px-4 pt-3 sm:justify-end sm:pr-6 sm:pt-4"
   data-toast-zona
 >
   <div
-    class="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border border-hairline bg-surface px-4 py-3 shadow-[0_10px_30px_rgba(42,27,32,0.14)]"
+    class="pointer-events-auto relative isolate w-full max-w-sm overflow-hidden rounded-xl border border-wine/90 bg-surface shadow-[0_10px_30px_rgba(42,27,32,0.14)]"
     role="status"
     aria-live="polite"
     data-toast
   >
-    <span
-      class:list={[
-        'mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full',
-        chip,
-      ]}
-      aria-hidden="true"
-    >
-      <Icono size={14} />
-    </span>
+    <span class="toast-borde pointer-events-none absolute inset-0" aria-hidden="true"></span>
+    <span class="toast-brillo pointer-events-none absolute inset-0" aria-hidden="true"></span>
+    <span class="toast-barra pointer-events-none absolute bottom-0 left-0 h-[2px] w-full" aria-hidden="true"></span>
 
-    <p class="min-w-0 flex-1 pt-0.5 text-sm leading-snug text-ink">{texto}</p>
+    <div class="relative z-10 flex items-start gap-3 px-4 py-3">
+      <span
+        class:list={[
+          'mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full',
+          chip,
+        ]}
+        aria-hidden="true"
+      >
+        <Icono size={14} />
+      </span>
 
-    <button
-      type="button"
-      data-toast-cerrar
-      class="-mt-0.5 -mr-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-ink/5 hover:text-ink"
-      aria-label="Cerrar aviso"
-    >
-      <X size={14} />
-    </button>
+      <p class="min-w-0 flex-1 pt-0.5 text-sm leading-snug text-ink">{texto}</p>
+
+      <button
+        type="button"
+        data-toast-cerrar
+        class="-mt-0.5 -mr-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-ink/5 hover:text-ink"
+        aria-label="Cerrar aviso"
+      >
+        <X size={14} />
+      </button>
+    </div>
   </div>
 </div>
 
@@ -64,7 +70,7 @@ const { chip, Icono } = estilos[tipo];
   @keyframes toast-entra {
     from {
       opacity: 0;
-      transform: translateY(14px) scale(0.97);
+      transform: translateY(-14px) scale(0.97);
     }
     to {
       opacity: 1;
@@ -75,14 +81,115 @@ const { chip, Icono } = estilos[tipo];
   @keyframes toast-sale {
     to {
       opacity: 0;
-      transform: translateY(8px) scale(0.98);
+      transform: translateY(-8px) scale(0.98);
+    }
+  }
+
+  /* Barrido de brillo al aparecer (una sola pasada) */
+  .toast-brillo {
+    background-image: linear-gradient(
+      115deg,
+      transparent 32%,
+      rgba(255, 255, 255, 0.85) 46%,
+      transparent 60%
+    );
+    background-size: 240% 100%;
+    background-repeat: no-repeat;
+    animation: toast-brillo 900ms ease-out 120ms 1 both;
+  }
+
+  @keyframes toast-brillo {
+    from {
+      background-position: 130% 0;
+    }
+    to {
+      background-position: -130% 0;
+    }
+  }
+
+  /* Luz que recorre el borde mientras el aviso está visible */
+  @supports ((mask-composite: exclude) or (-webkit-mask-composite: xor)) {
+    .toast-borde {
+      overflow: hidden;
+      padding: 1px;
+      border-radius: inherit;
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      mask-composite: exclude;
+    }
+
+    .toast-borde::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 220%;
+      aspect-ratio: 1;
+      translate: -50% -50%;
+      background: conic-gradient(
+        from 0deg,
+        transparent 0deg 296deg,
+        rgba(232, 162, 184, 0.5) 320deg,
+        rgba(238, 141, 177, 0.9) 344deg,
+        rgba(189, 63, 102, 0.95) 358deg,
+        transparent 360deg
+      );
+      animation: toast-recorrido 3s linear infinite;
+    }
+  }
+
+  @keyframes toast-recorrido {
+    to {
+      rotate: 360deg;
+    }
+  }
+
+  /* Barra de vida sincronizada con el autocierre de 4,5 s */
+  .toast-barra {
+    background-image: linear-gradient(90deg, var(--color-wine), var(--color-pink));
+    transform-origin: left center;
+    animation: toast-vida 4500ms linear forwards;
+  }
+
+  .toast-barra.pausada {
+    animation-play-state: paused;
+  }
+
+  .toast-barra.corta {
+    animation-duration: 2000ms;
+  }
+
+  .toast-barra.reinicio {
+    animation: none;
+  }
+
+  @keyframes toast-vida {
+    from {
+      transform: scaleX(1);
+    }
+    to {
+      transform: scaleX(0);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
     [data-toast],
-    [data-toast].saliendo {
+    [data-toast].saliendo,
+    .toast-brillo,
+    .toast-borde::before,
+    .toast-barra {
       animation: none;
+    }
+
+    .toast-brillo,
+    .toast-borde,
+    .toast-barra {
+      display: none;
     }
   }
 </style>
@@ -90,6 +197,7 @@ const { chip, Icono } = estilos[tipo];
 <script>
   const zona = document.querySelector('[data-toast-zona]');
   const toast = zona?.querySelector<HTMLElement>('[data-toast]');
+  const barra = zona?.querySelector<HTMLElement>('[data-toast-barra]');
 
   if (toast) {
     const cerrar = () => {
@@ -99,10 +207,24 @@ const { chip, Icono } = estilos[tipo];
 
     toast.querySelector('[data-toast-cerrar]')?.addEventListener('click', cerrar);
 
+    const reiniciarBarra = () => {
+      if (!barra) return;
+      barra.classList.add('corta', 'reinicio');
+      void barra.offsetWidth;
+      barra.classList.remove('reinicio');
+    };
+
     let temporizador = window.setTimeout(cerrar, 4500);
-    toast.addEventListener('mouseenter', () => window.clearTimeout(temporizador));
+
+    toast.addEventListener('mouseenter', () => {
+      window.clearTimeout(temporizador);
+      barra?.classList.add('pausada');
+    });
+
     toast.addEventListener('mouseleave', () => {
       temporizador = window.setTimeout(cerrar, 2000);
+      barra?.classList.remove('pausada');
+      reiniciarBarra();
     });
   }
 </script>

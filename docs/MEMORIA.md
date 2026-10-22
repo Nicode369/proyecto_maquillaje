@@ -1,6 +1,7 @@
 # Memoria — estado actual del proyecto
 
-> Última actualización: 2026-10-20 — crédito/abonos, guía, hardening y pulido implementados; DB vacía.
+> Última actualización: 2026-10-22 — OG, toast de login, respaldo/exportación, recibo,
+> paginación y guardas de stock/clientas; DB vacía.
 
 ## Entrega
 
@@ -32,19 +33,31 @@
   desktop, contrastes `ink/75` sobre el gradiente.
 - **Herramientas versionadas**: `scripts/e2e.sh` (~40 checks; seed = avisos) y
   `scripts/clean-e2e.mjs` (fecha dinámica; abonos por CASCADE).
+- **Open Graph** (2026-10-22): `public/og-image.jpg` 1200×630, metadatos OG/Twitter en
+  `BaseLayout`, `site` en `astro.config.mjs`, `/og-image.jpg` público en middleware.
+  Verificado en producción (WhatsApp/redes).
+- **Toast de login**: el aviso "Sesión iniciada" usa el flash existente y aparece en la
+  home tras autenticarse.
+- **Respaldo y exportación** (2026-10-22): `/respaldo` con JSON completo y CSVs por
+  módulo; `npm run db:backup` / `db:restore` (restaurar exige `--reemplazar`).
+  `backups/` está en `.gitignore`.
+- **Paginación**: 50 por página en ventas y gastos con conteo real y filtros preservados.
+- **Recibo imprimible**: `/ventas/recibo/[id]` con `@media print` y botón en el detalle.
+- **Guardas**: no se elimina una clienta con saldo pendiente; badge de stock bajo en el
+  sidebar desde `countStockBajo()`.
 
-## Últimas verificaciones (2026-10-20)
+## Últimas verificaciones (2026-10-22)
 
 - `astro check`: 0/0/0 · `build`: Complete.
-- e2e completo: **38 PASS / 0 FALLOS** (incluye crédito, abonos, saldo 25.000,
-  anulación bloqueada, rate limit 429, /ayuda).
-- Detector impeccable: `src public` 0 findings; login móvil solo el
-  `clipped-overflow-container` **conocido/justificado** (panel decorativo).
-- DB tras e2e: limpiada a 0/0/0/0/0 con `scripts/clean-e2e.mjs`.
+- Smoke con sesión: login 302; `/ventas`, `/gastos`, `/clientas`, `/respaldo` 200;
+  `/respaldo.json` 200 JSON; los 5 CSV 200; tabla inválida y recibo inexistente 404.
+- `npm run db:backup` y `db:restore --reemplazar` probados con DB vacía (0 filas).
+- e2e completo previo: **38 PASS / 0 FALLOS** (2026-10-20).
+- DB tras pruebas: 0/0/0/0/0.
 
 ## Pendientes (propuestos, esperando decisión — opcionales)
 
-1. **Exportar CSV** de ventas/gastos para el contador (no implementado).
-2. **Recibo imprimible de venta** (`@media print`).
-3. **Badge de stock bajo** en el sidebar (la query `stockBajo()` ya existe).
-4. Futuro: imágenes a Vercel Blob (el base64 infla la DB), multi-usuario, PWA offline.
+1. **Cambiar `DASHBOARD_PASSWORD`** de entrega (`juanmartin`) en `.env` y Vercel.
+2. **Editar/eliminar abonos** (hoy solo se registran; corregir un abono requiere SQL).
+3. Futuro: imágenes a Vercel Blob (el base64 infla la DB y el JSON de respaldo),
+   `robots.txt`/`noindex`, multi-usuario, PWA offline, CI.

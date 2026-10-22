@@ -33,13 +33,15 @@ de una amiga. Solo el panel (sin web pública).
 ```
 src/
 ├── layouts/            BaseLayout (shell HTML), DashboardLayout (sidebar+topbar)
-├── pages/              login, index (resumen), ventas/, productos/, gastos/, clientas/
+├── pages/              login, index (resumen), ventas/ (+ recibo), productos/, gastos/,
+│                       clientas/, respaldo, exportar/[tabla].ts
 ├── actions/            auth, clientes, productos, ventas, gastos (+ index que re-exporta)
 ├── components/ui/      Button, Card, Badge, Input, Select, Textarea, EmptyState, PageHeader
-├── lib/                db.ts (Neon), auth.ts (HMAC), format.ts, queries/
+├── components/         Sidebar, Footer, Pagination, ConfirmDialog, SubirImagen
+├── lib/                db.ts (Neon), auth.ts (HMAC), format.ts, csv.ts, flash.ts, queries/
 ├── styles/global.css   Tailwind v4 con tokens @theme
 db/                     schema.sql, seed
-scripts/                db-init.ts, db-seed.ts
+scripts/                db-init.ts, db-seed.ts, db-backup.mjs, db-restore.mjs, e2e.sh
 ```
 
 ## Base de datos
@@ -63,6 +65,8 @@ Evita re-escanear el repo — leer bajo demanda:
   `npm run db:clean-e2e` (limpieza de residuos E2E; no toca datos reales)
 - `npm run db:init` / `npm run db:seed` (requieren `.env` con `DATABASE_URL`; usan la directa)
 - `npm run db:reset` (**destructivo**: vacía todas las tablas; deja la BD como en la entrega)
+- `npm run db:backup` (JSON completo en `backups/`, ignorado por git) ·
+  `npm run db:restore -- backups/archivo.json --reemplazar` (**destructivo**)
 - Neon CLI: `neon env pull` (refresca `.env`), `neon deploy` (aplica `neon.ts`), `neon status`
 
 ## Development

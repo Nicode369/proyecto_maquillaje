@@ -6,6 +6,7 @@ export interface FiltroVentas {
   clienteId?: string;
   q?: string;
   limit?: number;
+  offset?: number;
 }
 
 interface FilaVenta extends Omit<Venta, 'num_items'> {
@@ -17,7 +18,7 @@ function condicionMes(mes?: string) {
 }
 
 export async function listVentas(filtro: FiltroVentas = {}): Promise<Venta[]> {
-  const { mes, clienteId, q, limit } = filtro;
+  const { mes, clienteId, q, limit, offset } = filtro;
   const rows = await sql`
     SELECT
       v.id,
@@ -50,8 +51,25 @@ export async function listVentas(filtro: FiltroVentas = {}): Promise<Venta[]> {
         OR v.id::text ILIKE '%' || ${q ?? null} || '%'
       )
     ORDER BY v.fecha DESC, v.created_at DESC
-    LIMIT ${limit ?? 200}`;
+    LIMIT ${limit ?? 200}
+    OFFSET ${offset ?? 0}`;
   return rows as unknown as FilaVenta[];
+}
+
+export async function contarVentas(filtro: FiltroVentas = {}): Promise<number> {
+  const { mes, clienteId, q } = filtro;
+  const [row] = await sql`
+    SELECT COUNT(*)::int AS n
+    FROM ventas v
+    LEFT JOIN clientes c ON c.id = v.cliente_id
+    WHERE (${condicionMes(mes)}::text IS NULL OR to_char(v.fecha, 'YYYY-MM') = ${condicionMes(mes)})
+      AND (${clienteId ?? null}::uuid IS NULL OR v.cliente_id = ${clienteId ?? null})
+      AND (
+        ${q ?? null}::text IS NULL
+        OR c.nombre ILIKE '%' || ${q ?? null} || '%'
+        OR v.id::text ILIKE '%' || ${q ?? null} || '%'
+      )`;
+  return row.n;
 }
 
 export async function totalesVentas(filtro: FiltroVentas = {}): Promise<{
@@ -283,6 +301,40 @@ export async function reactivarVenta(id: string): Promise<void> {
     ),
     sql`UPDATE ventas SET anulada = false WHERE id = ${id} AND anulada`,
   ]);
+}
+
+export interface AbonoExport {
+  id: string;
+  fecha: string;
+  venta_id: string;
+  venta_fecha: string;
+  cliente_nombre: string | null;
+  venta_total: number;
+  monto: number;
+  notas: string | null;
+}
+
+export async function listAbonosExport(
+  filtro: { mes?: string; clienteId?: string } = {},
+): Promise<AbonoExport[]> {
+  const { mes, clienteId } = filtro;
+  const rows = await sql`
+    SELECT
+      a.id,
+      a.fecha::text AS fecha,
+      a.venta_id,
+      v.fecha::text AS venta_fecha,
+      c.nombre AS cliente_nombre,
+      v.total::float8 AS venta_total,
+      a.monto::float8 AS monto,
+      a.notas
+    FROM abonos a
+    INNER JOIN ventas v ON v.id = a.venta_id
+    LEFT JOIN clientes c ON c.id = v.cliente_id
+    WHERE (${mes ?? null}::text IS NULL OR to_char(a.fecha, 'YYYY-MM') = ${mes ?? null})
+      AND (${clienteId ?? null}::uuid IS NULL OR v.cliente_id = ${clienteId ?? null})
+    ORDER BY a.fecha DESC, a.created_at DESC`;
+  return rows as unknown as AbonoExport[];
 }
 
 export async function registrarAbono(data: {

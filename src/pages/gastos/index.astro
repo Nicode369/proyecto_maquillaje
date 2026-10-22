@@ -1,14 +1,16 @@
 ---
 import { actions, isInputError } from 'astro:actions';
-import { Pencil, Plus, Search, Trash } from '@lucide/astro';
+import { FileDown, Pencil, Plus, Search, Trash } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 import LimpiarFiltros from '../../components/LimpiarFiltros.astro';
+import Pagination from '../../components/Pagination.astro';
 import Button from '../../components/ui/Button.astro';
 import Input from '../../components/ui/Input.astro';
 import Badge from '../../components/ui/Badge.astro';
 import EmptyState from '../../components/ui/EmptyState.astro';
 import {
+  contarGastos,
   listGastos,
   listCategoriasGasto,
   totalGastos,
@@ -17,26 +19,60 @@ import { formatCOP, formatFechaCorta } from '../../lib/format';
 import Alert from '../../components/ui/Alert.astro';
 import { ponerFlash } from '../../lib/flash';
 
+const POR_PAGINA = 50;
+
 const mes = Astro.url.searchParams.get('mes')?.trim() || undefined;
 const categoria = Astro.url.searchParams.get('categoria')?.trim() || undefined;
+const paginaSolicitada = Math.max(
+  1,
+  Number.parseInt(Astro.url.searchParams.get('pagina') ?? '1', 10) || 1,
+);
 
 const eliminar = Astro.getActionResult(actions.gastos.eliminar);
 if (eliminar && !eliminar.error) {
   const params = new URLSearchParams();
   if (mes) params.set('mes', mes);
   if (categoria) params.set('categoria', categoria);
+  if (paginaSolicitada > 1) params.set('pagina', String(paginaSolicitada));
   const qs = params.toString();
   ponerFlash(Astro.cookies, { tipo: 'success', texto: 'Gasto eliminado' });
   return Astro.redirect(`/gastos${qs ? `?${qs}` : ''}`);
 }
 
-const [lista, categorias, total] = await Promise.all([
-  listGastos({ mes, categoria }),
+const [categorias, total, totalRegistros] = await Promise.all([
   listCategoriasGasto(),
   totalGastos({ mes, categoria }),
+  contarGastos({ mes, categoria }),
 ]);
 
+const totalPaginas = Math.max(1, Math.ceil(totalRegistros / POR_PAGINA));
+const pagina = Math.min(paginaSolicitada, totalPaginas);
+const lista = await listGastos({
+  mes,
+  categoria,
+  limit: POR_PAGINA,
+  offset: (pagina - 1) * POR_PAGINA,
+});
+
 const hayFiltro = Boolean(mes || categoria);
+const desde = totalRegistros === 0 ? 0 : (pagina - 1) * POR_PAGINA + 1;
+const hasta = Math.min(pagina * POR_PAGINA, totalRegistros);
+
+const filtros = new URLSearchParams();
+if (mes) filtros.set('mes', mes);
+if (categoria) filtros.set('categoria', categoria);
+
+const exportHref = `/exportar/gastos${filtros.size ? `?${filtros}` : ''}`;
+
+function hrefPagina(numero: number): string {
+  const params = new URLSearchParams(filtros);
+  if (numero > 1) params.set('pagina', String(numero));
+  const qs = params.toString();
+  return `/gastos${qs ? `?${qs}` : ''}`;
+}
+
+const anteriorHref = pagina > 1 ? hrefPagina(pagina - 1) : null;
+const siguienteHref = pagina < totalPaginas ? hrefPagina(pagina + 1) : null;
 
 const errDel = eliminar?.error;
 const errorEliminar =
@@ -57,8 +93,11 @@ const tonos: Record<string, 'neutral' | 'wine' | 'warning' | 'success' | 'danger
 <DashboardLayout title="Gastos" active="gastos">
   <PageHeader
     title="Gastos"
-    description={`${lista.length} ${lista.length === 1 ? 'registro' : 'registros'}${hayFiltro ? '' : ' en total'} · ${formatCOP(total)}`}
+    description={`${totalRegistros} ${totalRegistros === 1 ? 'registro' : 'registros'}${hayFiltro ? '' : ' en total'} · ${formatCOP(total)}`}
   >
+    <Button variant="outline" href={exportHref}>
+      <FileDown size={15} /> Exportar CSV
+    </Button>
     <Button href="/gastos/nuevo"><Plus size={15} /> Nuevo gasto</Button>
   </PageHeader>
 
@@ -219,6 +258,21 @@ const tonos: Record<string, 'neutral' | 'wine' | 'warning' | 'success' | 'danger
       )
     }
   </div>
+
+  {
+    totalRegistros > 0 && (
+      <Pagination
+        pagina={pagina}
+        totalPaginas={totalPaginas}
+        desde={desde}
+        hasta={hasta}
+        total={totalRegistros}
+        anteriorHref={anteriorHref}
+        siguienteHref={siguienteHref}
+        etiqueta="Paginación de gastos"
+      />
+    )
+  }
 
   <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
     {hayFiltro && <LimpiarFiltros href="/gastos" />}

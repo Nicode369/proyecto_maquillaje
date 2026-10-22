@@ -1,6 +1,6 @@
 ---
 import { actions, isInputError } from 'astro:actions';
-import { Pencil, Plus, Search, Trash } from '@lucide/astro';
+import { FileDown, Pencil, Plus, Search, Trash } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 import Button from '../../components/ui/Button.astro';
@@ -36,6 +36,8 @@ const errorEliminar =
 
 const mensajeConfirmar =
   '¿Eliminar esta clienta? Esta acción no se puede deshacer.';
+
+const exportHref = `/exportar/clientas${q ? `?q=${encodeURIComponent(q)}` : ''}`;
 ---
 
 <DashboardLayout title="Clientas" active="clientas">
@@ -43,6 +45,9 @@ const mensajeConfirmar =
     title="Clientas"
     description={`${total} ${total === 1 ? 'registrada' : 'registradas'} · ${nuevas} ${nuevas === 1 ? 'nueva' : 'nuevas'} este mes`}
   >
+    <Button variant="outline" href={exportHref}>
+      <FileDown size={15} /> Exportar CSV
+    </Button>
     <Button href="/clientas/nueva"><Plus size={15} /> Nueva clienta</Button>
   </PageHeader>
 
@@ -155,21 +160,33 @@ const mensajeConfirmar =
                       >
                         <Pencil size={14} />
                       </Button>
-                      <form method="POST" action={actions.clientes.eliminar}>
-                        <input type="hidden" name="id" value={c.id} />
+                      {c.saldo > 0 ? (
                         <Button
                           variant="ghost"
                           size="sm"
-                          type="submit"
-                          class="text-danger hover:bg-danger/10 hover:text-danger"
-                          aria-label={`Eliminar a ${c.nombre}`}
-                          data-confirm={mensajeConfirmar}
-                          data-confirm-titulo="Eliminar clienta"
-                          data-confirm-ok="Eliminar"
+                          disabled
+                          aria-label={`No se puede eliminar a ${c.nombre}: tiene saldo pendiente`}
+                          title="Tiene saldo pendiente"
                         >
                           <Trash size={14} />
                         </Button>
-                      </form>
+                      ) : (
+                        <form method="POST" action={actions.clientes.eliminar}>
+                          <input type="hidden" name="id" value={c.id} />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            type="submit"
+                            class="text-danger hover:bg-danger/10 hover:text-danger"
+                            aria-label={`Eliminar a ${c.nombre}`}
+                            data-confirm={mensajeConfirmar}
+                            data-confirm-titulo="Eliminar clienta"
+                            data-confirm-ok="Eliminar"
+                          >
+                            <Trash size={14} />
+                          </Button>
+                        </form>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -218,21 +235,33 @@ const mensajeConfirmar =
                     >
                       <Pencil size={14} />
                     </Button>
-                    <form method="POST" action={actions.clientes.eliminar}>
-                      <input type="hidden" name="id" value={c.id} />
+                    {c.saldo > 0 ? (
                       <Button
                         variant="ghost"
                         size="sm"
-                        type="submit"
-                        class="text-danger hover:bg-danger/10 hover:text-danger"
-                        aria-label={`Eliminar a ${c.nombre}`}
-                        data-confirm={mensajeConfirmar}
-                        data-confirm-titulo="Eliminar clienta"
-                        data-confirm-ok="Eliminar"
+                        disabled
+                        aria-label={`No se puede eliminar a ${c.nombre}: tiene saldo pendiente`}
+                        title="Tiene saldo pendiente"
                       >
                         <Trash size={14} />
                       </Button>
-                    </form>
+                    ) : (
+                      <form method="POST" action={actions.clientes.eliminar}>
+                        <input type="hidden" name="id" value={c.id} />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          type="submit"
+                          class="text-danger hover:bg-danger/10 hover:text-danger"
+                          aria-label={`Eliminar a ${c.nombre}`}
+                          data-confirm={mensajeConfirmar}
+                          data-confirm-titulo="Eliminar clienta"
+                          data-confirm-ok="Eliminar"
+                        >
+                          <Trash size={14} />
+                        </Button>
+                      </form>
+                    )}
                   </div>
                 </div>
               </li>

@@ -54,19 +54,25 @@ const metodos: Record<string, string> = {
     <Button variant="outline" href={`/clientas/${cliente.id}/editar`}>
       <Pencil size={15} /> Editar
     </Button>
-    <form method="POST" action={actions.clientes.eliminar}>
-      <input type="hidden" name="id" value={cliente.id} />
-      <Button
-        variant="ghost"
-        type="submit"
-        class="text-danger hover:bg-danger/10 hover:text-danger"
-        data-confirm={mensajeConfirmar}
-        data-confirm-titulo="Eliminar clienta"
-        data-confirm-ok="Eliminar"
-      >
-        <Trash size={15} /> Eliminar
-      </Button>
-    </form>
+    {cliente.saldo > 0 ? (
+      <p class="text-[13px] text-ink-muted">
+        No se puede eliminar: debe {formatCOP(cliente.saldo)}
+      </p>
+    ) : (
+      <form method="POST" action={actions.clientes.eliminar}>
+        <input type="hidden" name="id" value={cliente.id} />
+        <Button
+          variant="ghost"
+          type="submit"
+          class="text-danger hover:bg-danger/10 hover:text-danger"
+          data-confirm={mensajeConfirmar}
+          data-confirm-titulo="Eliminar clienta"
+          data-confirm-ok="Eliminar"
+        >
+          <Trash size={15} /> Eliminar
+        </Button>
+      </form>
+    )}
   </PageHeader>
 
   {

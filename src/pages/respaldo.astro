@@ -1,0 +1,80 @@
+---
+import { DatabaseBackup, Download, FileSpreadsheet } from '@lucide/astro';
+import DashboardLayout from '../layouts/DashboardLayout.astro';
+import PageHeader from '../components/ui/PageHeader.astro';
+import Card from '../components/ui/Card.astro';
+import Button from '../components/ui/Button.astro';
+import Alert from '../components/ui/Alert.astro';
+
+const exportaciones = [
+  { href: '/exportar/ventas', nombre: 'Ventas', detalle: 'Ventas, saldos y estados' },
+  { href: '/exportar/gastos', nombre: 'Gastos', detalle: 'Gastos por categoría' },
+  { href: '/exportar/abonos', nombre: 'Abonos', detalle: 'Pagos recibidos de créditos' },
+  { href: '/exportar/clientas', nombre: 'Clientas', detalle: 'Contacto, compras y deuda' },
+  { href: '/exportar/productos', nombre: 'Productos', detalle: 'Inventario y precios' },
+];
+---
+
+<DashboardLayout title="Respaldo" active="respaldo">
+  <PageHeader
+    title="Respaldo y exportación"
+    description="Descarga una copia de tu información para guardarla o compartirla con tu contador."
+  />
+
+  <div class="mt-6 grid gap-4 lg:grid-cols-2">
+    <Card class="flex flex-col">
+      <div class="flex items-start gap-3">
+        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-wine-soft text-wine">
+          <DatabaseBackup size={19} />
+        </span>
+        <div>
+          <h2 class="font-display text-lg text-ink" style="font-variation-settings: 'opsz' 40;">
+            Respaldo completo
+          </h2>
+          <p class="mt-1 text-sm text-ink-muted">
+            Incluye clientas, productos con sus imágenes, ventas, ítems, abonos y gastos.
+            Guárdalo en un lugar seguro.
+          </p>
+        </div>
+      </div>
+      <div class="mt-5">
+        <Button href="/respaldo.json">
+          <Download size={15} /> Descargar respaldo (JSON)
+        </Button>
+      </div>
+    </Card>
+
+    <Card class="flex flex-col">
+      <div class="flex items-start gap-3">
+        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sage/10 text-sage">
+          <FileSpreadsheet size={19} />
+        </span>
+        <div>
+          <h2 class="font-display text-lg text-ink" style="font-variation-settings: 'opsz' 40;">
+            Exportar para Excel
+          </h2>
+          <p class="mt-1 text-sm text-ink-muted">
+            Archivos CSV con separador punto y coma y codificación UTF-8, listos para
+            abrir en Excel o compartir con tu contador.
+          </p>
+        </div>
+      </div>
+      <div class="mt-5 flex flex-wrap gap-2">
+        {exportaciones.map((item) => (
+          <Button variant="outline" size="sm" href={item.href} title={item.detalle}>
+            {item.nombre}
+          </Button>
+        ))}
+      </div>
+    </Card>
+  </div>
+
+  <Alert variant="info" class="mt-4">
+    <p class="font-medium">Cómo guardar una copia</p>
+    <p class="mt-1 text-sm text-ink">
+      Descarga el JSON al menos una vez al mes y guárdalo en tu computador o en la nube.
+      Los CSV sirven para revisar y compartir información, pero el JSON es el que conserva
+      todas las relaciones entre ventas, abonos y clientas.
+    </p>
+  </Alert>
+</DashboardLayout>

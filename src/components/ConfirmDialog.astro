@@ -5,10 +5,13 @@ import Button from './ui/Button.astro';
 
 <dialog
   id="dialogo-confirmar"
-  class="m-auto w-[calc(100%-2rem)] max-w-sm rounded-2xl border border-hairline bg-surface p-0 text-ink shadow-[0_18px_50px_rgba(42,27,32,0.22)] backdrop:bg-ink/40 backdrop:backdrop-blur-[2px]"
+  class="relative m-auto w-[calc(100%-2rem)] max-w-sm overflow-hidden rounded-2xl border border-wine/90 bg-surface p-0 text-ink shadow-[0_18px_50px_rgba(42,27,32,0.22)] backdrop:bg-ink/40 backdrop:backdrop-blur-[2px]"
   aria-labelledby="dialogo-confirmar-titulo"
 >
-  <div class="flex items-start gap-3 px-5 pt-5">
+  <span class="dialogo-borde pointer-events-none absolute inset-0" aria-hidden="true"></span>
+  <span class="dialogo-brillo pointer-events-none absolute inset-0" aria-hidden="true"></span>
+
+  <div class="relative z-10 flex items-start gap-3 px-5 pt-5">
     <span
       class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-danger/10 text-danger"
       aria-hidden="true"
@@ -33,7 +36,7 @@ import Button from './ui/Button.astro';
     </button>
   </div>
 
-  <div class="mt-5 flex flex-col-reverse gap-2 border-t border-hairline bg-paper/60 px-5 py-4 sm:flex-row sm:justify-end">
+  <div class="relative z-10 mt-5 flex flex-col-reverse gap-2 border-t border-hairline bg-paper/60 px-5 py-4 sm:flex-row sm:justify-end">
     <Button variant="outline" size="md" data-confirmar-cancelar>Cancelar</Button>
     <Button variant="danger" size="md" data-confirmar-aceptar>Confirmar</Button>
     <Button variant="primary" size="md" data-confirmar-aceptar-ok hidden>Confirmar</Button>
@@ -69,10 +72,82 @@ import Button from './ui/Button.astro';
     }
   }
 
+  /* Barrido de brillo al abrir (una sola pasada) */
+  .dialogo-brillo {
+    background-image: linear-gradient(
+      115deg,
+      transparent 34%,
+      rgba(255, 255, 255, 0.7) 48%,
+      transparent 62%
+    );
+    background-size: 260% 100%;
+    background-repeat: no-repeat;
+  }
+
+  dialog[open] .dialogo-brillo {
+    animation: dialogo-brillo 1000ms ease-out 120ms 1 both;
+  }
+
+  @keyframes dialogo-brillo {
+    from {
+      background-position: 130% 0;
+    }
+    to {
+      background-position: -130% 0;
+    }
+  }
+
+  /* Luz que recorre el borde mientras el diálogo está abierto */
+  @supports ((mask-composite: exclude) or (-webkit-mask-composite: xor)) {
+    dialog[open] .dialogo-borde {
+      overflow: hidden;
+      padding: 1px;
+      border-radius: inherit;
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      mask-composite: exclude;
+    }
+
+    dialog[open] .dialogo-borde::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 180%;
+      aspect-ratio: 1;
+      translate: -50% -50%;
+      background: conic-gradient(
+        from 0deg,
+        transparent 0deg 296deg,
+        rgba(232, 162, 184, 0.5) 320deg,
+        rgba(238, 141, 177, 0.9) 344deg,
+        rgba(189, 63, 102, 0.95) 358deg,
+        transparent 360deg
+      );
+      animation: dialogo-recorrido 3s linear infinite;
+    }
+  }
+
+  @keyframes dialogo-recorrido {
+    to {
+      rotate: 360deg;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     dialog[open],
     dialog[open]::backdrop {
       animation: none;
+    }
+
+    .dialogo-borde,
+    .dialogo-brillo {
+      display: none;
     }
   }
 </style>

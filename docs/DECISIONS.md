@@ -7,8 +7,9 @@ Para no re-descubrir por qué el código es así. Stack/convenciones básicas en
 - **App usa el pooler** (`DATABASE_URL` vía `astro:env/server` en `src/lib/db.ts`).
   El host **directo** (`DATABASE_URL_UNPOOLED`) dio timeout (ETIMEDOUT) una vez →
   para scripts de limpieza/consulta usar **también el pooler**.
-- Scripts (`db:init`/`db:seed`) usan `DATABASE_URL_UNPOOLED ?? DATABASE_URL`; requieren
-  `source .env` en el shell (Node no carga `.env` solo).
+- Scripts (`db:init`/`db:seed`/respaldo/restauración) usan
+  `DATABASE_URL_UNPOOLED ?? DATABASE_URL`; los npm scripts cargan `.env` con
+  `node --env-file-if-exists=.env`.
 - `gastos` **no tiene columna `activo`** (soft-delete solo en `productos`).
 - `::float8`/`::int`/`::text` en todo SQL (Neon devuelve strings sin cast).
 - `sql.transaction` solo en `createVenta` (venta + items + stock en un solo paso).
@@ -34,6 +35,38 @@ Para no re-descubrir por qué el código es así. Stack/convenciones básicas en
 - UI: badge `wine` "Crédito · debe $X" en listas, "Debe" en clientas, celda
   "Por cobrar" (total global, sin filtro de mes) en la tira de KPIs de la home,
   y desglose Total → Abonado → Saldo en el tfoot del detalle.
+
+## Respaldo y exportación
+
+- **JSON completo** (`/respaldo.json` + `scripts/db-backup.mjs`): incluye clientes,
+  productos con imágenes base64, ventas, ítems, abonos y gastos; `version: 1` para poder
+  validar el formato al restaurar. No incluye `login_attempts` (efímera).
+- **Restaurar es destructivo**: `db-restore.mjs` exige `--reemplazar`, valida versión y
+  columnas, hace `TRUNCATE ... RESTART IDENTITY CASCADE` + INSERTs en una sola
+  transacción (orden por FKs). Sin `pg_dump` disponible, el JSON es la copia portable.
+- **CSV** (`/exportar/[tabla]`): allowlist explícita; separador `;` y BOM UTF-8 para
+  Excel en español; CRLF; celdas con `"`/`;`/salto de línea entre comillas; prefijo `'`
+  si empiezan con `= + - @` para evitar inyección de fórmulas. En ventas, "Abonado" es
+  `total − saldo` solo si es crédito, y "Saldo" 0 si es de contado.
+- **Privacidad**: ambos endpoints viven detrás del middleware; no se enlazan desde
+  fuera del panel. Los respaldos locales van a `backups/` (ignorado por git).
+- **Límite de Vercel**: el JSON con muchas imágenes base64 puede acercarse al tamaño
+  máximo de respuesta de una función; por eso `db:backup` (local) sigue siendo la copia
+  robusta y `/respaldo.json` el atajo desde el navegador.
+
+## Listas largas y guardas
+
+- **Paginación de 50** en ventas y gastos: el `COUNT(*)` se hace con los mismos filtros
+  y el `LIMIT/OFFSET` reemplaza el tope fijo anterior (200/300). La página se clampea
+  al total real para que `?pagina=999` no muestre una lista vacía. El header usa el
+  total real, no `lista.length`.
+- **Ventas anuladas cuentan para paginar** (son historial visible), pero no para el
+  monto facturado (`totalesVentas` las excluye); el header muestra ambos datos.
+- **Clientas con deuda no se eliminan**: el guard vive en la action (autoridad) y la UI
+  oculta el botón mostrando el saldo; el mensaje usa `formatCOP`. La FK de ventas es
+  `ON DELETE SET NULL`, así que sin el guard se perdería la asociación histórica.
+- **Stock bajo**: `countStockBajo()` (activos con `stock <= stock_minimo`) se consulta
+  en `DashboardLayout` y se pasa al `Sidebar`; el badge se oculta si es 0.
 
 ## Rate limit y security headers
 

@@ -19,6 +19,9 @@ pnpm-debug.log*
 .env
 .env.production
 
+# respaldos locales
+backups/
+
 # macOS-specific files
 .DS_Store
 

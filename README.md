@@ -74,23 +74,27 @@ Entra con la contraseña definida en `DASHBOARD_PASSWORD`.
 | `npm run db:seed`  | Inserta datos de ejemplo (**destructivo**)              |
 | `npm run db:reset` | Vacía todas las tablas (**destructivo**)                |
 | `npm run db:clean-e2e` | Borra solo los datos que crea el e2e              |
+| `npm run db:backup` | Guarda un JSON completo en `backups/` (ignorado por git) |
+| `npm run db:restore -- backups/archivo.json --reemplazar` | Restaura un respaldo (**destructivo**) |
 
 ## Estructura
 
 ```
 src/
 ├── layouts/            BaseLayout (shell HTML), DashboardLayout (sidebar + topbar), AuthLayout
-├── pages/              login, logout, index (resumen), ventas/, productos/, gastos/, clientas/, ayuda
+├── pages/              login, logout, index (resumen), ventas/ (+ recibo/), productos/, gastos/,
+│                       clientas/, respaldo, exportar/[tabla].ts, ayuda
 ├── actions/            auth, clientes, productos, ventas, gastos (+ index que re-exporta)
 ├── components/ui/      Button, Card, Badge, Input, Select, Textarea, EmptyState, PageHeader,
 │                       Alert (avisos), Toast (flash post-redirect)
-├── components/         Sidebar, Footer, Valeria, SubirImagen, ConfirmDialog (<dialog>)
-├── lib/                db.ts (Neon), auth.ts (HMAC), format.ts (COP/es-CO), flash.ts, queries/
+├── components/         Sidebar, Footer, Valeria, SubirImagen, ConfirmDialog (<dialog>), Pagination
+├── lib/                db.ts (Neon), auth.ts (HMAC), format.ts (COP/es-CO), flash.ts, csv.ts, queries/
 ├── middleware.ts       Protección de rutas + cabeceras de seguridad
 └── styles/global.css   Tailwind v4 con tokens @theme
 
 db/                     schema.sql + seed
-scripts/                db-init.ts, db-seed.ts, reset-db.mjs, e2e.sh, clean-e2e.mjs
+scripts/                db-init.ts, db-seed.ts, reset-db.mjs, e2e.sh, clean-e2e.mjs,
+                        db-backup.mjs, db-restore.mjs
 docs/                   memoria, decisiones, mapa y verificación
 ```
 
@@ -102,6 +106,11 @@ docs/                   memoria, decisiones, mapa y verificación
 - **Clientas**: ficha con su historial de compras y cuánto debe.
 - **Gastos**: CRUD por categoría.
 - **Resumen**: KPIs del mes y gráfica con Chart.js.
+- **Respaldo**: descarga completa en JSON desde `/respaldo` y exportaciones CSV por
+  módulo (`/exportar/ventas`, `gastos`, `abonos`, `clientas`, `productos`).
+- **Recibo**: comprobante imprimible por venta en `/ventas/recibo/[id]`.
+- **Listas**: paginación de 50 registros en ventas y gastos; badge de stock bajo en el
+  sidebar y bloqueo de eliminación de clientas con saldo pendiente.
 - **Ayuda**: guía paso a paso dentro del panel (`/ayuda`).
 
 Dos reglas de negocio importantes:

@@ -1,6 +1,6 @@
 ---
 import { actions, isInputError } from 'astro:actions';
-import { Ban, ArrowLeft, RotateCcw } from '@lucide/astro';
+import { Ban, ArrowLeft, Printer, RotateCcw } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 import Button from '../../components/ui/Button.astro';
@@ -78,6 +78,9 @@ const mensajeReactivar =
   >
     <Button variant="outline" href="/ventas">
       <ArrowLeft size={15} /> Volver
+    </Button>
+    <Button variant="outline" href={`/ventas/recibo/${venta.id}`}>
+      <Printer size={15} /> Recibo
     </Button>
     {
       !venta.anulada && (

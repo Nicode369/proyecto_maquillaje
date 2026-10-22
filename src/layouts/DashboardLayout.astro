@@ -6,6 +6,7 @@ import ConfirmDialog from '../components/ConfirmDialog.astro';
 import Toast from '../components/ui/Toast.astro';
 import { formatFechaLarga, hoyISO } from '../lib/format';
 import { leerFlash, borrarFlash } from '../lib/flash';
+import { countStockBajo } from '../lib/queries/productos';
 
 interface Props {
   title: string;
@@ -18,11 +19,13 @@ const fechaCapitalizada = fecha.charAt(0).toUpperCase() + fecha.slice(1);
 
 const flash = leerFlash(Astro.cookies);
 if (flash) borrarFlash(Astro.cookies);
+
+const stockBajo = await countStockBajo();
 ---
 
 <BaseLayout title={`${title} · Maquillaje`}>
   <div class="flex min-h-dvh flex-col lg:flex-row">
-    <Sidebar active={active} />
+    <Sidebar active={active} stockBajo={stockBajo} />
 
     <div class="flex min-w-0 flex-1 flex-col">
       <header
