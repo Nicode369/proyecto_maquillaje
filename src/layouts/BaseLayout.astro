@@ -17,7 +17,7 @@ const {
 const site = Astro.site ?? new URL(Astro.url.origin);
 const canonical = new URL(Astro.url.pathname, site);
 const ogImage = new URL('/og-image.jpg?v=1', site);
-const ogTitle = 'Valeria Eslava · Maquillaje';
+const ogTitle = 'Maquillaje';
 ---
 
 <!doctype html>
@@ -33,7 +33,7 @@ const ogTitle = 'Valeria Eslava · Maquillaje';
 
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="es_CO" />
-    <meta property="og:site_name" content="Valeria Eslava" />
+    <meta property="og:site_name" content="Maquillaje" />
     <meta property="og:title" content={ogTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical.href} />
@@ -42,7 +42,7 @@ const ogTitle = 'Valeria Eslava · Maquillaje';
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Flor de Valeria Eslava" />
+    <meta property="og:image:alt" content="Maquillaje" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={ogTitle} />
