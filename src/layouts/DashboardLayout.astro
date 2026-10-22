@@ -21,7 +21,7 @@ if (flash) borrarFlash(Astro.cookies);
 ---
 
 <BaseLayout title={`${title} · Valeria Eslava`}>
-  <div class="min-h-screen lg:flex">
+  <div class="flex min-h-dvh flex-col lg:flex-row">
     <Sidebar active={active} />
 
     <div class="flex min-w-0 flex-1 flex-col">
@@ -150,7 +150,9 @@ if (flash) borrarFlash(Astro.cookies);
         <slot />
       </main>
 
-      <Footer class="mt-auto border-t border-hairline px-4 py-5 sm:px-6 lg:px-8" />
+      <Footer
+        class="relative z-10 mt-auto shrink-0 border-t border-hairline px-4 pt-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-6 lg:px-8"
+      />
     </div>
   </div>
 
