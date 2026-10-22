@@ -1,43 +1,140 @@
-# Astro Starter Kit: Minimal
+# Panel de control — Maquillaje
+
+Dashboard privado en español para gestionar el emprendimiento de maquillaje de una
+amiga: ventas, productos, clientas, gastos y un resumen con indicadores. Es **solo el
+panel** (no hay web pública) y toda la interfaz y las cifras están en español de
+Colombia, con la moneda en **COP**.
+
+## Stack
+
+- **Astro 7** con `output: 'server'` + adaptador `@astrojs/vercel`
+- **Tailwind CSS 4** vía plugin `@tailwindcss/vite`
+- **Neon Postgres** con `@neondatabase/serverless` — SQL crudo en `src/lib/queries/`, sin ORM
+- **Astro Actions** (`accept: 'form'` + `astro/zod`) para todo el CRUD, con patrón PRG
+- **Auth** por cookie `httpOnly` firmada con HMAC-SHA256; el middleware protege
+  todas las rutas salvo `/login`
+- **Chart.js** en el resumen; iconos con `@lucide/astro`; tipografías con fontsource
+  (Fraunces Variable para display, Inter Variable para UI)
+- Sin frameworks de UI (React/Vue): JS vanilla en `<script>` solo donde hace falta
+
+## Requisitos
+
+- **Node ≥ 22.22**
+- Una base de datos **Neon Postgres** (o cualquier Postgres) y sus cadenas de conexión
+- CLI de Neon (`neon env pull`) y/o Vercel, opcionales pero recomendados
+
+## Puesta en marcha
 
 ```sh
-npm create astro@latest -- --template minimal
+npm install
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Crea el archivo `.env` a partir de `.env.example`. Las variables de Neon las puedes
+traer con `neon env pull`, o escribirlas a mano:
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+```sh
+DATABASE_URL="postgresql://…-pooler.region.aws.neon.tech/neondb?sslmode=require"
+DATABASE_URL_UNPOOLED="postgresql://….region.aws.neon.tech/neondb?sslmode=require"
+DASHBOARD_PASSWORD="tu-contraseña"
+SESSION_SECRET="$(openssl rand -hex 32)"
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+La app usa la URL **pooled** (`DATABASE_URL`); la directa (`DATABASE_URL_UNPOOLED`) es
+para los scripts de base de datos.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+Crea el esquema y, si quieres datos de ejemplo:
 
-Any static assets, like images, can be placed in the `public/` directory.
+```sh
+npm run db:init     # crea las tablas (db/schema.sql)
+npm run db:seed     # datos de ejemplo — NO correr sobre datos reales
+```
 
-## 🧞 Commands
+> ⚠️ `db:seed` **borra e inserta** datos de demostración. En una base que ya tiene
+> información real, **no lo ejecutes**.
 
-All commands are run from the root of the project, from a terminal:
+Levanta el servidor:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+```sh
+npm run dev         # http://localhost:4321
+```
 
-## 👀 Want to learn more?
+Entra con la contraseña definida en `DASHBOARD_PASSWORD`.
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+## Scripts
+
+| Comando            | Acción                                                  |
+| :----------------- | :------------------------------------------------------ |
+| `npm run dev`      | Servidor de desarrollo en `localhost:4321`              |
+| `npm run build`    | Build de producción para Vercel                         |
+| `npm run preview`  | Previsualiza el build en local                          |
+| `npm run check`    | `astro check` (tipos y diagnósticos)                    |
+| `npm run db:init`  | Crea el esquema en la base (`db/schema.sql`)            |
+| `npm run db:seed`  | Inserta datos de ejemplo (**destructivo**)              |
+
+## Estructura
+
+```
+src/
+├── layouts/            BaseLayout (shell HTML), DashboardLayout (sidebar + topbar), AuthLayout
+├── pages/              login, logout, index (resumen), ventas/, productos/, gastos/, clientas/, ayuda
+├── actions/            auth, clientes, productos, ventas, gastos (+ index que re-exporta)
+├── components/ui/      Button, Card, Badge, Input, Select, Textarea, EmptyState, PageHeader
+├── lib/                db.ts (Neon), auth.ts (HMAC), format.ts (COP/es-CO), queries/
+├── middleware.ts       Protección de rutas + cabeceras de seguridad
+└── styles/global.css   Tailwind v4 con tokens @theme
+
+db/                     schema.sql + seed
+scripts/                db-init.ts, db-seed.ts, e2e.sh, clean-e2e.mjs
+docs/                   memoria, decisiones, mapa y verificación
+```
+
+## Funcionalidad
+
+- **Ventas**: de contado o **a crédito** (fiadas) con registro de **abonos**. El saldo
+  de una venta fiada se calcula siempre en las consultas, nunca se almacena.
+- **Productos**: CRUD con imagen (redimensionada a JPEG y guardada en la base).
+- **Clientas**: ficha con su historial de compras y cuánto debe.
+- **Gastos**: CRUD por categoría.
+- **Resumen**: KPIs del mes y gráfica con Chart.js.
+- **Ayuda**: guía paso a paso dentro del panel (`/ayuda`).
+
+Dos reglas de negocio importantes:
+
+- **Ingresos = caja**: el indicador "Ingresos" suma solo lo **cobrado** — ventas de
+  contado más los abonos recibidos. Una venta fiada no suma ingreso hasta que se cobra;
+  "Por cobrar" muestra el saldo pendiente global.
+- **Anular ≠ borrar**: una venta anulada queda registrada en el historial y restaura el
+  stock, pero no se elimina. Se puede **reactivar** si fue un error. No hay borrado físico.
+
+## Verificación
+
+```sh
+npm run check && npm run build
+```
+
+End-to-end (requiere el dev server en `localhost:4321` y un `.env` válido; funciona con
+la base vacía):
+
+```sh
+npm run dev            # en otra terminal
+bash scripts/e2e.sh
+node scripts/clean-e2e.mjs   # limpia los residuos del e2e
+```
+
+## Despliegue en Vercel
+
+El adaptador `@astrojs/vercel` genera la salida que Vercel consume.
+
+1. Importa el repositorio en Vercel (framework **Astro**, build `npm run build`).
+2. Define las variables de entorno en el proyecto de Vercel:
+   `DATABASE_URL`, `SESSION_SECRET` y `DASHBOARD_PASSWORD`.
+3. Despliega. Antes de entregar, **cambia `DASHBOARD_PASSWORD`** por una contraseña
+   segura y genera un `SESSION_SECRET` aleatorio.
+
+## Documentación interna
+
+- `AGENTS.md` — stack, convenciones y comandos del proyecto
+- `docs/MEMORIA.md` — estado actual, pendientes y estado real de la base
+- `docs/DECISIONS.md` — decisiones técnicas y de diseño con su porqué
+- `docs/MAPA.md` — qué hace cada archivo
+- `docs/VERIFICACION.md` — flujo de verificación, e2e y fallas conocidas
