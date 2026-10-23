@@ -1,6 +1,6 @@
 ---
 import BaseLayout from './BaseLayout.astro';
-import Valeria from '../components/Valeria.astro';
+import Marca from '../components/Marca.astro';
 import Footer from '../components/Footer.astro';
 
 interface Props {
@@ -14,7 +14,7 @@ const { title = 'Iniciar sesión' } = Astro.props;
   <div class="min-h-dvh lg:grid lg:grid-cols-[1.05fr_1fr]">
     <section class="relative hidden overflow-hidden bg-espresso px-12 py-14 lg:flex lg:flex-col">
       <div>
-        <Valeria variant="auth" tono="claro" class="text-[34px]" />
+        <Marca variant="auth" tono="claro" class="text-[34px]" />
         <p class="mt-2 text-sm text-espresso-muted">Maquillaje</p>
       </div>
 
@@ -119,7 +119,7 @@ const { title = 'Iniciar sesión' } = Astro.props;
 
       <div class="entrada w-full max-w-[380px]">
         <div class="mb-7 text-center lg:hidden">
-          <Valeria variant="auth" class="justify-center text-[30px]" />
+          <Marca variant="auth" class="justify-center text-[30px]" />
           <p class="mt-2 text-sm text-ink/75">Maquillaje</p>
         </div>
 

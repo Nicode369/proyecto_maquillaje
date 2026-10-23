@@ -4,7 +4,7 @@ import vercel from '@astrojs/vercel';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  site: 'https://proyecto-maquillaje.vercel.app',
+  site: process.env.SITE_URL || 'https://proyecto-maquillaje.vercel.app',
   output: 'server',
   adapter: vercel(),
   vite: {
@@ -19,6 +19,23 @@ export default defineConfig({
       }),
       SESSION_SECRET: envField.string({ context: 'server', access: 'secret' }),
       DASHBOARD_PASSWORD: envField.string({ context: 'server', access: 'secret' }),
+      BRAND_NAME: envField.string({
+        context: 'server',
+        access: 'secret',
+        optional: true,
+        default: 'Valeria Eslava',
+      }),
+      DEMO_MODE: envField.boolean({
+        context: 'server',
+        access: 'secret',
+        optional: true,
+        default: false,
+      }),
+      SITE_URL: envField.string({
+        context: 'server',
+        access: 'secret',
+        optional: true,
+      }),
     },
   },
 });

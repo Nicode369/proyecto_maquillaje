@@ -1,0 +1,39 @@
+---
+import { getMarca } from '../lib/marca';
+
+interface Props {
+  variant?: 'sidebar' | 'auth';
+  tono?: 'tinta' | 'claro';
+  class?: string;
+}
+
+const {
+  variant = 'sidebar',
+  tono = 'tinta',
+  class: className = '',
+} = Astro.props;
+
+const { resto, ultima } = getMarca();
+---
+
+<span class:list={['inline-flex items-center gap-2.5', className]}>
+  <img
+    src="/logo.svg"
+    alt=""
+    class:list={[
+      'shrink-0',
+      variant === 'sidebar' ? 'h-6 w-6' : 'h-9 w-9',
+    ]}
+    aria-hidden="true"
+  />
+  <span
+    class:list={[
+      'font-display italic leading-none',
+      tono === 'claro' ? 'text-paper' : 'text-ink',
+    ]}
+    style="font-variation-settings: 'opsz' 144, 'wght' 560, 'SOFT' 40, 'WONK' 1;"
+  >
+    {resto && <span>{resto} </span>}
+    <span class={tono === 'claro' ? 'text-rose' : 'text-wine'}>{ultima}</span>
+  </span>
+</span>
