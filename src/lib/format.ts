@@ -4,6 +4,14 @@ const copFormatter = new Intl.NumberFormat('es-CO', {
   maximumFractionDigits: 0,
 });
 
+const copCompactFormatter = new Intl.NumberFormat('es-CO', {
+  style: 'currency',
+  currency: 'COP',
+  notation: 'compact',
+  maximumFractionDigits: 1,
+  minimumFractionDigits: 0,
+});
+
 const longDateFormatter = new Intl.DateTimeFormat('es-CO', {
   weekday: 'long',
   day: 'numeric',
@@ -24,6 +32,15 @@ const monthNameFormatter = new Intl.DateTimeFormat('es-CO', {
 
 export function formatCOP(amount: number): string {
   return copFormatter.format(Math.round(amount));
+}
+
+/**
+ * Cifra abreviada para tarjetas estrechas: $1,2 M en vez de $1.234.567.
+ * Por debajo del millón conserva el valor completo.
+ */
+export function formatCOPCompacto(amount: number): string {
+  const valor = Math.round(amount);
+  return Math.abs(valor) >= 1_000_000 ? copCompactFormatter.format(valor) : formatCOP(valor);
 }
 
 export function formatFechaLarga(date: Date | string): string {

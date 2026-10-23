@@ -15,7 +15,13 @@ import {
   topProductos,
   ultimasVentas,
 } from '../lib/queries/reportes';
-import { formatCOP, formatFechaCorta, formatMes, mesISO } from '../lib/format';
+import {
+  formatCOP,
+  formatCOPCompacto,
+  formatFechaCorta,
+  formatMes,
+  mesISO,
+} from '../lib/format';
 
 const mes = Astro.url.searchParams.get('mes')?.trim() || mesISO();
 
@@ -83,15 +89,18 @@ const deltas: { label: string; valor: number; d: { pct: number | null; texto: st
   >
     {
       deltas.map(({ label, valor, d, buenSube, hero }) => (
-        <div class:list={['p-5', hero && 'lg:col-span-2']}>
+        <div class:list={['min-w-0 p-5', hero && 'lg:col-span-2']}>
           <p class="text-xs tracking-wide text-ink-muted uppercase">{label}</p>
           <p
             class:list={[
-              'display-number mt-1',
-              hero ? 'text-[32px] text-wine' : 'text-2xl text-ink',
+              'display-number mt-1 min-w-0 tabular-nums',
+              hero
+                ? 'text-[clamp(1.8rem,6vw,2.9rem)] leading-[0.95] text-wine break-words'
+                : 'text-[clamp(1.4rem,4vw,2rem)] leading-tight text-ink break-words',
             ]}
+            title={formatCOP(valor)}
           >
-            {formatCOP(valor)}
+            {formatCOPCompacto(valor)}
           </p>
           <p class:list={['mt-1 flex items-center gap-1 text-[12px]', tonoDelta({ ...d, buenSube })]}>
             {d.pct !== null && d.pct !== 0 &&
@@ -101,31 +110,38 @@ const deltas: { label: string; valor: number; d: { pct: number | null; texto: st
         </div>
       ))
     }
-    <div class="p-5">
+    <div class="min-w-0 p-5">
       <p class="text-xs tracking-wide text-ink-muted uppercase">Ventas</p>
-      <p class="display-number mt-1 text-2xl text-ink">{kpis.nVentas}</p>
+      <p class="display-number mt-1 min-w-0 text-[clamp(1.4rem,4vw,2rem)] leading-tight text-ink tabular-nums break-words">
+        {kpis.nVentas}
+      </p>
       <p class:list={['mt-1 flex items-center gap-1 text-[12px]', tonoDelta({ ...dVentas, buenSube: true })]}>
         {dVentas.pct !== null && dVentas.pct !== 0 &&
           (dVentas.pct > 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />)}
         {dVentas.texto}
       </p>
     </div>
-    <div class="p-5">
+    <div class="min-w-0 p-5">
       <p class="text-xs tracking-wide text-ink-muted uppercase">Ticket promedio</p>
-      <p class="display-number mt-1 text-2xl text-ink">
-        {formatCOP(kpis.ticketPromedio)}
+      <p
+        class="display-number mt-1 min-w-0 text-[clamp(1.4rem,4vw,2rem)] leading-tight text-ink tabular-nums break-words"
+        title={formatCOP(kpis.ticketPromedio)}
+      >
+        {formatCOPCompacto(kpis.ticketPromedio)}
       </p>
       <p class="mt-1 text-[12px] text-ink-muted">por venta</p>
     </div>
-    <div class="p-5">
+    <div class="min-w-0 p-5">
       <p class="text-xs tracking-wide text-ink-muted uppercase">Por cobrar</p>
       <p
         class:list={[
-          'display-number mt-1 text-2xl',
+          'display-number mt-1 min-w-0 tabular-nums break-words',
+          'text-[clamp(1.4rem,4vw,2rem)] leading-tight',
           cobrar > 0 ? 'text-ochre' : 'text-ink',
         ]}
+        title={formatCOP(cobrar)}
       >
-        {formatCOP(cobrar)}
+        {formatCOPCompacto(cobrar)}
       </p>
       <p class="mt-1 text-[12px] text-ink-muted">total fiado · todas las ventas a crédito</p>
     </div>
@@ -213,7 +229,9 @@ const deltas: { label: string; valor: number; d: { pct: number | null; texto: st
                     {c.compras} {c.compras === 1 ? 'compra' : 'compras'}
                   </p>
                 </a>
-                <p class="num font-display text-sm">{formatCOP(c.gasto)}</p>
+                <p class="num min-w-0 text-right font-display text-sm break-words">
+                  {formatCOP(c.gasto)}
+                </p>
               </li>
             ))}
           </ul>
@@ -239,7 +257,9 @@ const deltas: { label: string; valor: number; d: { pct: number | null; texto: st
                     {p.unidades} {p.unidades === 1 ? 'unidad' : 'unidades'}
                   </p>
                 </div>
-                <p class="num font-display text-sm">{formatCOP(p.ingresos)}</p>
+                <p class="num min-w-0 text-right font-display text-sm break-words">
+                  {formatCOP(p.ingresos)}
+                </p>
               </li>
             ))}
           </ul>
@@ -278,7 +298,9 @@ const deltas: { label: string; valor: number; d: { pct: number | null; texto: st
                   <p class="text-xs text-ink-muted">{formatFechaCorta(v.fecha)}</p>
                 </div>
                 {v.anulada && <Badge tone="danger">Anulada</Badge>}
-                <p class="num font-display text-sm">{formatCOP(v.total)}</p>
+                <p class="num min-w-0 text-right font-display text-sm break-words">
+                  {formatCOP(v.total)}
+                </p>
               </a>
             </li>
           ))}
