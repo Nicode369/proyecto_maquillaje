@@ -6,6 +6,7 @@ import ConfirmDialog from '../components/ConfirmDialog.astro';
 import Toast from '../components/ui/Toast.astro';
 import { formatFechaLarga, hoyISO } from '../lib/format';
 import { leerFlash, borrarFlash } from '../lib/flash';
+import { ES_DEMO } from '../lib/demo';
 import { countStockBajo } from '../lib/queries/productos';
 
 interface Props {
@@ -62,6 +63,14 @@ const stockBajo = await countStockBajo();
         <p class="text-[13px] font-medium text-ink">{title}</p>
         <p class="ml-auto hidden text-[13px] text-ink/75 sm:block">{fechaCapitalizada}</p>
       </header>
+
+      {
+        ES_DEMO && (
+          <div class="border-b border-wine/15 bg-blush/70 px-4 py-1.5 text-center text-[11px] font-medium tracking-wide text-ink/75 sm:px-6">
+            Modo demo · datos ficticios
+          </div>
+        )
+      }
 
       <main class="relative isolate mx-auto w-full max-w-[1120px] flex-1 px-4 py-7 sm:px-6 lg:px-8 lg:py-9">
         <div

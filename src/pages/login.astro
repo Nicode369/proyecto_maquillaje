@@ -5,6 +5,7 @@ import Button from '../components/ui/Button.astro';
 import Input from '../components/ui/Input.astro';
 import Alert from '../components/ui/Alert.astro';
 import { ponerFlash } from '../lib/flash';
+import { ES_DEMO } from '../lib/demo';
 
 const resultado = Astro.getActionResult(actions.auth.login);
 if (resultado && !resultado.error) {
@@ -12,55 +13,93 @@ if (resultado && !resultado.error) {
   return Astro.redirect('/');
 }
 
+const resultadoDemo = Astro.getActionResult(actions.auth.entrarDemo);
+if (resultadoDemo && !resultadoDemo.error) {
+  ponerFlash(Astro.cookies, { tipo: 'success', texto: 'Sesión iniciada' });
+  return Astro.redirect('/');
+}
+
 const erroresCampos = isInputError(resultado?.error) ? resultado.error.fields : {};
 const errorGeneral =
   resultado?.error && !isInputError(resultado.error) ? resultado.error.message : null;
+const errorDemo = resultadoDemo?.error?.message ?? null;
 ---
 
-<AuthLayout>
+<AuthLayout title={ES_DEMO ? 'Entrar al demo' : 'Iniciar sesión'}>
   <div
     class="overflow-hidden rounded-xl border border-hairline bg-surface shadow-[0_10px_30px_-12px_rgba(42,27,32,0.22)]"
   >
     <div class="h-1.5 w-full bg-gradient-to-r from-wine via-pink to-rose" aria-hidden="true"></div>
 
-    <form method="POST" action={actions.auth.login} class="space-y-5 px-5 py-7 sm:px-7">
-      <div class="entrada-item space-y-1.5" style="--delay: 0.05s">
-        <h1
-          class="display-number text-[26px] leading-tight text-ink"
-          style="font-variation-settings: 'opsz' 90;"
-        >
-          Bienvenida de nuevo
-        </h1>
-        <p class="text-sm text-ink-muted">
-          Escribe tu contraseña para entrar al panel.
-        </p>
-        <div class="mt-3 h-px w-14 bg-rose"></div>
-      </div>
+    {
+      ES_DEMO ? (
+        <div class="px-5 py-7 sm:px-7">
+          <div class="entrada-item space-y-1.5" style="--delay: 0.05s">
+            <p class="text-[11px] font-medium uppercase tracking-[0.2em] text-wine">Demo</p>
+            <h1
+              class="display-number text-[26px] leading-tight text-ink"
+              style="font-variation-settings: 'opsz' 90;"
+            >
+              Panel de maquillaje
+            </h1>
+            <p class="text-sm text-ink-muted">
+              Explora ventas, inventario, clientas y gastos con datos de ejemplo.
+            </p>
+            <div class="mt-3 h-px w-14 bg-rose"></div>
+          </div>
 
-      {
-        errorGeneral && (
-          <Alert variant="danger" compact class="entrada-item" style="--delay: 0.1s">
-            {errorGeneral}
-          </Alert>
-        )
-      }
+          {errorDemo && (
+            <Alert variant="danger" compact class="entrada-item mt-5" style="--delay: 0.1s">
+              {errorDemo}
+            </Alert>
+          )}
 
-      <div class="entrada-item" style="--delay: 0.15s">
-        <Input
-          name="password"
-          label="Contraseña"
-          type="password"
-          size="lg"
-          autocomplete="current-password"
-          placeholder="••••••••"
-          error={erroresCampos.password?.[0]}
-          autofocus
-        />
-      </div>
+          <form
+            method="POST"
+            action={actions.auth.entrarDemo}
+            class="entrada-item mt-6"
+            style="--delay: 0.15s"
+          >
+            <Button type="submit" size="lg" class="w-full">Entrar al demo</Button>
+          </form>
+        </div>
+      ) : (
+        <form method="POST" action={actions.auth.login} class="space-y-5 px-5 py-7 sm:px-7">
+          <div class="entrada-item space-y-1.5" style="--delay: 0.05s">
+            <h1
+              class="display-number text-[26px] leading-tight text-ink"
+              style="font-variation-settings: 'opsz' 90;"
+            >
+              Bienvenida de nuevo
+            </h1>
+            <p class="text-sm text-ink-muted">Escribe tu contraseña para entrar al panel.</p>
+            <div class="mt-3 h-px w-14 bg-rose"></div>
+          </div>
 
-      <div class="entrada-item" style="--delay: 0.22s">
-        <Button type="submit" size="lg" class="w-full">Entrar al panel</Button>
-      </div>
-    </form>
+          {errorGeneral && (
+            <Alert variant="danger" compact class="entrada-item" style="--delay: 0.1s">
+              {errorGeneral}
+            </Alert>
+          )}
+
+          <div class="entrada-item" style="--delay: 0.15s">
+            <Input
+              name="password"
+              label="Contraseña"
+              type="password"
+              size="lg"
+              autocomplete="current-password"
+              placeholder="••••••••"
+              error={erroresCampos.password?.[0]}
+              autofocus
+            />
+          </div>
+
+          <div class="entrada-item" style="--delay: 0.22s">
+            <Button type="submit" size="lg" class="w-full">Entrar al panel</Button>
+          </div>
+        </form>
+      )
+    }
   </div>
 </AuthLayout>

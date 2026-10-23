@@ -1,6 +1,7 @@
 import { defineAction, ActionError } from 'astro:actions';
 import { z } from 'astro/zod';
 import { DASHBOARD_PASSWORD } from 'astro:env/server';
+import { ES_DEMO } from '../lib/demo';
 import {
   SESSION_COOKIE,
   contrasenasIguales,
@@ -60,6 +61,22 @@ export const auth = {
       }
 
       await sql`DELETE FROM login_attempts WHERE ip = ${ip}`;
+      context.cookies.set(SESSION_COOKIE, await firmarSesion(), opcionesCookie());
+      return { ok: true };
+    },
+  }),
+
+  entrarDemo: defineAction({
+    accept: 'form',
+    input: z.object({}),
+    handler: async (_input, context) => {
+      if (!ES_DEMO) {
+        throw new ActionError({
+          code: 'NOT_FOUND',
+          message: 'No disponible.',
+        });
+      }
+
       context.cookies.set(SESSION_COOKIE, await firmarSesion(), opcionesCookie());
       return { ok: true };
     },
