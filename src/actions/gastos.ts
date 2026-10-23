@@ -1,6 +1,8 @@
 import { defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
 import { exigirSesion } from './sesion';
+import { fechaISO } from './campos';
+import { fallo } from '../lib/errores';
 import {
   createGasto,
   deleteGasto,
@@ -9,7 +11,7 @@ import {
 } from '../lib/queries/gastos';
 
 const esquemaGasto = z.object({
-  fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha no válida'),
+  fecha: fechaISO,
   categoria: z.string().trim().min(1, 'Elige una categoría').max(40),
   descripcion: z
     .string()
@@ -38,9 +40,7 @@ export const gastos = {
     handler: async (input, context) => {
       await exigirSesion(context);
       const existente = await getGasto(input.id);
-      if (!existente) {
-        throw new Error('El gasto ya no existe.');
-      }
+      if (!existente) fallo('El gasto ya no existe.', 'NOT_FOUND');
       await updateGasto(input.id, input);
       return { id: input.id };
     },

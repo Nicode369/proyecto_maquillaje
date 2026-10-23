@@ -1,6 +1,7 @@
 import { defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
 import { exigirSesion } from './sesion';
+import { fallo } from '../lib/errores';
 import { capitalizarNombre, formatCOP } from '../lib/format';
 import {
   createCliente,
@@ -56,9 +57,7 @@ export const clientes = {
     handler: async (input, context) => {
       await exigirSesion(context);
       const existente = await getCliente(input.id);
-      if (!existente) {
-        throw new Error('La clienta ya no existe.');
-      }
+      if (!existente) fallo('La clienta ya no existe.', 'NOT_FOUND');
       await updateCliente(input.id, limpiar(input));
       return { id: input.id };
     },
@@ -72,8 +71,9 @@ export const clientes = {
       const existente = await getCliente(input.id);
       if (!existente) return { ok: true };
       if (existente.saldo > 0) {
-        throw new Error(
+        fallo(
           `No se puede eliminar a ${existente.nombre}: tiene un saldo pendiente de ${formatCOP(existente.saldo)}. Registra el abono antes de eliminarla.`,
+          'CONFLICT',
         );
       }
       await deleteCliente(input.id);

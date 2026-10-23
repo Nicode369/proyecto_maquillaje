@@ -30,6 +30,7 @@ src/
 │   ├── index.ts             Exporta `server` = { auth, clientes, gastos, productos, ventas }
 │   ├── auth.ts              Login con rate limit por IP (login_attempts, 5/15 min; ver DECISIONS)
 │   ├── sesion.ts            exigirSesion(): guard de actions (ActionError UNAUTHORIZED)
+│   ├── campos.ts            Esquema zod compartido `fechaISO` (calendario real)
 │   ├── clientes.ts          crear/actualizar/eliminar (bloquea si saldo > 0)
 │   ├── productos.ts         CRUD + campo `imagen` (zod data-URL) + limpiar()
 │   ├── ventas.ts            crear (transacción, credito) + anular (guard abonos) + reactivar + registrarAbono
@@ -53,6 +54,8 @@ src/
 │   ├── auth.ts              firmarSesion/verificarSesion (HMAC), opcionesCookie, SESSION_COOKIE
 │   ├── flash.ts             Mensajes flash post-redirect (cookie httpOnly 60s) + leerFlash/borrarFlash
 │   ├── format.ts            COP (Intl es-CO sin decimales), fechas es-CO
+│   ├── fechas.ts            esFechaISO(): valida fechas reales del calendario
+│   ├── errores.ts           fallo(mensaje, código): ActionError 400/404/409
 │   ├── csv.ts               CSV con BOM, separador ;, CRLF, escape y anti-fórmulas
 │   └── queries/             SQL crudo, uno por módulo:
 │       ├── types.ts         Tipos de filas (+Abono; Venta con credito/saldo; ClienteResumen con saldo)
@@ -68,6 +71,7 @@ src/
 
 db/
 ├── schema.sql               CREATE TABLEs (7: +abonos, login_attempts) + ALTER (productos.imagen, ventas.credito)
+│                            + CHECKs (stock/montos no negativos) + índices (fechas, producto, IP)
 scripts/
 ├── db-init.ts               Aplica schema.sql (requiere .env + source)
 ├── db-seed.ts               Inserta datos de prueba (⚠️ no corre sin confirmar: duplicaría datos)

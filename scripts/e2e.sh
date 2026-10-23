@@ -150,7 +150,7 @@ raise SystemExit(0 if ok_ing and ok_cob else 1)" \
 c=$(curl -s -b $J -o /dev/null -w "%{http_code}" -X POST "$BASE/ventas/$VID2?_action=ventas.registrarAbono" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   --data-urlencode "venta_id=$VID2" --data-urlencode "fecha=$FECHA" --data-urlencode "monto=999999" --data-urlencode "notas=")
-[ "$c" = "500" ] && pass "abono mayor al saldo → 500" || fail "abono excesivo → $c (esperado 500)"
+[ "$c" = "409" ] && pass "abono mayor al saldo → 409" || fail "abono excesivo → $c (esperado 409)"
 c=$(curl -s -b $J -o $D/anular-credito.txt -w "%{http_code}" -X POST "$BASE/ventas/$VID2?_action=ventas.anular" \
   -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "id=$VID2")
 grep -qi "abonos" $D/anular-credito.txt && pass "anular con abonos → bloqueada" || fail "anular con abonos no bloqueada ($c)"
@@ -160,6 +160,11 @@ c=$(curl -s -b $J -o $D/crear-g.txt -w "%{http_code}" -X POST "$BASE/gastos/nuev
   -H "Content-Type: application/x-www-form-urlencoded" \
   --data-urlencode "fecha=$FECHA" --data-urlencode "categoria=Insumos" --data-urlencode "descripcion=E2E Gasto Temp" --data-urlencode "monto=55000")
 case $c in 200|302) pass "gastos.crear → $c";; *) fail "gastos.crear → $c";; esac
+# Fecha imposible: el formato es correcto pero el día no existe → 400, no 500.
+c=$(curl -s -b $J -o $D/gasto-fecha.txt -w "%{http_code}" -X POST "$BASE/gastos/nuevo?_action=gastos.crear" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "fecha=2026-02-31" --data-urlencode "categoria=Insumos" --data-urlencode "descripcion=E2E Fecha Imposible" --data-urlencode "monto=1000")
+[ "$c" = "400" ] && pass "gasto con fecha imposible → 400" || fail "fecha imposible → $c (esperado 400)"
 GID=$(curl -s -b $J "$BASE/gastos?q=E2E" | grep -oE '/gastos/[0-9a-f-]{36}/editar' | head -1 | sed -E 's#/gastos/([0-9a-f-]{36}).*#\1#')
 [ -n "$GID" ] && pass "gasto creado y visible" || { GID=$(curl -s -b $J "$BASE/gastos" | grep -oE '/gastos/[0-9a-f-]{36}/editar' | head -1 | sed -E 's#/gastos/([0-9a-f-]{36}).*#\1#'); [ -n "$GID" ] && pass "gasto creado (sin q)" || fail "gasto no aparece"; }
 

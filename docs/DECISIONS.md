@@ -14,6 +14,25 @@ Para no re-descubrir por qué el código es así. Stack/convenciones básicas en
 - `::float8`/`::int`/`::text` en todo SQL (Neon devuelve strings sin cast).
 - `sql.transaction` solo en `createVenta` (venta + items + stock en un solo paso).
 
+## Integridad de datos y errores
+
+- **Stock atómico**: `productos.stock` tiene `CHECK (stock >= 0)`. La venta descuenta
+  sin `WHERE stock >= cantidad`; si otra venta dejó el stock corto, el CHECK aborta
+  **toda** la transacción (antes la venta se guardaba y el `UPDATE` no descontaba nada).
+  La violación del CHECK se traduce a **409** con mensaje claro (probado con dos ventas
+  simultáneas: una 302, otra 409 y stock correcto).
+- **Anular/reactivar en una sola sentencia**: CTE que actualiza la venta y, solo si
+  cambió de estado (`NOT anulada` / `anulada`), ajusta el stock con `RETURNING`.
+  Un doble click ya no restaura/descuenta dos veces.
+- **Abonos sin sobrepago**: `pg_advisory_xact_lock(hashtext(venta_id))` serializa los
+  abonos de una misma venta y el `INSERT ... SELECT` revalida el saldo dentro de la
+  transacción. Antes la validación quedaba fuera del INSERT (carrera con doble submit).
+- **Fechas**: `src/lib/fechas.ts` valida que la fecha exista en el calendario
+  (`2026-02-31` ya no llega a Postgres como error 500).
+- **Errores de negocio con su HTTP**: `src/lib/errores.ts` (`fallo()`) lanza
+  `ActionError` → 400 datos inválidos, 404 no existe, 409 conflicto (stock, saldo,
+  venta anulada). El 500 queda solo para fallos reales del servidor.
+
 ## Crédito y abonos (ventas fiadas)
 
 - `ventas.credito boolean` + tabla `abonos (venta_id FK CASCADE, fecha, monto>0, notas)`.

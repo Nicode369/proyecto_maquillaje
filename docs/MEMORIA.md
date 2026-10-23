@@ -1,7 +1,7 @@
 # Memoria — estado actual del proyecto
 
-> Última actualización: 2026-10-22 — pulido de entrega: contraste del login, e2e en
-> verde, `robots.txt`/noindex y respaldo probado con datos; DB vacía.
+> Última actualización: 2026-10-22 — integridad de datos (stock/abonos/fechas y
+> errores 400/404/409), e2e en verde (0 fallos) y DB vacía.
 
 ## Entrega
 
@@ -45,6 +45,11 @@
 - **Recibo imprimible**: `/ventas/recibo/[id]` con `@media print` y botón en el detalle.
 - **Guardas**: no se elimina una clienta con saldo pendiente; badge de stock bajo en el
   sidebar desde `countStockBajo()`.
+- **Integridad** (2026-10-22): stock con `CHECK (stock >= 0)` y descuento atómico;
+  anular/reactivar con CTE (sin doble ajuste); abonos serializados por venta
+  (`pg_advisory_xact_lock` + INSERT condicional); fechas de calendario validadas;
+  errores de negocio con 400/404/409 (`src/lib/errores.ts`); índices nuevos
+  (`login_attempts`, `abonos.fecha`, `venta_items.producto_id`, `gastos.categoria`).
 - **Pulido de entrega** (2026-10-22): wordmark del login desktop con `tono="claro"`
   (paper + rose sobre espresso; Lighthouse a11y **100**), `robots.txt` + `X-Robots-Tag:
   noindex, nofollow` en todas las respuestas, y e2e actualizado a la guarda de clientas
@@ -58,13 +63,14 @@
   `/respaldo.json` 200 JSON; los 5 CSV 200; tabla inválida y recibo inexistente 404.
 - `npm run db:backup` y `db:restore --reemplazar` probados dos veces: con DB vacía y
   con datos (restaura conteos, totales y abonos sin pérdida).
-- e2e completo: **0 fallos** (2026-10-22, incluye la guarda de clientas con saldo).
-- DB tras pruebas: 0/0/0/0/0 y `login_attempts` vacía.
+- e2e completo: **0 fallos** (2026-10-22; incluye stock/abonos, fecha imposible → 400,
+  abono excesivo → 409, anular con abonos bloqueado y guarda de clientas con saldo).
+- DB tras pruebas: 0/0/0/0/0/0 (incluye `login_attempts` vacía).
 
 ## Pendientes (propuestos, esperando decisión — opcionales)
 
 1. **Sincronizar `DASHBOARD_PASSWORD` local**: Vercel ya tiene la nueva, `.env` no.
-2. **Integridad**: stock/anulación atómicos, validación real de fechas, editar/eliminar
-   abonos, costo congelado en `venta_items` (ganancia real).
+2. **Abonos editables**: editar/eliminar un abono (hoy solo se registran) y costo
+   congelado en `venta_items` para ganancia real.
 3. Futuro: imágenes a Vercel Blob + thumbnails, migraciones, CI, backups automáticos,
    multi-usuario, PWA offline.

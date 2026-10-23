@@ -1,6 +1,7 @@
 import { defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
 import { exigirSesion } from './sesion';
+import { fallo } from '../lib/errores';
 import {
   createProducto,
   deleteProducto,
@@ -69,9 +70,7 @@ export const productos = {
     handler: async (input, context) => {
       await exigirSesion(context);
       const existente = await getProducto(input.id);
-      if (!existente) {
-        throw new Error('El producto ya no existe.');
-      }
+      if (!existente) fallo('El producto ya no existe.', 'NOT_FOUND');
       await updateProducto(input.id, limpiar(input));
       return { id: input.id };
     },

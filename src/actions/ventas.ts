@@ -1,6 +1,8 @@
 import { defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
 import { exigirSesion } from './sesion';
+import { fechaISO } from './campos';
+import { fallo } from '../lib/errores';
 import { listClientes } from '../lib/queries/clientes';
 import {
   anularVenta,
@@ -23,7 +25,7 @@ const esquemaLinea = z.object({
 });
 
 const esquemaVenta = z.object({
-  fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha no válida'),
+  fecha: fechaISO,
   cliente_id: z.uuid('Clienta no válida').nullable(),
   metodo_pago: z.string().trim().min(1, 'Elige un método de pago').max(30),
   descuento: z.coerce
@@ -57,15 +59,16 @@ export const ventas = {
       await exigirSesion(context);
 
       if (input.credito && !input.cliente_id) {
-        throw new Error(
+        fallo(
           'Si la venta es a crédito, elige la clienta que queda pendiente.',
+          'BAD_REQUEST',
         );
       }
 
       if (input.cliente_id) {
         const clientas = await listClientes();
         if (!clientas.some((c) => c.id === input.cliente_id)) {
-          throw new Error('La clienta seleccionada ya no existe.');
+          fallo('La clienta seleccionada ya no existe.', 'NOT_FOUND');
         }
       }
 
@@ -94,15 +97,12 @@ export const ventas = {
     handler: async (input, context) => {
       await exigirSesion(context);
       const venta = await getVenta(input.id);
-      if (!venta) {
-        throw new Error('La venta ya no existe.');
-      }
-      if (venta.anulada) {
-        throw new Error('Esta venta ya está anulada.');
-      }
+      if (!venta) fallo('La venta ya no existe.', 'NOT_FOUND');
+      if (venta.anulada) fallo('Esta venta ya está anulada.', 'CONFLICT');
       if (venta.abonos.length > 0) {
-        throw new Error(
+        fallo(
           'Esta venta tiene abonos registrados y no se puede anular. Si el pago se anuló por error, ajusta los abonos desde el detalle de la venta.',
+          'CONFLICT',
         );
       }
       await anularVenta(input.id);
@@ -116,12 +116,8 @@ export const ventas = {
     handler: async (input, context) => {
       await exigirSesion(context);
       const venta = await getVenta(input.id);
-      if (!venta) {
-        throw new Error('La venta ya no existe.');
-      }
-      if (!venta.anulada) {
-        throw new Error('Esta venta no está anulada.');
-      }
+      if (!venta) fallo('La venta ya no existe.', 'NOT_FOUND');
+      if (!venta.anulada) fallo('Esta venta no está anulada.', 'CONFLICT');
       await reactivarVenta(input.id);
       return { ok: true };
     },
@@ -131,7 +127,7 @@ export const ventas = {
     accept: 'form',
     input: z.object({
       venta_id: z.uuid('Identificador no válido'),
-      fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha no válida'),
+      fecha: fechaISO,
       monto: z.coerce
         .number({ message: 'El monto debe ser un número' })
         .min(0.01, 'El monto debe ser mayor a cero'),

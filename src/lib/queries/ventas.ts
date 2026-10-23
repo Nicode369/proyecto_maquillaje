@@ -1,4 +1,6 @@
 import { sql } from '../db';
+import { fallo } from '../errores';
+import { formatCOP } from '../format';
 import type { Abono, LineaVentaInput, Venta, VentaCompleta, VentaItem } from './types';
 
 export interface FiltroVentas {
@@ -176,6 +178,16 @@ export async function listVentasDeCliente(clienteId: string): Promise<Venta[]> {
   return rows as unknown as FilaVenta[];
 }
 
+/** true si el CHECK de stock abortó la transacción (venta concurrente). */
+function esStockInsuficiente(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'constraint' in error &&
+    (error as { constraint?: unknown }).constraint === 'productos_stock_no_negativo'
+  );
+}
+
 export async function createVenta(data: {
   fecha: string;
   clienteId: string | null;
@@ -186,20 +198,21 @@ export async function createVenta(data: {
   items: LineaVentaInput[];
 }): Promise<string> {
   if (data.items.length === 0) {
-    throw new Error('La venta necesita al menos un producto o servicio.');
+    fallo('La venta necesita al menos un producto o servicio.', 'BAD_REQUEST');
   }
 
   for (const item of data.items) {
     if (item.cantidad < 1) {
-      throw new Error(`Cantidad inválida en "${item.descripcion}".`);
+      fallo(`Cantidad inválida en "${item.descripcion}".`, 'BAD_REQUEST');
     }
     if (item.productoId) {
       const [row] = await sql`
         SELECT stock FROM productos WHERE id = ${item.productoId} AND activo`;
-      if (!row) throw new Error(`El producto de "${item.descripcion}" ya no está disponible.`);
+      if (!row) fallo(`El producto de "${item.descripcion}" ya no está disponible.`, 'NOT_FOUND');
       if (row.stock < item.cantidad) {
-        throw new Error(
+        fallo(
           `Stock insuficiente: solo quedan ${row.stock} de "${item.descripcion}".`,
+          'CONFLICT',
         );
       }
     }
@@ -207,7 +220,7 @@ export async function createVenta(data: {
 
   const subtotal = data.items.reduce((sum, it) => sum + it.cantidad * it.precioUnitario, 0);
   const total = subtotal - data.descuento;
-  if (total < 0) throw new Error('El descuento supera el subtotal de la venta.');
+  if (total < 0) fallo('El descuento supera el subtotal de la venta.', 'BAD_REQUEST');
 
   const ventaId = crypto.randomUUID();
 
@@ -230,33 +243,44 @@ export async function createVenta(data: {
     ...data.items
       .filter((item) => item.productoId)
       .map(
+        // Sin guard `stock >= cantidad`: si dos ventas compiten, el CHECK
+        // `productos_stock_no_negativo` aborta la transacción completa.
         (item) => sql`
           UPDATE productos
           SET stock = stock - ${item.cantidad}
-          WHERE id = ${item.productoId} AND stock >= ${item.cantidad}`,
+          WHERE id = ${item.productoId}`,
       ),
   ];
 
-  await sql.transaction(statementList);
+  try {
+    await sql.transaction(statementList);
+  } catch (error) {
+    if (esStockInsuficiente(error)) {
+      fallo(
+        'Stock insuficiente: otra venta acaba de usar esas unidades. Revisa el inventario.',
+        'CONFLICT',
+      );
+    }
+    throw error;
+  }
   return ventaId;
 }
 
 export async function anularVenta(id: string): Promise<void> {
-  const items = (await sql`
-    SELECT producto_id, cantidad
-    FROM venta_items
-    WHERE venta_id = ${id} AND producto_id IS NOT NULL`) as unknown as {
-    producto_id: string;
-    cantidad: number;
-  }[];
-
-  await sql.transaction([
-    ...items.map(
-      (item) => sql`
-        UPDATE productos SET stock = stock + ${item.cantidad} WHERE id = ${item.producto_id}`,
-    ),
-    sql`UPDATE ventas SET anulada = true WHERE id = ${id} AND NOT anulada`,
-  ]);
+  // Una sola sentencia: el stock solo se restaura si la venta realmente
+  // pasa de activa a anulada (evita doble restauración por doble click).
+  await sql`
+    WITH anulada AS (
+      UPDATE ventas
+      SET anulada = true
+      WHERE id = ${id} AND NOT anulada
+      RETURNING id
+    )
+    UPDATE productos p
+    SET stock = stock + i.cantidad
+    FROM venta_items i
+    INNER JOIN anulada a ON a.id = i.venta_id
+    WHERE p.id = i.producto_id`;
 }
 
 export async function reactivarVenta(id: string): Promise<void> {
@@ -265,8 +289,8 @@ export async function reactivarVenta(id: string): Promise<void> {
     anulada: boolean;
   }[];
 
-  if (!venta) throw new Error('La venta ya no existe.');
-  if (!venta.anulada) throw new Error('Esta venta no está anulada.');
+  if (!venta) fallo('La venta ya no existe.', 'NOT_FOUND');
+  if (!venta.anulada) fallo('Esta venta no está anulada.', 'CONFLICT');
 
   const items = (await sql`
     SELECT producto_id, cantidad, descripcion
@@ -283,24 +307,43 @@ export async function reactivarVenta(id: string): Promise<void> {
       stock: number;
     }[];
     if (!row) {
-      throw new Error(
+      fallo(
         `No se puede reactivar: el producto de "${item.descripcion}" ya no está disponible.`,
+        'CONFLICT',
       );
     }
     if (row.stock < item.cantidad) {
-      throw new Error(
+      fallo(
         `No se puede reactivar: solo quedan ${row.stock} de "${item.descripcion}".`,
+        'CONFLICT',
       );
     }
   }
 
-  await sql.transaction([
-    ...items.map(
-      (item) => sql`
-        UPDATE productos SET stock = stock - ${item.cantidad} WHERE id = ${item.producto_id}`,
-    ),
-    sql`UPDATE ventas SET anulada = false WHERE id = ${id} AND anulada`,
-  ]);
+  // Igual que anular: el stock se descuenta solo si la venta pasa de anulada
+  // a activa. El CHECK de stock no negativo aborta todo si falta inventario.
+  try {
+    await sql`
+      WITH reactivada AS (
+        UPDATE ventas
+        SET anulada = false
+        WHERE id = ${id} AND anulada
+        RETURNING id
+      )
+      UPDATE productos p
+      SET stock = stock - i.cantidad
+      FROM venta_items i
+      INNER JOIN reactivada r ON r.id = i.venta_id
+      WHERE p.id = i.producto_id`;
+  } catch (error) {
+    if (esStockInsuficiente(error)) {
+      fallo(
+        'No se puede reactivar: el stock cambió y ya no alcanza para esta venta.',
+        'CONFLICT',
+      );
+    }
+    throw error;
+  }
 }
 
 export interface AbonoExport {
@@ -359,18 +402,51 @@ export async function registrarAbono(data: {
     pagado: number;
   }[];
 
-  if (!venta) throw new Error('La venta ya no existe.');
-  if (!venta.credito) throw new Error('Esta venta no es a crédito.');
-  if (venta.anulada) throw new Error('No se pueden registrar abonos a una venta anulada.');
+  if (!venta) fallo('La venta ya no existe.', 'NOT_FOUND');
+  if (!venta.credito) fallo('Esta venta no es a crédito.', 'BAD_REQUEST');
+  if (venta.anulada) {
+    fallo('No se pueden registrar abonos a una venta anulada.', 'CONFLICT');
+  }
 
   const saldo = venta.total - Number(venta.pagado);
   if (data.monto > saldo) {
-    throw new Error(
-      `El abono supera el saldo pendiente (${saldo > 0 ? saldo : 0}).`,
+    fallo(
+      `El abono supera el saldo pendiente (${formatCOP(Math.max(saldo, 0))}).`,
+      'CONFLICT',
     );
   }
 
-  await sql`
-    INSERT INTO abonos (venta_id, fecha, monto, notas)
-    VALUES (${data.ventaId}, ${data.fecha}, ${data.monto}, ${data.notas})`;
+  // El lock por venta serializa abonos simultáneos y el INSERT condicional
+  // vuelve a validar el saldo dentro de la misma transacción.
+  const resultados = await sql.transaction([
+    sql`SELECT pg_advisory_xact_lock(hashtext(${data.ventaId}))`,
+    sql`
+      INSERT INTO abonos (venta_id, fecha, monto, notas)
+      SELECT ${data.ventaId}, ${data.fecha}, ${data.monto}, ${data.notas}
+      WHERE ${data.monto} <= (
+        SELECT v.total - COALESCE(
+          (SELECT SUM(a.monto) FROM abonos a WHERE a.venta_id = v.id),
+          0
+        )
+        FROM ventas v
+        WHERE v.id = ${data.ventaId} AND v.credito AND NOT v.anulada
+      )
+      RETURNING id`,
+  ]);
+
+  const insertados = resultados[1] as unknown as { id: string }[];
+  if (insertados.length === 0) {
+    const [actual] = (await sql`
+      SELECT v.total::float8 AS total,
+             COALESCE((SELECT SUM(a.monto)::float8 FROM abonos a WHERE a.venta_id = v.id), 0) AS pagado
+      FROM ventas v WHERE v.id = ${data.ventaId}`) as unknown as {
+      total: number;
+      pagado: number;
+    }[];
+    const restante = actual ? Math.max(actual.total - Number(actual.pagado), 0) : 0;
+    fallo(
+      `El abono supera el saldo pendiente (${formatCOP(restante)}).`,
+      'CONFLICT',
+    );
+  }
 }

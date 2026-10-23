@@ -31,6 +31,11 @@ bash scripts/e2e.sh
   `Arriendo`) y el de la gráfica emiten **AVISO**, no FAIL, si no hay datos.
 - El check de KPIs compara **por diferencia** (línea base antes del abono → después),
   así que no falla aunque la base ya tenga datos reales.
+- Errores de negocio esperados: abono mayor al saldo → **409**, anular venta con
+  abonos → **409**, clienta con saldo → **409**, fecha imposible (`2026-02-31`) → **400**
+  (nunca 500). Si aparece un 500, revisar `astro dev logs`.
+- Si un cambio en `src/lib/` no se refleja, reiniciar el dev server (`astro dev stop` +
+  `astro dev --background`): el hot-reload puede dejar módulos cacheados.
 - El logout exige `302|303` con `Location: /login`.
 - Deja residuo: la venta E2E (anulada) permanece → correr el paso 4.
 
@@ -101,7 +106,7 @@ done
   el comprobante y `window.print()` debe abrir el diálogo.
 - `/robots.txt` debe dar 200 con `Disallow: /`, y cualquier respuesta debe llevar
   `X-Robots-Tag: noindex, nofollow`.
-- Eliminar una clienta con saldo debe devolver error con el mensaje "saldo pendiente";
+- Eliminar una clienta con saldo debe devolver **409** con el mensaje "saldo pendiente";
   una clienta sin deuda sí se elimina. El e2e cubre ambos casos.
 
 ⚠️ El login de actions es `POST /login?_action=auth.login` (a `/login`, NO a `/` —
@@ -133,6 +138,6 @@ cambios vienen de una tarea ajena.
 
 ## Estado de la DB (2026-10-22)
 
-**Vacía (0/0/0/0/0)** a propósito. No hay seed de fábrica: `scripts/db-seed.ts` existe
+**Vacía (0/0/0/0/0/0)** a propósito. No hay seed de fábrica: `scripts/db-seed.ts` existe
 como utilidad de desarrollo pero **no se corre** sin confirmar (duplicaría datos si la
 amiga ya cargó los suyos).
