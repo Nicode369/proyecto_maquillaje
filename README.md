@@ -62,11 +62,26 @@ npm run dev         # http://localhost:4321
 
 Entra con la contraseña definida en `DASHBOARD_PASSWORD`.
 
+### Entorno demo (separado de producción)
+
+El demo tiene su **propia base** y su **propio modo**. No se mezcla con `.env`:
+
+```sh
+cp .env.demo.example .env.demo   # completar con la base demo
+npm run dev:demo                 # astro dev --mode demo (carga .env.demo)
+```
+
+`npm run dev` usa `.env` (producción/local real); `npm run dev:demo` usa `.env.demo`.
+En Vercel, cada proyecto tiene sus propias variables (`DEMO_MODE=true` y
+`DEMO_RESET_DATABASE_URL` solo en el proyecto demo). `.env.local` queda reservado
+para ajustes de tu máquina y está ignorado por git.
+
 ## Scripts
 
 | Comando            | Acción                                                  |
 | :----------------- | :------------------------------------------------------ |
-| `npm run dev`      | Servidor de desarrollo en `localhost:4321`              |
+| `npm run dev`      | Servidor de desarrollo con `.env` (producción)          |
+| `npm run dev:demo` | Servidor demo con `.env.demo` (modo demo)               |
 | `npm run build`    | Build de producción para Vercel                         |
 | `npm run preview`  | Previsualiza el build en local                          |
 | `npm run check`    | `astro check` (tipos y diagnósticos)                    |
@@ -76,6 +91,7 @@ Entra con la contraseña definida en `DASHBOARD_PASSWORD`.
 | `npm run db:clean-e2e` | Borra solo los datos que crea el e2e              |
 | `npm run db:backup` | Guarda un JSON completo en `backups/` (ignorado por git) |
 | `npm run db:restore -- backups/archivo.json --reemplazar` | Restaura un respaldo (**destructivo**) |
+| `npm run demo:reset` | Recrea los datos demo con `.env.demo` (**destructivo**, solo demo) |
 
 ## Estructura
 

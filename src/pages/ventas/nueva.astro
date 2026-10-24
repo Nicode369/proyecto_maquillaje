@@ -266,11 +266,19 @@ const metodos = ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia', 'Transferencia
     sel.addEventListener('change', () => {
       const opt = sel.selectedOptions[0];
       const precio = opt?.dataset.precio;
-      const etiqueta = opt?.dataset.etiqueta;
-      if (precio) {
-        inpPrecio.value = precio;
-        if (!inpDesc.value.trim()) inpDesc.value = etiqueta ?? '';
+      const etiqueta = opt?.dataset.etiqueta ?? '';
+      const etiquetaAnterior = div.dataset.etiquetaAuto ?? '';
+      const descripcion = inpDesc.value.trim();
+
+      if (precio) inpPrecio.value = precio;
+
+      // La descripción acompaña al producto mientras no se haya escrito una
+      // propia: al cambiar de producto se reemplaza la etiqueta anterior.
+      if (!descripcion || descripcion === etiquetaAnterior) {
+        inpDesc.value = etiqueta;
       }
+      div.dataset.etiquetaAuto = etiqueta;
+
       actualizarStockAviso();
       actualizarSubtotal();
     });

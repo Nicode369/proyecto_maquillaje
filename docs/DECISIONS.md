@@ -14,6 +14,20 @@ Para no re-descubrir por qué el código es así. Stack/convenciones básicas en
 - `::float8`/`::int`/`::text` en todo SQL (Neon devuelve strings sin cast).
 - `sql.transaction` solo en `createVenta` (venta + items + stock en un solo paso).
 
+## Entornos (.env y .env.demo)
+
+- **Separados por archivo y por modo**, no con `.env.local`:
+  - `.env` → producción / local con datos reales (`npm run dev`).
+  - `.env.demo` → demo (base ficticia + `DEMO_MODE=true`; `npm run dev:demo`,
+    que ejecuta `astro dev --mode demo`).
+  - En Vercel cada proyecto tiene sus propias variables; `DEMO_MODE` y
+    `DEMO_RESET_DATABASE_URL` **solo** en el proyecto demo.
+- `.env.local` es solo para overrides de la máquina y está ignorado por git;
+  **nunca** se usa para alternar demo/producción (antes lo hacía y provocó el
+  incidente del secreto expuesto).
+- Plantillas versionadas: `.env.example` (producción) y `.env.demo.example`
+  (demo). Los archivos reales nunca se commitean.
+
 ## Integridad de datos y errores
 
 - **Stock atómico**: `productos.stock` tiene `CHECK (stock >= 0)`. La venta descuenta
@@ -207,6 +221,12 @@ Otras reglas de diseño:
 
 ## Git
 
-- `.env` **jamás** se hace stage (verificar con grep antes de cada commit).
+- **Ningún `.env` real se hace stage** (verificar con
+  `git diff --cached --name-only | grep -E '^\.env'`; solo se permiten
+  `.env.example` y `.env.demo.example`).
 - `.vercel/` está en `.gitignore` (se regenera en cada deploy); no se commitea.
 - Autor: `git -c user.name="nicode" -c user.email="nicode@users.noreply.github.com" commit …`.
+- **Historial**: `.env.local` estuvo expuesto en el repo público. Se reescribió el
+  historial con `git filter-branch --index-filter 'git rm --cached --ignore-unmatch
+  .env.local' --prune-empty -- --all` y force-push. Como el secreto ya había sido
+  público, además hay que **rotar las credenciales** (no basta con borrar el archivo).
