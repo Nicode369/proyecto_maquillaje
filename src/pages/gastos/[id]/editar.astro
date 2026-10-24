@@ -51,6 +51,7 @@ const valor = (campo: string, guardado: string | number): string =>
     method="POST"
     action={actions.gastos.actualizar}
     class="mt-6 max-w-xl space-y-4"
+    novalidate
   >
     <input type="hidden" name="id" value={gasto.id} />
 

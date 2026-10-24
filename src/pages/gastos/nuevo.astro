@@ -33,6 +33,7 @@ const errorGenerico = err && !isInputError(err) ? err.message : null;
     method="POST"
     action={actions.gastos.crear}
     class="mt-6 max-w-xl space-y-4"
+    novalidate
   >
     {
       errorGenerico && (
