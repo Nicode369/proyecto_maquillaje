@@ -26,10 +26,11 @@
   `git filter-branch` + force-push (respaldo local en
   `/tmp/opencode/repo-before-filter.bundle`, fuera del repo). Verificado:
   `git log --all -- .env.local` queda vacío y el secreto ya no aparece en ningún
-  commit. Como el secreto estuvo público, **falta rotar** la contraseña del rol
-  de la base demo en Neon y el `SESSION_SECRET` demo, y actualizar `.env.demo` +
-  el proyecto demo de Vercel. Las credenciales de producción **no** estuvieron
-  expuestas.
+  commit. Como el secreto estuvo público, se **rotó** la contraseña del rol demo
+  en Neon y el `SESSION_SECRET` demo (actualizados en `.env.demo`); **pendiente**
+  pegar la nueva `DATABASE_URL` / `DEMO_RESET_DATABASE_URL` y `SESSION_SECRET` en
+  el proyecto demo de Vercel y redeploy. El demo queda caído hasta entonces.
+  Las credenciales de producción **no** estuvieron expuestas.
 
 ### Pulido 2026-10-24 (post-incidente)
 

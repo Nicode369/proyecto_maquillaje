@@ -229,4 +229,5 @@ Otras reglas de diseño:
 - **Historial**: `.env.local` estuvo expuesto en el repo público. Se reescribió el
   historial con `git filter-branch --index-filter 'git rm --cached --ignore-unmatch
   .env.local' --prune-empty -- --all` y force-push. Como el secreto ya había sido
-  público, además hay que **rotar las credenciales** (no basta con borrar el archivo).
+  público, además se **rotó** la contraseña del rol demo y el `SESSION_SECRET`
+  demo (pendiente actualizar el proyecto demo de Vercel).
