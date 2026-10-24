@@ -217,16 +217,24 @@ export interface TopProducto {
   return rows as unknown as TopProducto[];
 }
 
-export async function porCobrar(): Promise<number> {
+export interface FiadoResumen {
+  total: number;
+  ventas: number;
+}
+
+/** Total fiado pendiente y cuántas ventas a crédito aún tienen saldo. */
+export async function porCobrar(): Promise<FiadoResumen> {
   const [row] = await sql`
-    SELECT COALESCE(
-      SUM(GREATEST(v.total - COALESCE(ab.pagado, 0), 0)), 0
-    )::float8 AS total
+    SELECT
+      COALESCE(SUM(GREATEST(v.total - COALESCE(ab.pagado, 0), 0)), 0)::float8 AS total,
+      COUNT(*) FILTER (
+        WHERE GREATEST(v.total - COALESCE(ab.pagado, 0), 0) > 0
+      )::int AS ventas
     FROM ventas v
     LEFT JOIN LATERAL (
       SELECT COALESCE(SUM(a.monto), 0)::float8 AS pagado
       FROM abonos a WHERE a.venta_id = v.id
     ) ab ON true
     WHERE v.credito AND NOT v.anulada`;
-  return Number(row.total);
+  return { total: Number(row.total), ventas: row.ventas };
 }

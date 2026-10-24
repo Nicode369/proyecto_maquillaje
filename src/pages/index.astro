@@ -55,18 +55,54 @@ const datosGrafica = {
   gastos: serie.map((p) => p.gastos),
 };
 
-function tonoDelta(valor: { pct: number | null; buenSube: boolean }): string {
-  if (valor.pct === null || valor.pct === 0) return 'text-ink-muted';
-  const sube = valor.pct > 0;
-  const bueno = sube === valor.buenSube;
-  return bueno ? 'text-sage' : 'text-danger';
+/** Clases de la píldora de variación. Literales para que Tailwind las detecte. */
+function tonoPildora(d: { pct: number | null }, buenSube: boolean): string {
+  if (d.pct === null || d.pct === 0) return 'bg-ink/5 text-ink-muted';
+  return (d.pct > 0) === buenSube ? 'bg-sage/10 text-sage' : 'bg-danger/10 text-danger';
 }
 
-const deltas: { label: string; valor: number; d: { pct: number | null; texto: string }; buenSube: boolean; hero?: boolean }[] = [
-  { label: 'Ganancia', valor: kpis.ganancia, d: dGanancia, buenSube: true, hero: true },
-  { label: 'Ingresos', valor: kpis.ingresos, d: dIngresos, buenSube: true },
-  { label: 'Gastos', valor: kpis.gastos, d: dGastos, buenSube: false },
-];
+function tonoTexto(d: { pct: number | null }, buenSube: boolean): string {
+  if (d.pct === null || d.pct === 0) return 'text-ink-muted';
+  return (d.pct > 0) === buenSube ? 'text-sage' : 'text-danger';
+}
+
+/** Sparkline SSR: línea + área de la ganancia de los últimos meses. */
+function sparkline(valores: number[]) {
+  const ancho = 240;
+  const alto = 56;
+  const margen = 6;
+  const min = Math.min(...valores, 0);
+  const max = Math.max(...valores, 0);
+  const rango = max - min || 1;
+  const paso = valores.length > 1 ? ancho / (valores.length - 1) : ancho;
+  const y = (valor: number) => alto - margen - ((valor - min) / rango) * (alto - margen * 2);
+  const puntos = valores.map((v, i) => ({ x: i * paso, y: y(v) }));
+  const linea = puntos.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+  return {
+    linea,
+    area: `${linea} L${ancho} ${alto} L0 ${alto} Z`,
+    ultimo: puntos[puntos.length - 1],
+    cero: y(0),
+  };
+}
+
+const chispa = sparkline(serie.map((p) => p.ingresos - p.gastos));
+
+const pctGasto =
+  kpis.ingresos > 0
+    ? Math.min(100, Math.round((kpis.gastos / kpis.ingresos) * 100))
+    : kpis.gastos > 0
+      ? 100
+      : 0;
+
+const textoGasto =
+  kpis.ingresos === 0 && kpis.gastos === 0
+    ? 'Sin movimientos este mes'
+    : kpis.gastos === 0
+      ? 'Sin gastos registrados este mes'
+      : kpis.gastos > kpis.ingresos
+        ? 'Los gastos superan los ingresos'
+        : `${pctGasto}% del ingreso se fue en gastos`;
 ---
 
 <DashboardLayout title="Resumen" active="resumen">
