@@ -21,7 +21,9 @@ de una amiga. Solo el panel (sin web pública).
 - Fechas: `type="date"` en YYYY-MM-DD; mostrar en es-CO
 - Env vars declaradas en `astro.config.mjs` (astro:env) y leídas desde `astro:env/server`:
   `DATABASE_URL` (pooled), `SESSION_SECRET`, `DASHBOARD_PASSWORD` — las de Neon las escribe
-  `neon env pull` en `.env` (`DATABASE_URL_UNPOOLED` y `NEON_BRANCH` son del CLI)
+  `neon env pull` en `.env` (`DATABASE_URL_UNPOOLED` y `NEON_BRANCH` son del CLI).
+  `.env` es producción; `.env.demo` es el demo (se carga con `npm run dev:demo`).
+  `.env.local` solo para overrides de la máquina y nunca se commitea.
 - Ventas `anulada = true` se excluyen de KPIs; anular restaura stock
 - Mobile-first: tablas se convierten en tarjetas en móvil; sidebar colapsa en drawer
 - Dirección visual: papel `#fbf3f4`, tinta `#2a1b20`, acento granate `#bd3f66`,
@@ -59,7 +61,7 @@ Evita re-escanear el repo — leer bajo demanda:
 
 ## Comandos
 
-- `npm run dev` (o `astro dev --background`)
+- `npm run dev` (o `astro dev --background`) · `npm run dev:demo` (demo con `.env.demo`)
 - **Verificar siempre al terminar**: `npm run astro check && npm run build`
 - `bash scripts/e2e.sh` (e2e; requiere dev server; funciona con DB vacía) ·
   `npm run db:clean-e2e` (limpieza de residuos E2E; no toca datos reales)

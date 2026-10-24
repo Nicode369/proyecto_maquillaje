@@ -1,8 +1,8 @@
 # Memoria — estado actual del proyecto
 
-> Última actualización: 2026-10-24 — incidente de producción/demo resuelto:
-> faltaba la columna `ventas.hora_registro` en ambas bases y el modo demo había
-> quedado forzado en el código. Ver "Incidente 2026-10-24".
+> Última actualización: 2026-10-24 — incidente de producción/demo resuelto,
+> entornos separados y `.env.local` eliminado del historial (queda rotar las
+> credenciales demo). Ver "Incidente 2026-10-24" y "Pulido 2026-10-24".
 
 ## Incidente 2026-10-24 (producción y demo caídos)
 
@@ -20,10 +20,16 @@
   `/api/debug-demo`) y `DEMO_MODE` volvió a `default: false`.
 - **Hora de venta**: `createVenta` guarda `(now() AT TIME ZONE 'America/Bogota')::time`
   y `formatHora` acepta el formato `HH:MM:SS` de Postgres.
-- **Pendiente de seguridad**: `.env.local` estaba *trackeado* en el repo público
+- **Seguridad (2026-10-24)**: `.env.local` estaba *trackeado* en el repo público
   con la URL/contraseña de la base demo y el secreto de sesión demo. Se sacó del
-  índice y se agregó a `.gitignore`, pero **sigue en el historial**: rotar la
-  contraseña del rol de la base demo en Neon (y el `SESSION_SECRET` demo).
+  índice, se agregó a `.gitignore` y **se eliminó de todo el historial** con
+  `git filter-branch` + force-push (respaldo local en
+  `/tmp/opencode/repo-before-filter.bundle`, fuera del repo). Verificado:
+  `git log --all -- .env.local` queda vacío y el secreto ya no aparece en ningún
+  commit. Como el secreto estuvo público, **falta rotar** la contraseña del rol
+  de la base demo en Neon y el `SESSION_SECRET` demo, y actualizar `.env.demo` +
+  el proyecto demo de Vercel. Las credenciales de producción **no** estuvieron
+  expuestas.
 
 ### Pulido 2026-10-24 (post-incidente)
 
@@ -34,6 +40,13 @@
 - **Banner y botón “Restaurar demo” visibles**: el fondo decorativo fijo de
   `main` (contexto de apilamiento con `isolate`) los tapaba; se les dio
   `relative z-10`. Solo aparecen en el proyecto demo.
+- **Descripción de venta**: al cambiar de producto, la descripción automática
+  se reemplaza por la etiqueta del nuevo producto; si se escribió una
+  descripción propia, se conserva.
+- **Entornos separados**: `.env` (producción/local real, `npm run dev`) y
+  `.env.demo` (demo, `npm run dev:demo` → `astro dev --mode demo`). Plantillas
+  versionadas `.env.example` y `.env.demo.example`; `.env.local` queda solo para
+  overrides de la máquina y fuera de git.
 
 ## Entrega
 
