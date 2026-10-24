@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { ES_DEMO } from '../lib/demo';
+import { ES_DEMO } from '../../lib/demo';
 import { DEMO_MODE } from 'astro:env/server';
 
 export const GET: APIRoute = async () => {
