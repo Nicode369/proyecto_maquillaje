@@ -25,6 +25,16 @@
   índice y se agregó a `.gitignore`, pero **sigue en el historial**: rotar la
   contraseña del rol de la base demo en Neon (y el `SESSION_SECRET` demo).
 
+### Pulido 2026-10-24 (post-incidente)
+
+- **Hora en 12 h** con `a. m.` / `p. m.`; `hora_registro` guarda hora de Colombia.
+- **Filtros en vivo** en ventas, productos y clientas: al escribir se ocultan las
+  filas/tarjetas que no coinciden (sin acentos ni mayúsculas). Enter o “Filtrar”
+  sigue haciendo la búsqueda completa en el servidor.
+- **Banner y botón “Restaurar demo” visibles**: el fondo decorativo fijo de
+  `main` (contexto de apilamiento con `isolate`) los tapaba; se les dio
+  `relative z-10`. Solo aparecen en el proyecto demo.
+
 ## Entrega
 
 - **DB en 0/0/0/0/0** (TRUNCATE de las 5 tablas, 2026-10-20). La amiga empieza vacía:

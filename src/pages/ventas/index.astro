@@ -136,6 +136,7 @@ const mensajeAnular =
       placeholder="Por clienta o ID"
       value={q ?? ''}
       class="w-52"
+      data-filtro-vivo
     />
     <Button variant="outline" type="submit" class="shrink-0">
       <Search size={15} /> Filtrar
@@ -175,7 +176,7 @@ const mensajeAnular =
     {
       lista.length > 0 && (
         <>
-          <table class="data-table hidden md:table">
+          <table class="data-table hidden md:table" data-filtro-grupo>
             <thead>
               <tr>
                 <th scope="col">Fecha</th>
@@ -198,7 +199,11 @@ const mensajeAnular =
             </thead>
             <tbody>
               {lista.map((v) => (
-                <tr class={v.anulada ? 'opacity-55' : ''}>
+                <tr
+                  class={v.anulada ? 'opacity-55' : ''}
+                  data-filtrable
+                  data-texto={`${v.cliente_nombre ?? 'Sin clienta'} ${v.id} ${v.fecha}`}
+                >
                   <td class="text-ink-muted">
                     {formatFechaCorta(v.fecha)}
                     {(v.hora_registro || v.created_at) && (
@@ -269,9 +274,13 @@ const mensajeAnular =
             </tbody>
           </table>
 
-          <ul class="divide-y divide-hairline md:hidden">
+          <ul class="divide-y divide-hairline md:hidden" data-filtro-grupo>
             {lista.map((v) => (
-              <li class="flex items-start gap-3 p-4">
+              <li
+                class="flex items-start gap-3 p-4"
+                data-filtrable
+                data-texto={`${v.cliente_nombre ?? 'Sin clienta'} ${v.id} ${v.fecha}`}
+              >
                 <a href={`/ventas/${v.id}`} class="flex min-w-0 flex-1 items-start gap-3">
                   <div class="min-w-0 flex-1">
                     <p class="font-medium text-ink">
@@ -325,6 +334,15 @@ const mensajeAnular =
               </li>
             ))}
           </ul>
+
+          <p
+            data-filtro-vacio
+            hidden
+            role="status"
+            class="p-6 text-center text-sm text-ink-muted"
+          >
+            Sin coincidencias en esta página. Pulsa Enter para buscar en todas.
+          </p>
         </>
       )
     }

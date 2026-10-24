@@ -111,6 +111,7 @@ const mensajeConfirmar =
       placeholder="Por nombre o marca"
       value={q ?? ''}
       class="w-full max-w-xs"
+      data-filtro-vivo
     />
     <label class="space-y-1.5">
       <span class="block text-[13px] font-medium text-ink">Categoría</span>
@@ -184,7 +185,7 @@ const mensajeConfirmar =
     {
       lista.length > 0 && (
         <>
-          <table class="data-table hidden md:table">
+          <table class="data-table hidden md:table" data-filtro-grupo>
             <thead>
               <tr>
                 <th scope="col">Producto</th>
@@ -214,7 +215,11 @@ const mensajeConfirmar =
                     ? Math.round((margen / p.precio_compra) * 100)
                     : null;
                 return (
-                  <tr class={p.activo ? '' : 'opacity-55'}>
+                  <tr
+                    class={p.activo ? '' : 'opacity-55'}
+                    data-filtrable
+                    data-texto={`${p.nombre} ${p.marca ?? ''} ${p.categoria}`}
+                  >
                     <td>
                       <div class="flex items-center gap-3">
                         {p.imagen ? (
@@ -312,9 +317,13 @@ const mensajeConfirmar =
             </tbody>
           </table>
 
-          <ul class="divide-y divide-hairline md:hidden">
+          <ul class="divide-y divide-hairline md:hidden" data-filtro-grupo>
             {lista.map((p) => (
-              <li class="flex items-start gap-3 p-4">
+              <li
+                class="flex items-start gap-3 p-4"
+                data-filtrable
+                data-texto={`${p.nombre} ${p.marca ?? ''} ${p.categoria}`}
+              >
                 {p.imagen ? (
                   <img
                     src={p.imagen}
@@ -383,6 +392,15 @@ const mensajeConfirmar =
               </li>
             ))}
           </ul>
+
+          <p
+            data-filtro-vacio
+            hidden
+            role="status"
+            class="p-6 text-center text-sm text-ink-muted"
+          >
+            Sin coincidencias en esta página. Pulsa Enter para buscar en todas.
+          </p>
         </>
       )
     }

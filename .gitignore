@@ -19,6 +19,8 @@ pnpm-debug.log*
 .env
 .env.production
 .env.demo
+.env.local
+.env*.local
 
 # respaldos locales
 backups/
@@ -29,7 +31,3 @@ backups/
 # jetbrains setting folder
 .idea/
 .neon
-
-# entorno local (nunca al repo)
-.env.local
-.env*.local

@@ -60,6 +60,7 @@ const exportHref = `/exportar/clientas${q ? `?q=${encodeURIComponent(q)}` : ''}`
       placeholder="Por nombre, teléfono o correo"
       value={q ?? ''}
       class="flex-1"
+      data-filtro-vivo
     />
     <Button variant="outline" type="submit" class="mt-5.5 shrink-0">
       <Search size={15} /> Buscar
@@ -101,7 +102,7 @@ const exportHref = `/exportar/clientas${q ? `?q=${encodeURIComponent(q)}` : ''}`
     {
       lista.length > 0 && (
         <>
-          <table class="data-table hidden md:table">
+          <table class="data-table hidden md:table" data-filtro-grupo>
             <thead>
               <tr>
                 <th scope="col">Nombre</th>
@@ -121,7 +122,10 @@ const exportHref = `/exportar/clientas${q ? `?q=${encodeURIComponent(q)}` : ''}`
             </thead>
             <tbody>
               {lista.map((c) => (
-                <tr>
+                <tr
+                  data-filtrable
+                  data-texto={`${c.nombre} ${c.telefono ?? ''} ${c.email ?? ''}`}
+                >
                   <td>
                     <a
                       href={`/clientas/${c.id}`}
@@ -194,9 +198,13 @@ const exportHref = `/exportar/clientas${q ? `?q=${encodeURIComponent(q)}` : ''}`
             </tbody>
           </table>
 
-          <ul class="divide-y divide-hairline md:hidden">
+          <ul class="divide-y divide-hairline md:hidden" data-filtro-grupo>
             {lista.map((c) => (
-              <li class="flex items-start gap-3 p-4">
+              <li
+                class="flex items-start gap-3 p-4"
+                data-filtrable
+                data-texto={`${c.nombre} ${c.telefono ?? ''} ${c.email ?? ''}`}
+              >
                 <a
                   href={`/clientas/${c.id}`}
                   class="min-w-0 flex-1 hover:text-wine"
@@ -267,6 +275,15 @@ const exportHref = `/exportar/clientas${q ? `?q=${encodeURIComponent(q)}` : ''}`
               </li>
             ))}
           </ul>
+
+          <p
+            data-filtro-vacio
+            hidden
+            role="status"
+            class="p-6 text-center text-sm text-ink-muted"
+          >
+            Sin coincidencias en esta página. Pulsa Enter para buscar en todas.
+          </p>
         </>
       )
     }

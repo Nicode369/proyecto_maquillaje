@@ -68,7 +68,7 @@ const stockBajo = await countStockBajo();
 
       {
         ES_DEMO && (
-          <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-b border-wine/15 bg-blush/70 px-4 py-1.5 text-center text-[11px] font-medium tracking-wide text-ink/75 sm:px-6">
+          <div class="relative z-10 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-b border-wine/15 bg-blush/70 px-4 py-1.5 text-center text-[11px] font-medium tracking-wide text-ink/75 sm:px-6">
             <span>Modo demo · datos ficticios</span>
             <form method="POST" action={actions.demo.restaurar} class="inline" data-demo-reset>
               <button
@@ -194,6 +194,44 @@ const stockBajo = await countStockBajo();
         boton.disabled = true;
         boton.replaceChildren('Restaurando…');
       });
+    });
+
+    // Filtro en vivo: mientras se escribe, se ocultan las filas/tarjetas que no
+    // coinciden. El botón "Filtrar" sigue haciendo la búsqueda en el servidor
+    // (todas las páginas y demás filtros).
+    const normalizar = (texto: string) =>
+      texto
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .toLowerCase()
+        .trim();
+
+    document.querySelectorAll<HTMLInputElement>('[data-filtro-vivo]').forEach((input) => {
+      const items = Array.from(document.querySelectorAll<HTMLElement>('[data-filtrable]'));
+      if (items.length === 0) return;
+
+      const grupos = Array.from(document.querySelectorAll<HTMLElement>('[data-filtro-grupo]'));
+      const vacio = document.querySelector<HTMLElement>('[data-filtro-vacio]');
+
+      const aplicar = () => {
+        const consulta = normalizar(input.value);
+        let visibles = 0;
+
+        for (const item of items) {
+          const coincide =
+            consulta === '' || normalizar(item.dataset.texto ?? item.textContent ?? '').includes(consulta);
+          item.hidden = !coincide;
+          if (coincide) visibles++;
+        }
+
+        for (const grupo of grupos) {
+          grupo.style.display = visibles === 0 ? 'none' : '';
+        }
+        if (vacio) vacio.hidden = visibles > 0;
+      };
+
+      input.addEventListener('input', aplicar);
+      input.addEventListener('search', aplicar);
     });
   </script>
 </BaseLayout>
