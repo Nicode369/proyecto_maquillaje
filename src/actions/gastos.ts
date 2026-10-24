@@ -18,9 +18,32 @@ const esquemaGasto = z.object({
     .trim()
     .min(3, 'Describe el gasto (mínimo 3 caracteres)')
     .max(200),
-  monto: z.coerce
-    .number({ message: 'El monto debe ser un número' })
-    .min(1, 'El monto debe ser mayor a cero'),
+  monto: z.preprocess(
+    (val) => {
+      if (val === null || val === undefined) return val;
+      if (typeof val === 'number') return val;
+      if (typeof val !== 'string') return val;
+      const s = val.trim();
+      if (s === '') return s;
+      // Reemplazar espacios
+      const sinEsp = s.replace(/\s+/g, '');
+      // Si contiene coma como decimal (es-CO)
+      if (sinEsp.includes(',')) {
+        const sinMiles = sinEsp.replace(/\./g, '');
+        const conPunto = sinMiles.replace(',', '.');
+        return conPunto;
+      }
+      // Sin coma: tratar puntos como separadores de miles
+      const soloDigitosOPunto = sinEsp.replace(/\./g, '');
+      return soloDigitosOPunto;
+    },
+    z
+      .string({ message: 'El monto debe ser un número válido' })
+      .refine((s) => /^\d+(\.\d+)?$/.test(s), 'El monto debe ser un número válido')
+      .transform((s) => parseFloat(s))
+      .refine((n) => !Number.isNaN(n) && Number.isFinite(n), 'El monto debe ser un número válido')
+      .refine((n) => n >= 1, 'El monto debe ser mayor a cero'),
+  ),
 });
 
 export const gastos = {
