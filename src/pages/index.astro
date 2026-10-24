@@ -19,6 +19,7 @@ import {
   formatCOP,
   formatCOPCompacto,
   formatFechaCorta,
+  formatHora,
   formatMes,
   mesISO,
 } from '../lib/format';
@@ -455,7 +456,14 @@ const textoGasto =
                   <p class="truncate text-sm font-medium text-ink">
                     {v.cliente_nombre ?? 'Sin clienta'}
                   </p>
-                  <p class="text-xs text-ink-muted">{formatFechaCorta(v.fecha)}</p>
+                  <p class="text-xs text-ink-muted">
+                    {formatFechaCorta(v.fecha)}
+                    {(v.hora_registro || v.created_at) && (
+                      <span class="text-ink-muted/80">
+                        {' · '}{formatHora(v.hora_registro ?? v.created_at)}
+                      </span>
+                    )}
+                  </p>
                 </div>
                 {v.anulada && <Badge tone="danger">Anulada</Badge>}
                 <p class="num min-w-0 text-right font-display text-sm break-words">

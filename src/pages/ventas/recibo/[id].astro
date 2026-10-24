@@ -5,7 +5,7 @@ import Button from '../../../components/ui/Button.astro';
 import Badge from '../../../components/ui/Badge.astro';
 import { getVenta } from '../../../lib/queries/ventas';
 import { getMarca } from '../../../lib/marca';
-import { formatCOP, formatFechaLarga } from '../../../lib/format';
+import { formatCOP, formatFechaLarga, formatHora } from '../../../lib/format';
 
 const { id } = Astro.params;
 const venta = id ? await getVenta(id) : null;
@@ -56,8 +56,12 @@ const marca = getMarca();
 
       <dl class="mt-5 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
         <div class="flex justify-between gap-4 sm:block">
-          <dt class="text-ink-muted">Fecha</dt>
-          <dd class="text-ink">{formatFechaLarga(venta.fecha)}</dd>
+          <dt class="text-ink-muted">Fecha y hora</dt>
+          <dd class="text-ink">
+            {venta.hora_registro || venta.created_at
+              ? `${formatFechaLarga(venta.fecha)} · ${formatHora(venta.hora_registro ?? venta.created_at)}`
+              : formatFechaLarga(venta.fecha)}
+          </dd>
         </div>
         <div class="flex justify-between gap-4 sm:block">
           <dt class="text-ink-muted">Clienta</dt>

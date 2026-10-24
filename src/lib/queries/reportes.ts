@@ -154,6 +154,8 @@ export async function stockBajo(): Promise<AlertaStock[]> {
 export interface VentaReciente {
   id: string;
   fecha: string;
+  hora_registro: string | null;
+  created_at: string | null;
   cliente_nombre: string | null;
   total: number;
   anulada: boolean;
@@ -164,6 +166,8 @@ export async function ultimasVentas(limit = 5): Promise<VentaReciente[]> {
     SELECT
       v.id,
       v.fecha::text AS fecha,
+      v.hora_registro::text AS hora_registro,
+      v.created_at::text AS created_at,
       c.nombre AS cliente_nombre,
       v.total::float8 AS total,
       v.anulada

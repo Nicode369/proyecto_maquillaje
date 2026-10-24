@@ -9,7 +9,7 @@ import Card from '../../components/ui/Card.astro';
 import Input from '../../components/ui/Input.astro';
 import Textarea from '../../components/ui/Textarea.astro';
 import { getVenta } from '../../lib/queries/ventas';
-import { formatCOP, formatFechaCorta, formatFechaLarga, hoyISO } from '../../lib/format';
+import { formatCOP, formatFechaCorta, formatFechaLarga, formatHora, hoyISO } from '../../lib/format';
 import Alert from '../../components/ui/Alert.astro';
 import { ponerFlash } from '../../lib/flash';
 
@@ -74,7 +74,7 @@ const mensajeReactivar =
 <DashboardLayout title={`Venta · ${formatCOP(venta.total)}`} active="ventas">
   <PageHeader
     title={formatCOP(venta.total)}
-    description={`${formatFechaLarga(venta.fecha)} · ${venta.cliente_nombre ?? 'Sin clienta asignada'}`}
+    description={`${formatFechaLarga(venta.fecha)}${venta.hora_registro || venta.created_at ? ` · ${formatHora(venta.hora_registro ?? venta.created_at)}` : ''} · ${venta.cliente_nombre ?? 'Sin clienta asignada'}`}
   >
     <Button variant="outline" href="/ventas">
       <ArrowLeft size={15} /> Volver

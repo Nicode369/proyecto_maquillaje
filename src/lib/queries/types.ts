@@ -33,6 +33,8 @@ export interface Venta {
   cliente_id: string | null;
   cliente_nombre: string | null;
   fecha: string;
+  hora_registro: string | null;
+  created_at: string | null;
   metodo_pago: string;
   descuento: number;
   total: number;

@@ -23,6 +23,8 @@ const fechaCapitalizada = fecha.charAt(0).toUpperCase() + fecha.slice(1);
 const flash = leerFlash(Astro.cookies);
 if (flash) borrarFlash(Astro.cookies);
 
+console.log('[DEBUG DEMO]', { ES_DEMO, proc: process.env.DEMO_MODE });
+
 const stockBajo = await countStockBajo();
 ---
 

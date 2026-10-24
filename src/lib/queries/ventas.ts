@@ -27,6 +27,8 @@ export async function listVentas(filtro: FiltroVentas = {}): Promise<Venta[]> {
       v.cliente_id,
       c.nombre AS cliente_nombre,
       v.fecha::text AS fecha,
+      v.hora_registro::text AS hora_registro,
+      v.created_at::text AS created_at,
       v.metodo_pago,
       v.descuento::float8 AS descuento,
       v.total::float8 AS total,
@@ -101,6 +103,8 @@ export async function getVenta(id: string): Promise<VentaCompleta | null> {
       v.cliente_id,
       c.nombre AS cliente_nombre,
       v.fecha::text AS fecha,
+      v.hora_registro::text AS hora_registro,
+      v.created_at::text AS created_at,
       v.metodo_pago,
       v.descuento::float8 AS descuento,
       v.total::float8 AS total,
@@ -155,6 +159,8 @@ export async function listVentasDeCliente(clienteId: string): Promise<Venta[]> {
       v.cliente_id,
       c.nombre AS cliente_nombre,
       v.fecha::text AS fecha,
+      v.hora_registro::text AS hora_registro,
+      v.created_at::text AS created_at,
       v.metodo_pago,
       v.descuento::float8 AS descuento,
       v.total::float8 AS total,
@@ -226,8 +232,8 @@ export async function createVenta(data: {
 
   const statementList = [
     sql`
-      INSERT INTO ventas (id, cliente_id, fecha, metodo_pago, descuento, total, notas, credito)
-      VALUES (${ventaId}, ${data.clienteId}, ${data.fecha}, ${data.metodoPago}, ${data.descuento}, ${total}, ${data.notas}, ${data.credito})`,
+      INSERT INTO ventas (id, cliente_id, fecha, metodo_pago, descuento, total, notas, credito, hora_registro)
+      VALUES (${ventaId}, ${data.clienteId}, ${data.fecha}, ${data.metodoPago}, ${data.descuento}, ${total}, ${data.notas}, ${data.credito}, CURRENT_TIME)`,
     ...data.items.map(
       (item) => sql`
         INSERT INTO venta_items (venta_id, producto_id, descripcion, cantidad, precio_unitario, subtotal)

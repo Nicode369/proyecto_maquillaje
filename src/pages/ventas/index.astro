@@ -11,7 +11,7 @@ import Badge from '../../components/ui/Badge.astro';
 import EmptyState from '../../components/ui/EmptyState.astro';
 import { contarVentas, listVentas, totalesVentas } from '../../lib/queries/ventas';
 import { listClientes } from '../../lib/queries/clientes';
-import { formatCOP, formatFechaCorta } from '../../lib/format';
+import { formatCOP, formatFechaCorta, formatHora } from '../../lib/format';
 import Alert from '../../components/ui/Alert.astro';
 import { ponerFlash } from '../../lib/flash';
 
@@ -199,7 +199,14 @@ const mensajeAnular =
             <tbody>
               {lista.map((v) => (
                 <tr class={v.anulada ? 'opacity-55' : ''}>
-                  <td class="text-ink-muted">{formatFechaCorta(v.fecha)}</td>
+                  <td class="text-ink-muted">
+                    {formatFechaCorta(v.fecha)}
+                    {(v.hora_registro || v.created_at) && (
+                      <span class="ml-1.5 text-ink-muted/80">
+                        {formatHora(v.hora_registro ?? v.created_at)}
+                      </span>
+                    )}
+                  </td>
                   <td class="font-medium text-ink">
                     {v.cliente_nombre ?? (
                       <span class="text-ink-muted">Sin clienta</span>
@@ -271,7 +278,13 @@ const mensajeAnular =
                       {v.cliente_nombre ?? 'Sin clienta'}
                     </p>
                     <p class="text-xs text-ink-muted">
-                      {formatFechaCorta(v.fecha)} ·{' '}
+                      {formatFechaCorta(v.fecha)}
+                      {(v.hora_registro || v.created_at) && (
+                        <span class="text-ink-muted/80">
+                          {' · '}{formatHora(v.hora_registro ?? v.created_at)}
+                        </span>
+                      )}
+                      {' · '}
                       {metodos[v.metodo_pago.toLowerCase()] ?? v.metodo_pago}
                     </p>
                   </div>

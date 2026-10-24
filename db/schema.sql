@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS ventas (
   notas text,
   anulada boolean NOT NULL DEFAULT false,
   credito boolean NOT NULL DEFAULT false,
-  created_at timestamptz NOT NULL DEFAULT now()
+  created_at timestamptz NOT NULL DEFAULT now(),
+  hora_registro time
 );
 
 CREATE TABLE IF NOT EXISTS venta_items (
@@ -79,6 +80,7 @@ CREATE INDEX IF NOT EXISTS idx_login_attempts_ip_ts ON login_attempts (ip, ts);
 
 ALTER TABLE productos ADD COLUMN IF NOT EXISTS imagen text;
 ALTER TABLE ventas ADD COLUMN IF NOT EXISTS credito boolean NOT NULL DEFAULT false;
+ALTER TABLE ventas ADD COLUMN IF NOT EXISTS hora_registro time;
 
 -- Integridad: el stock nunca puede quedar negativo. La venta/reactivación
 -- descuenta sin guard y este CHECK aborta toda la transacción si falta stock.
