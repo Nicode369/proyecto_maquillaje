@@ -1,6 +1,6 @@
 ---
 import { actions, isInputError } from 'astro:actions';
-import { FileDown, Pencil, Plus, Search, Trash } from '@lucide/astro';
+import { FileDown, Pencil, Plus, Trash } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 import LimpiarFiltros from '../../components/LimpiarFiltros.astro';
@@ -108,11 +108,13 @@ const tonos: Record<string, 'neutral' | 'wine' | 'warning' | 'success' | 'danger
       type="month"
       value={mes ?? ''}
       class="w-44"
+      data-auto-enviar
     />
     <label class="space-y-1.5">
       <span class="block text-[13px] font-medium text-ink">Categoría</span>
       <select
         name="categoria"
+        data-auto-enviar
         class="h-9.5 w-44 rounded-lg border border-ink/15 bg-surface px-2.5 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15"
       >
         <option value="">Todas</option>
@@ -123,9 +125,6 @@ const tonos: Record<string, 'neutral' | 'wine' | 'warning' | 'success' | 'danger
         ))}
       </select>
     </label>
-    <Button variant="outline" type="submit" class="shrink-0">
-      <Search size={15} /> Filtrar
-    </Button>
   </form>
 
   {

@@ -1,6 +1,6 @@
 ---
 import { actions, isInputError } from 'astro:actions';
-import { TriangleAlert, Pencil, Plus, Search, Trash } from '@lucide/astro';
+import { TriangleAlert, Pencil, Plus, Trash } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 import LimpiarFiltros from '../../components/LimpiarFiltros.astro';
@@ -117,6 +117,7 @@ const mensajeConfirmar =
       <span class="block text-[13px] font-medium text-ink">Categoría</span>
       <select
         name="categoria"
+        data-auto-enviar
         class="h-9.5 w-40 rounded-lg border border-ink/15 bg-surface px-2.5 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15"
       >
         <option value="">Todas</option>
@@ -127,15 +128,13 @@ const mensajeConfirmar =
         ))}
       </select>
     </label>
-    <Button variant="outline" type="submit" class="shrink-0">
-      <Search size={15} /> Filtrar
-    </Button>
     <label class="flex h-9.5 cursor-pointer items-center gap-2 text-sm text-ink">
       <input
         type="checkbox"
         name="stock"
         value="bajo"
         checked={soloStockBajo}
+        data-auto-enviar
         class="size-4 accent-wine"
       />
       Solo stock bajo
@@ -146,6 +145,7 @@ const mensajeConfirmar =
         name="inactivos"
         value="1"
         checked={verInactivos}
+        data-auto-enviar
         class="size-4 accent-wine"
       />
       Ver inactivos
@@ -399,7 +399,7 @@ const mensajeConfirmar =
             role="status"
             class="p-6 text-center text-sm text-ink-muted"
           >
-            Sin coincidencias en esta página. Pulsa Enter para buscar en todas.
+            Sin coincidencias con la búsqueda.
           </p>
         </>
       )

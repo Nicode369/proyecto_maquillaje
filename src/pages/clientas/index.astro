@@ -1,6 +1,6 @@
 ---
 import { actions, isInputError } from 'astro:actions';
-import { FileDown, Pencil, Plus, Search, Trash } from '@lucide/astro';
+import { FileDown, Pencil, Plus, Trash } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 import Button from '../../components/ui/Button.astro';
@@ -62,9 +62,6 @@ const exportHref = `/exportar/clientas${q ? `?q=${encodeURIComponent(q)}` : ''}`
       class="flex-1"
       data-filtro-vivo
     />
-    <Button variant="outline" type="submit" class="mt-5.5 shrink-0">
-      <Search size={15} /> Buscar
-    </Button>
   </form>
 
   {hayBusqueda && <LimpiarFiltros href="/clientas" class="mt-3" />}
@@ -282,7 +279,7 @@ const exportHref = `/exportar/clientas${q ? `?q=${encodeURIComponent(q)}` : ''}`
             role="status"
             class="p-6 text-center text-sm text-ink-muted"
           >
-            Sin coincidencias en esta página. Pulsa Enter para buscar en todas.
+            Sin coincidencias con la búsqueda.
           </p>
         </>
       )

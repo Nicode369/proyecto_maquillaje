@@ -196,9 +196,17 @@ const stockBajo = await countStockBajo();
       });
     });
 
+    // Los filtros de selección (mes, categoría, clienta, checkboxes) se aplican
+    // solos al cambiar, sin botón "Filtrar".
+    document.querySelectorAll<HTMLElement>('[data-auto-enviar]').forEach((control) => {
+      control.addEventListener('change', () => {
+        control.closest('form')?.requestSubmit();
+      });
+    });
+
     // Filtro en vivo: mientras se escribe, se ocultan las filas/tarjetas que no
-    // coinciden. El botón "Filtrar" sigue haciendo la búsqueda en el servidor
-    // (todas las páginas y demás filtros).
+    // coinciden en la página actual. Enter envía el formulario para buscar en
+    // todas las páginas.
     const normalizar = (texto: string) =>
       texto
         .normalize('NFD')
@@ -232,6 +240,12 @@ const stockBajo = await countStockBajo();
 
       input.addEventListener('input', aplicar);
       input.addEventListener('search', aplicar);
+      input.addEventListener('keydown', (evento) => {
+        if (evento.key === 'Enter') {
+          evento.preventDefault();
+          input.form?.requestSubmit();
+        }
+      });
     });
   </script>
 </BaseLayout>

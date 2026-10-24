@@ -35,9 +35,10 @@
 ### Pulido 2026-10-24 (post-incidente)
 
 - **Hora en 12 h** con `a. m.` / `p. m.`; `hora_registro` guarda hora de Colombia.
-- **Filtros en vivo** en ventas, productos y clientas: al escribir se ocultan las
-  filas/tarjetas que no coinciden (sin acentos ni mayúsculas). Enter o “Filtrar”
-  sigue haciendo la búsqueda completa en el servidor.
+- **Filtros en vivo y sin botón**: en ventas, productos y clientas el texto oculta
+  filas/tarjetas al instante (sin acentos ni mayúsculas); Enter busca en el servidor
+  (todas las páginas). Mes, categoría, clienta y stock se aplican solos al cambiar.
+  Se quitó el botón “Filtrar” de ventas, productos, clientas y gastos.
 - **Banner y botón “Restaurar demo” visibles**: el fondo decorativo fijo de
   `main` (contexto de apilamiento con `isolate`) los tapaba; se les dio
   `relative z-10`. Solo aparecen en el proyecto demo.

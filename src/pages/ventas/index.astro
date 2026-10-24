@@ -1,6 +1,6 @@
 ---
 import { actions, isInputError } from 'astro:actions';
-import { Plus, Search, Ban, FileDown } from '@lucide/astro';
+import { Plus, Ban, FileDown } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 import LimpiarFiltros from '../../components/LimpiarFiltros.astro';
@@ -114,11 +114,13 @@ const mensajeAnular =
       type="month"
       value={mes ?? ''}
       class="w-44"
+      data-auto-enviar
     />
     <label class="space-y-1.5">
       <span class="block text-[13px] font-medium text-ink">Clienta</span>
       <select
         name="cliente"
+        data-auto-enviar
         class="h-9.5 w-48 rounded-lg border border-ink/15 bg-surface px-2.5 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15"
       >
         <option value="">Todas</option>
@@ -138,10 +140,15 @@ const mensajeAnular =
       class="w-52"
       data-filtro-vivo
     />
-    <Button variant="outline" type="submit" class="shrink-0">
-      <Search size={15} /> Filtrar
-    </Button>
   </form>
+
+  {
+    totalRegistros > POR_PAGINA && (
+      <p class="mt-2 text-xs text-ink-muted">
+        El texto filtra esta página al instante; pulsa Enter para buscar en todas.
+      </p>
+    )
+  }
 
   {
     errorAnular && (
