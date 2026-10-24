@@ -7,6 +7,7 @@ const RUTAS_PUBLICAS = new Set([
   '/favicon.ico',
   '/og-image.jpg',
   '/robots.txt',
+  '/api/debug-demo',
 ]);
 
 function conSeguridad(res: Response): Response {
