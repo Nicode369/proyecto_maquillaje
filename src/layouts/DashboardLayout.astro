@@ -1,4 +1,6 @@
 ---
+import { actions } from 'astro:actions';
+import { RotateCcw } from '@lucide/astro';
 import BaseLayout from './BaseLayout.astro';
 import Sidebar from '../components/Sidebar.astro';
 import Footer from '../components/Footer.astro';
@@ -66,8 +68,21 @@ const stockBajo = await countStockBajo();
 
       {
         ES_DEMO && (
-          <div class="border-b border-wine/15 bg-blush/70 px-4 py-1.5 text-center text-[11px] font-medium tracking-wide text-ink/75 sm:px-6">
-            Modo demo · datos ficticios
+          <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-b border-wine/15 bg-blush/70 px-4 py-1.5 text-center text-[11px] font-medium tracking-wide text-ink/75 sm:px-6">
+            <span>Modo demo · datos ficticios</span>
+            <form method="POST" action={actions.demo.restaurar} class="inline" data-demo-reset>
+              <button
+                type="submit"
+                data-confirm="Se borrarán los cambios que haya en el demo y volverán los datos de ejemplo."
+                data-confirm-titulo="Restaurar demo"
+                data-confirm-ok="Restaurar"
+                data-confirm-peligro="false"
+                class="inline-flex items-center gap-1 rounded-full border border-wine/25 bg-paper/60 px-2.5 py-0.5 font-semibold text-wine transition-colors hover:border-wine/50 hover:bg-paper disabled:opacity-60"
+              >
+                <RotateCcw size={11} aria-hidden="true" />
+                Restaurar demo
+              </button>
+            </form>
           </div>
         )
       }
@@ -170,4 +185,15 @@ const stockBajo = await countStockBajo();
 
   <ConfirmDialog />
   {flash && <Toast tipo={flash.tipo} texto={flash.texto} />}
+
+  <script>
+    document.querySelectorAll<HTMLFormElement>('[data-demo-reset]').forEach((form) => {
+      form.addEventListener('submit', () => {
+        const boton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+        if (!boton) return;
+        boton.disabled = true;
+        boton.replaceChildren('Restaurando…');
+      });
+    });
+  </script>
 </BaseLayout>

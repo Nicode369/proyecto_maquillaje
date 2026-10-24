@@ -31,6 +31,11 @@ export default defineConfig({
         optional: true,
         default: false,
       }),
+      DEMO_RESET_DATABASE_URL: envField.string({
+        context: 'server',
+        access: 'secret',
+        optional: true,
+      }),
       SITE_URL: envField.string({
         context: 'server',
         access: 'secret',
