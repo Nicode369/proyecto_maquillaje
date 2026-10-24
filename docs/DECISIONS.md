@@ -47,6 +47,19 @@ Para no re-descubrir por qué el código es así. Stack/convenciones básicas en
   `ActionError` → 400 datos inválidos, 404 no existe, 409 conflicto (stock, saldo,
   venta anulada). El 500 queda solo para fallos reales del servidor.
 
+## Fechas y zona horaria
+
+- **Todo se calcula en `America/Bogota`**, no en la zona del proceso: `hoyISO()` y
+  `mesISO()` usan `Intl.DateTimeFormat` con `timeZone`, y los formateadores de
+  fecha también. En Vercel (UTC) el día/mes cambiaría a las 7:00 p. m. de Colombia
+  si se usara la zona del servidor.
+- **`ventas.hora_registro` es `time`**: Postgres lo entrega como
+  `HH:MM:SS.ffffff` (microsegundos). `formatHora` acepta ambos formatos y muestra
+  12 h con `a. m.`/`p. m.`; si es `null` (ventas anteriores a la columna), se usa
+  `created_at`.
+- `serieMensual()` parte del mes actual de Colombia para no correr el rango del
+  gráfico a fin de mes en Vercel.
+
 ## Crédito y abonos (ventas fiadas)
 
 - `ventas.credito boolean` + tabla `abonos (venta_id FK CASCADE, fecha, monto>0, notas)`.

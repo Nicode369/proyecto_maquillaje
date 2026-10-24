@@ -1,4 +1,5 @@
 import { sql } from '../db';
+import { mesISO } from '../format';
 
 function mesAnterior(mes: string): string {
   const [anio, m] = mes.split('-').map(Number);
@@ -89,8 +90,9 @@ export interface PuntoSerie {
 }
 
 export async function serieMensual(nMeses = 6): Promise<PuntoSerie[]> {
-  const desde = new Date();
-  desde.setMonth(desde.getMonth() - (nMeses - 1));
+  // El mes actual debe ser el de Colombia, no el del servidor (Vercel/UTC).
+  const [anioActual, mesActual] = mesISO().split('-').map(Number);
+  const desde = new Date(anioActual, mesActual - 1 - (nMeses - 1), 1);
   const desdeISO = `${desde.getFullYear()}-${String(desde.getMonth() + 1).padStart(2, '0')}-01`;
 
   const [ingresosRows, gastosRows] = await Promise.all([

@@ -12,7 +12,10 @@ const copCompactFormatter = new Intl.NumberFormat('es-CO', {
   minimumFractionDigits: 0,
 });
 
+const ZONA = 'America/Bogota';
+
 const longDateFormatter = new Intl.DateTimeFormat('es-CO', {
+  timeZone: ZONA,
   weekday: 'long',
   day: 'numeric',
   month: 'long',
@@ -20,12 +23,14 @@ const longDateFormatter = new Intl.DateTimeFormat('es-CO', {
 });
 
 const shortDateFormatter = new Intl.DateTimeFormat('es-CO', {
+  timeZone: ZONA,
   day: '2-digit',
   month: '2-digit',
   year: 'numeric',
 });
 
 const monthNameFormatter = new Intl.DateTimeFormat('es-CO', {
+  timeZone: ZONA,
   month: 'long',
   year: 'numeric',
 });
@@ -53,9 +58,10 @@ export function formatFechaCorta(date: Date | string): string {
 
 export function formatHora(date: Date | string | null | undefined): string {
   if (!date) return '';
-  // `ventas.hora_registro` es `time`: Postgres lo entrega como "HH:MM:SS".
+  // `ventas.hora_registro` es `time`: Postgres lo entrega como "HH:MM:SS" o
+  // "HH:MM:SS.ffffff" (con microsegundos).
   if (typeof date === 'string') {
-    const hora = date.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+    const hora = date.match(/^(\d{1,2}):(\d{2})(?::\d{2}(?:\.\d+)?)?$/);
     if (hora) {
       const h24 = Number(hora[1]);
       const h12 = h24 % 12 || 12;
@@ -84,19 +90,33 @@ export function formatMes(date: Date | string): string {
 }
 
 export function formatMesCorto(date: Date | string): string {
-  return new Intl.DateTimeFormat('es-CO', { month: 'short' })
+  return new Intl.DateTimeFormat('es-CO', { month: 'short', timeZone: ZONA })
     .format(toDate(date))
     .replace('.', '');
 }
 
+/**
+ * Fecha de hoy en Colombia (YYYY-MM-DD), independiente de la zona horaria
+ * del servidor. En Vercel el proceso corre en UTC y por la noche ya sería
+ * el día siguiente.
+ */
 export function hoyISO(): string {
-  const now = new Date();
-  const offset = now.getTimezoneOffset();
-  return new Date(now.getTime() - offset * 60_000).toISOString().slice(0, 10);
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: ZONA,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
 }
 
+/** Mes actual en Colombia (YYYY-MM). */
 export function mesISO(date: Date | string = new Date()): string {
-  return toDate(date).toISOString().slice(0, 7);
+  const d = date instanceof Date ? date : toDate(date);
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: ZONA,
+    year: 'numeric',
+    month: '2-digit',
+  }).format(d);
 }
 
 export function parseISODate(value: string): Date {

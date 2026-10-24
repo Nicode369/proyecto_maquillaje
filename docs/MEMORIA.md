@@ -19,7 +19,9 @@
   `DEMO_RESET_DATABASE_URL`), se quitó el debug (`console.log`, barra visible y
   `/api/debug-demo`) y `DEMO_MODE` volvió a `default: false`.
 - **Hora de venta**: `createVenta` guarda `(now() AT TIME ZONE 'America/Bogota')::time`
-  y `formatHora` acepta el formato `HH:MM:SS` de Postgres.
+  y `formatHora` acepta `HH:MM:SS` y `HH:MM:SS.ffffff` (Postgres devuelve
+  microsegundos). `hoyISO()` y `mesISO()` calculan la fecha/mes en
+  `America/Bogota`, no en la zona del servidor (Vercel/UTC).
 - **Seguridad (2026-10-24)**: `.env.local` estaba *trackeado* en el repo público
   con la URL/contraseña de la base demo y el secreto de sesión demo. Se sacó del
   índice, se agregó a `.gitignore` y **se eliminó de todo el historial** con
@@ -35,6 +37,8 @@
 ### Pulido 2026-10-24 (post-incidente)
 
 - **Hora en 12 h** con `a. m.` / `p. m.`; `hora_registro` guarda hora de Colombia.
+  El formateo acepta microsegundos y `hoyISO()`/`mesISO()` usan `America/Bogota`
+  para que Vercel (UTC) no adelante el día ni el mes.
 - **Filtros en vivo y sin botón**: en ventas, productos y clientas el texto oculta
   filas/tarjetas al instante (sin acentos ni mayúsculas); Enter busca en el servidor
   (todas las páginas). Mes, categoría, clienta y stock se aplican solos al cambiar.
