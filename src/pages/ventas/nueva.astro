@@ -31,6 +31,7 @@ const catalogo = productos.map((p) => ({
   id: p.id,
   nombre: p.nombre,
   marca: p.marca,
+  categoria: p.categoria,
   stock: p.stock,
   precio: Number(p.precio_venta),
   etiqueta: `${p.nombre}${p.marca ? ` · ${p.marca}` : ''}`,
@@ -184,11 +185,22 @@ const metodos = ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia', 'Transferencia
 
   let contador = 0;
 
+  const catalogoPorId = new Map(catalogo.map((p) => [p.id, p]));
+
   const fmt = new Intl.NumberFormat('es-CO', {
     style: 'currency',
     currency: 'COP',
     maximumFractionDigits: 0,
   });
+
+  const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  const escapeHtml = (valor) => String(valor).replace(/[&<>"']/g, (c) => ESCAPES[c]);
+  const normalizar = (texto) =>
+    String(texto)
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .toLowerCase()
+      .trim();
 
   function crearLinea(productoId = '', descripcion = '', cantidad = 1, precio = '') {
     contador++;
@@ -198,25 +210,38 @@ const metodos = ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia', 'Transferencia
       'linea rounded-xl border border-hairline bg-surface p-4 space-y-3';
     div.dataset.idx = String(idx);
 
-    const opciones = catalogo
-      .map(
-        (p) =>
-          `<option value="${p.id}" data-precio="${p.precio}" data-stock="${p.stock}" data-etiqueta="${p.etiqueta}" ${p.id === productoId ? 'selected' : ''}>${p.etiqueta} — ${fmt.format(p.precio)} (${p.stock} und.)</option>`,
-      )
-      .join('');
-
     div.innerHTML = `
       <div class="grid gap-3 sm:grid-cols-12 items-start">
         <div class="sm:col-span-5 space-y-1.5">
-          <label class="block text-[13px] font-medium text-ink">Producto</label>
-          <select class="sel-producto h-9.5 w-full rounded-lg border border-ink/15 bg-surface px-3 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15">
-            <option value="" data-precio="" data-stock="" data-etiqueta="">— Servicio personalizado —</option>
-            ${opciones}
-          </select>
+          <label for="producto-${idx}" class="block text-[13px] font-medium text-ink">Producto</label>
+          <div class="relative">
+            <input
+              id="producto-${idx}"
+              type="text"
+              class="inp-producto h-9.5 w-full rounded-lg border border-ink/15 bg-surface px-3 pr-8 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15"
+              placeholder="Buscar producto…"
+              autocomplete="off"
+              role="combobox"
+              aria-expanded="false"
+              aria-autocomplete="list"
+              aria-controls="lista-productos-${idx}"
+            />
+            <button
+              type="button"
+              class="btn-limpiar-producto absolute top-1/2 right-1.5 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-ink-muted hover:bg-ink/5 hover:text-ink hidden"
+              aria-label="Quitar producto"
+            >×</button>
+            <input type="hidden" class="sel-producto" value="" />
+            <ul
+              id="lista-productos-${idx}"
+              class="lista-productos absolute z-20 mt-1 hidden max-h-60 w-full overflow-auto rounded-lg border border-hairline bg-surface py-1 shadow-[0_12px_30px_rgba(42,27,32,0.16)]"
+              role="listbox"
+            ></ul>
+          </div>
         </div>
         <div class="sm:col-span-4 space-y-1.5">
           <label class="block text-[13px] font-medium text-ink">Descripción</label>
-          <input type="text" class="inp-desc h-9.5 w-full rounded-lg border border-ink/15 bg-surface px-3 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15" placeholder="Ej: Aplicación de cejas" maxlength="200" value="${descripcion}" />
+          <input type="text" class="inp-desc h-9.5 w-full rounded-lg border border-ink/15 bg-surface px-3 text-sm text-ink focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15" placeholder="Ej: Aplicación de cejas" maxlength="200" value="${escapeHtml(descripcion)}" />
         </div>
         <div class="sm:col-span-1 space-y-1.5">
           <label class="block text-[13px] font-medium text-ink">Cant.</label>
@@ -238,15 +263,102 @@ const metodos = ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia', 'Transferencia
     `;
 
     const sel = div.querySelector('.sel-producto');
+    const inpProducto = div.querySelector('.inp-producto');
+    const btnLimpiarProducto = div.querySelector('.btn-limpiar-producto');
+    const listaProductos = div.querySelector('.lista-productos');
     const inpDesc = div.querySelector('.inp-desc');
     const inpCant = div.querySelector('.inp-cant');
     const inpPrecio = div.querySelector('.inp-precio');
     const aviso = div.querySelector('.stock-aviso');
     const subtotalEl = div.querySelector('.subtotal');
+    let activo = -1;
+
+    const productoSeleccionado = () => catalogoPorId.get(sel.value) ?? null;
+
+    function sincronizarProducto() {
+      const producto = productoSeleccionado();
+      inpProducto.value = producto?.etiqueta ?? '';
+      btnLimpiarProducto.classList.toggle('hidden', !producto);
+    }
+
+    function cerrarLista() {
+      listaProductos.classList.add('hidden');
+      inpProducto.setAttribute('aria-expanded', 'false');
+      inpProducto.removeAttribute('aria-activedescendant');
+      activo = -1;
+    }
+
+    function marcarActivo() {
+      const opciones = [...listaProductos.querySelectorAll('[role="option"]')];
+      opciones.forEach((el, i) => {
+        el.classList.toggle('bg-ink/5', i === activo);
+      });
+      const el = opciones[activo];
+      if (el) {
+        inpProducto.setAttribute('aria-activedescendant', el.id);
+        el.scrollIntoView({ block: 'nearest' });
+      } else {
+        inpProducto.removeAttribute('aria-activedescendant');
+      }
+    }
+
+    function renderLista(consultaForzada) {
+      const consulta = normalizar(consultaForzada ?? inpProducto.value);
+      const filtrados = catalogo.filter((p) => {
+        if (!consulta) return true;
+        return normalizar(
+          `${p.nombre} ${p.marca ?? ''} ${p.categoria} ${p.etiqueta}`,
+        ).includes(consulta);
+      });
+      const visibles = filtrados.slice(0, 50);
+      const partes = [];
+
+      if (!consulta) {
+        const seleccionado = !sel.value;
+        partes.push(
+          `<li role="option" data-id="" aria-selected="${seleccionado}" class="cursor-pointer px-3 py-2 text-sm text-ink-muted hover:bg-ink/5 ${seleccionado ? 'bg-wine-soft' : ''}">— Servicio personalizado —</li>`,
+        );
+      }
+
+      for (const p of visibles) {
+        const seleccionado = p.id === sel.value;
+        partes.push(
+          `<li role="option" data-id="${p.id}" aria-selected="${seleccionado}" class="cursor-pointer px-3 py-2 text-sm hover:bg-ink/5 ${seleccionado ? 'bg-wine-soft' : ''}">
+            <span class="block truncate font-medium text-ink">${escapeHtml(p.etiqueta)}</span>
+            <span class="block text-[12px] text-ink-muted">${fmt.format(p.precio)} · ${p.stock} und.</span>
+          </li>`,
+        );
+      }
+
+      if (visibles.length === 0) {
+        partes.push(
+          '<li class="px-3 py-2 text-sm text-ink-muted">Sin coincidencias</li>',
+        );
+      } else if (filtrados.length > 50) {
+        partes.push(
+          `<li class="px-3 py-2 text-[12px] text-ink-muted">Mostrando 50 de ${filtrados.length}; escribe para filtrar.</li>`,
+        );
+      }
+
+      listaProductos.innerHTML = partes.join('');
+      [...listaProductos.querySelectorAll('[role="option"]')].forEach((el, i) => {
+        el.id = `opcion-${idx}-${i}`;
+      });
+      listaProductos.classList.remove('hidden');
+      inpProducto.setAttribute('aria-expanded', 'true');
+      activo = -1;
+    }
+
+    function seleccionarProducto(producto) {
+      sel.value = producto?.id ?? '';
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      cerrarLista();
+      if (!producto) inpDesc.focus();
+    }
 
     function actualizarStockAviso() {
-      const opt = sel.selectedOptions[0];
-      const stock = Number(opt?.dataset.stock ?? NaN);
+      const producto = productoSeleccionado();
+      const stock = producto?.stock ?? NaN;
       const cant = Number(inpCant.value || 0);
       if (Number.isFinite(stock) && cant > stock) {
         aviso.textContent = `Solo hay ${stock} en stock`;
@@ -264,13 +376,16 @@ const metodos = ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia', 'Transferencia
     }
 
     sel.addEventListener('change', () => {
-      const opt = sel.selectedOptions[0];
-      const precio = opt?.dataset.precio;
-      const etiqueta = opt?.dataset.etiqueta ?? '';
+      const producto = productoSeleccionado();
+      const precio = producto ? String(producto.precio) : '';
+      const etiqueta = producto?.etiqueta ?? '';
       const etiquetaAnterior = div.dataset.etiquetaAuto ?? '';
       const descripcion = inpDesc.value.trim();
 
-      if (precio) inpPrecio.value = precio;
+      inpProducto.value = etiqueta;
+      btnLimpiarProducto.classList.toggle('hidden', !producto);
+
+      inpPrecio.value = precio;
 
       // La descripción acompaña al producto mientras no se haya escrito una
       // propia: al cambiar de producto se reemplaza la etiqueta anterior.
@@ -281,6 +396,78 @@ const metodos = ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia', 'Transferencia
 
       actualizarStockAviso();
       actualizarSubtotal();
+    });
+
+    listaProductos.addEventListener('mousedown', (evento) => {
+      if (evento.target.closest('[role="option"]')) evento.preventDefault();
+    });
+
+    listaProductos.addEventListener('click', (evento) => {
+      const item = evento.target.closest('[role="option"]');
+      if (!item) return;
+      const producto = catalogoPorId.get(item.dataset.id) ?? null;
+      seleccionarProducto(producto);
+    });
+
+    inpProducto.addEventListener('focus', () => {
+      inpProducto.select();
+      renderLista('');
+    });
+
+    inpProducto.addEventListener('input', () => {
+      renderLista();
+    });
+
+    inpProducto.addEventListener('keydown', (evento) => {
+      const abierta = !listaProductos.classList.contains('hidden');
+
+      if (evento.key === 'ArrowDown') {
+        evento.preventDefault();
+        if (!abierta) renderLista('');
+        const opciones = [...listaProductos.querySelectorAll('[role="option"]')];
+        if (opciones.length) {
+          activo = Math.min(activo + 1, opciones.length - 1);
+          marcarActivo();
+        }
+      } else if (evento.key === 'ArrowUp') {
+        evento.preventDefault();
+        if (!abierta) renderLista('');
+        const opciones = [...listaProductos.querySelectorAll('[role="option"]')];
+        if (opciones.length) {
+          activo = Math.max(activo - 1, 0);
+          marcarActivo();
+        }
+      } else if (evento.key === 'Enter') {
+        evento.preventDefault();
+        if (!abierta) {
+          renderLista('');
+          return;
+        }
+        const opciones = [...listaProductos.querySelectorAll('[role="option"]')];
+        if (activo >= 0 && opciones[activo]) {
+          opciones[activo].click();
+        } else if (opciones.length === 1) {
+          opciones[0].click();
+        }
+      } else if (evento.key === 'Escape') {
+        evento.preventDefault();
+        cerrarLista();
+        sincronizarProducto();
+      } else if (evento.key === 'Tab') {
+        cerrarLista();
+        sincronizarProducto();
+      }
+    });
+
+    inpProducto.addEventListener('blur', () => {
+      window.setTimeout(() => {
+        cerrarLista();
+        sincronizarProducto();
+      }, 200);
+    });
+
+    btnLimpiarProducto.addEventListener('click', () => {
+      seleccionarProducto(null);
     });
 
     inpCant.addEventListener('input', () => {
@@ -299,16 +486,19 @@ const metodos = ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia', 'Transferencia
     actualizarSubtotal();
     if (productoId) {
       sel.value = productoId;
-      sel.dispatchEvent(new Event('change'));
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
     }
+    sincronizarProducto();
     return div;
   }
 
   function recalcularTotal() {
     let subtotal = 0;
     for (const linea of contenedor.querySelectorAll('.linea')) {
+      const descripcion = linea.querySelector('.inp-desc').value.trim();
       const cant = Number(linea.querySelector('.inp-cant').value || 0);
       const precio = Number(linea.querySelector('.inp-precio').value || 0);
+      if (!descripcion || cant < 1) continue;
       subtotal += cant * precio;
     }
     const descuento = Number(inputDescuento.value || 0);
@@ -318,8 +508,7 @@ const metodos = ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia', 'Transferencia
     const lineas = [];
     for (const linea of contenedor.querySelectorAll('.linea')) {
       const sel = linea.querySelector('.sel-producto');
-      const opt = sel.selectedOptions[0];
-      const productoId = opt?.value || null;
+      const productoId = sel.value || null;
       const descripcion = linea.querySelector('.inp-desc').value.trim();
       const cantidad = Number(linea.querySelector('.inp-cant').value || 0);
       const precio = Number(linea.querySelector('.inp-precio').value || 0);
@@ -332,7 +521,8 @@ const metodos = ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia', 'Transferencia
 
   document.getElementById('btn-linea').addEventListener('click', () => {
     errorItems.classList.add('hidden');
-    crearLinea();
+    const div = crearLinea();
+    div.querySelector('.inp-producto').focus();
   });
   document.getElementById('btn-servicio').addEventListener('click', () => {
     errorItems.classList.add('hidden');

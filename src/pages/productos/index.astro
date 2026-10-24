@@ -4,12 +4,14 @@ import { TriangleAlert, Pencil, Plus, Trash } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 import LimpiarFiltros from '../../components/LimpiarFiltros.astro';
+import Pagination from '../../components/Pagination.astro';
 import Button from '../../components/ui/Button.astro';
 import Input from '../../components/ui/Input.astro';
 import Badge from '../../components/ui/Badge.astro';
 import EmptyState from '../../components/ui/EmptyState.astro';
 import {
   listProductos,
+  contarProductos,
   listCategorias,
   countStockBajo,
   resumenStockActivo,
@@ -18,16 +20,25 @@ import { formatCOP } from '../../lib/format';
 import Alert from '../../components/ui/Alert.astro';
 import { ponerFlash } from '../../lib/flash';
 
+const POR_PAGINA = 24;
+
 const q = Astro.url.searchParams.get('q')?.trim() || undefined;
 const categoria = Astro.url.searchParams.get('categoria')?.trim() || undefined;
 const soloStockBajo = Astro.url.searchParams.get('stock') === 'bajo';
 const verInactivos = Astro.url.searchParams.get('inactivos') === '1';
+const paginaSolicitada = Math.max(
+  1,
+  Number.parseInt(Astro.url.searchParams.get('pagina') ?? '1', 10) || 1,
+);
 
 const eliminar = Astro.getActionResult(actions.productos.eliminar);
 if (eliminar && !eliminar.error) {
   const params = new URLSearchParams();
   if (q) params.set('q', q);
   if (categoria) params.set('categoria', categoria);
+  if (soloStockBajo) params.set('stock', 'bajo');
+  if (verInactivos) params.set('inactivos', '1');
+  if (paginaSolicitada > 1) params.set('pagina', String(paginaSolicitada));
   if (eliminar.data.nombre) {
     ponerFlash(Astro.cookies, {
       tipo: eliminar.data.teniaVentas ? 'warning' : 'success',
@@ -40,14 +51,43 @@ if (eliminar && !eliminar.error) {
   return Astro.redirect(`/productos${qs ? `?${qs}` : ''}`);
 }
 
-const [lista, categorias, totalStockBajo, stock] = await Promise.all([
-  listProductos({ q, categoria, stockBajo: soloStockBajo, inactivos: verInactivos }),
+const [totalProductos, categorias, totalStockBajo, stock] = await Promise.all([
+  contarProductos({ q, categoria, stockBajo: soloStockBajo, inactivos: verInactivos }),
   listCategorias(),
   countStockBajo(),
   resumenStockActivo(),
 ]);
 
-const hayFiltro = Boolean(q || categoria || soloStockBajo);
+const totalPaginas = Math.max(1, Math.ceil(totalProductos / POR_PAGINA));
+const pagina = Math.min(paginaSolicitada, totalPaginas);
+const lista = await listProductos({
+  q,
+  categoria,
+  stockBajo: soloStockBajo,
+  inactivos: verInactivos,
+  limit: POR_PAGINA,
+  offset: (pagina - 1) * POR_PAGINA,
+});
+
+const hayFiltro = Boolean(q || categoria || soloStockBajo || verInactivos);
+const desde = totalProductos === 0 ? 0 : (pagina - 1) * POR_PAGINA + 1;
+const hasta = Math.min(pagina * POR_PAGINA, totalProductos);
+
+const filtros = new URLSearchParams();
+if (q) filtros.set('q', q);
+if (categoria) filtros.set('categoria', categoria);
+if (soloStockBajo) filtros.set('stock', 'bajo');
+if (verInactivos) filtros.set('inactivos', '1');
+
+function hrefPagina(numero: number): string {
+  const params = new URLSearchParams(filtros);
+  if (numero > 1) params.set('pagina', String(numero));
+  const qs = params.toString();
+  return `/productos${qs ? `?${qs}` : ''}`;
+}
+
+const anteriorHref = pagina > 1 ? hrefPagina(pagina - 1) : null;
+const siguienteHref = pagina < totalPaginas ? hrefPagina(pagina + 1) : null;
 
 const errDel = eliminar?.error;
 const errorEliminar =
@@ -60,7 +100,7 @@ const mensajeConfirmar =
 <DashboardLayout title="Productos" active="productos">
   <PageHeader
     title="Productos"
-    description={`${lista.length} en catálogo${totalStockBajo > 0 ? ` · ${totalStockBajo} con stock bajo` : ''}`}
+    description={`${totalProductos} en catálogo${totalStockBajo > 0 ? ` · ${totalStockBajo} con stock bajo` : ''}`}
   >
     {
       totalStockBajo > 0 && (
@@ -153,6 +193,14 @@ const mensajeConfirmar =
   </form>
 
   {
+    totalProductos > POR_PAGINA && (
+      <p class="mt-2 text-xs text-ink-muted">
+        El texto filtra esta página al instante; pulsa Enter para buscar en todas.
+      </p>
+    )
+  }
+
+  {
     errorEliminar && (
       <Alert variant="danger" class="mt-4">
         {errorEliminar}
@@ -226,6 +274,8 @@ const mensajeConfirmar =
                           <img
                             src={p.imagen}
                             alt=""
+                            loading="lazy"
+                            decoding="async"
                             class="h-11 w-11 shrink-0 rounded-lg border border-hairline object-cover"
                           />
                         ) : (
@@ -328,6 +378,8 @@ const mensajeConfirmar =
                   <img
                     src={p.imagen}
                     alt=""
+                    loading="lazy"
+                    decoding="async"
                     class="h-12 w-12 shrink-0 rounded-lg border border-hairline object-cover"
                   />
                 ) : (
@@ -399,12 +451,27 @@ const mensajeConfirmar =
             role="status"
             class="p-6 text-center text-sm text-ink-muted"
           >
-            Sin coincidencias con la búsqueda.
+            Sin coincidencias en esta página. Pulsa Enter para buscar en todas.
           </p>
         </>
       )
     }
   </div>
+
+  {
+    totalProductos > 0 && (
+      <Pagination
+        pagina={pagina}
+        totalPaginas={totalPaginas}
+        desde={desde}
+        hasta={hasta}
+        total={totalProductos}
+        anteriorHref={anteriorHref}
+        siguienteHref={siguienteHref}
+        etiqueta="Paginación de productos"
+      />
+    )
+  }
 
   {
     hayFiltro && <LimpiarFiltros href="/productos" class="mt-3" />

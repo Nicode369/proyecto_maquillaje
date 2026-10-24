@@ -27,10 +27,10 @@
   `/tmp/opencode/repo-before-filter.bundle`, fuera del repo). Verificado:
   `git log --all -- .env.local` queda vacío y el secreto ya no aparece en ningún
   commit. Como el secreto estuvo público, se **rotó** la contraseña del rol demo
-  en Neon y el `SESSION_SECRET` demo (actualizados en `.env.demo`); **pendiente**
-  pegar la nueva `DATABASE_URL` / `DEMO_RESET_DATABASE_URL` y `SESSION_SECRET` en
-  el proyecto demo de Vercel y redeploy. El demo queda caído hasta entonces.
-  Las credenciales de producción **no** estuvieron expuestas.
+  en Neon y el `SESSION_SECRET` demo (actualizados en `.env.demo`); también se
+  actualizaron las variables del proyecto demo de Vercel y se redeployó. El demo
+  volvió a funcionar (34 ventas de ejemplo). Las credenciales de producción
+  **no** estuvieron expuestas.
 
 ### Pulido 2026-10-24 (post-incidente)
 
@@ -45,6 +45,19 @@
 - **Descripción de venta**: al cambiar de producto, la descripción automática
   se reemplaza por la etiqueta del nuevo producto; si se escribió una
   descripción propia, se conserva.
+- **Paginación de productos (24/página)**: `contarProductos()` + `LIMIT/OFFSET`
+  en `listProductos()`; el conteo, los filtros (`q`, `categoria`, `stock`,
+  `inactivos`) y la página se preservan en los enlaces. Cambiar un filtro vuelve
+  a la página 1. Se muestra `Mostrando X–Y de Z`; las imágenes de producto usan
+  `loading="lazy"` y `decoding="async"`. El texto filtra la página al instante y
+  Enter busca en todas (aviso cuando hay más de 24).
+- **Buscador de productos en “Nueva venta”**: se reemplazó el `<select>` por un
+  combobox con búsqueda sin acentos por nombre, marca o categoría. Muestra hasta
+  50 resultados (con aviso si hay más), navegación con flechas/Enter/Escape,
+  opción “Servicio personalizado” y botón para quitar. El ID viaja en un input
+  oculto; descripción, precio y aviso de stock siguen a la selección. El total
+  solo suma líneas con descripción y cantidad ≥ 1; al pasar a servicio se limpia
+  el precio.
 - **Entornos separados**: `.env` (producción/local real, `npm run dev`) y
   `.env.demo` (demo, `npm run dev:demo` → `astro dev --mode demo`). Plantillas
   versionadas `.env.example` y `.env.demo.example`; `.env.local` queda solo para
@@ -88,7 +101,8 @@
 - **Respaldo y exportación** (2026-10-22): `/respaldo` con JSON completo y CSVs por
   módulo; `npm run db:backup` / `db:restore` (restaurar exige `--reemplazar`).
   `backups/` está en `.gitignore`.
-- **Paginación**: 50 por página en ventas y gastos con conteo real y filtros preservados.
+- **Paginación**: 50 por página en ventas y gastos; 24 por página en productos
+  (tarjetas con imagen), con conteo real, filtros y página preservados.
 - **Recibo imprimible**: `/ventas/recibo/[id]` con `@media print` y botón en el detalle.
 - **Guardas**: no se elimina una clienta con saldo pendiente; badge de stock bajo en el
   sidebar desde `countStockBajo()`.
@@ -113,6 +127,17 @@
 - e2e completo: **0 fallos** (2026-10-22; incluye stock/abonos, fecha imposible → 400,
   abono excesivo → 409, anular con abonos bloqueado y guarda de clientas con saldo).
 - DB tras pruebas: 0/0/0/0/0/0 (incluye `login_attempts` vacía).
+
+## Verificación 2026-10-24 (paginación y buscador)
+
+- `astro check`: 0/0/0 · `build`: Complete.
+- Con la base de producción local (63 productos): página 1 → 24, página 2 → 24,
+  página 3 → 15; `pagina=99` se ajusta a la última; `categoria=Maquillaje`
+  conserva el filtro y la paginación.
+- Demo: combobox con 15 productos; búsqueda por nombre/marca/categoría, selección
+  con teclado, limpiar, servicio, aviso de stock y total sincronizado.
+- e2e: 45/47; los 2 fallos son del login demo (no pide contraseña ni aplica el
+  rate limit de 5 intentos), no de la paginación ni del buscador.
 
 ## Pendientes (propuestos, esperando decisión — opcionales)
 

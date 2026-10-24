@@ -93,6 +93,19 @@ Para no re-descubrir por qué el código es así. Stack/convenciones básicas en
   y el `LIMIT/OFFSET` reemplaza el tope fijo anterior (200/300). La página se clampea
   al total real para que `?pagina=999` no muestre una lista vacía. El header usa el
   total real, no `lista.length`.
+- **Productos: 24 por página** (no 50): cada fila/tarjeta lleva imagen y datos de
+  margen; 24 mantiene el peso y el scroll razonables. `contarProductos()` usa los
+  mismos filtros que `listProductos()`; los enlaces preservan `q`, `categoria`,
+  `stock`, `inactivos` y `pagina`; cambiar un filtro no manda `pagina` y vuelve a 1.
+  Las imágenes de producto llevan `loading="lazy"` y `decoding="async"`.
+- **Buscador de productos en “Nueva venta”**: un `<select>` nativo con decenas de
+  opciones es difícil de recorrer; se reemplazó por un combobox que filtra en el
+  cliente por nombre, marca o categoría (sin acentos), muestra máx. 50 resultados y
+  navega con flechas/Enter/Escape. El ID se guarda en un input oculto; la opción
+  “Servicio personalizado” limpia el producto y el precio. Es suficiente para el
+  catálogo actual (decenas/cientos); si crece a miles, mover la búsqueda a un
+  endpoint del servidor. El total solo suma líneas con descripción y cantidad ≥ 1,
+  para que coincida con `items_json`.
 - **Ventas anuladas cuentan para paginar** (son historial visible), pero no para el
   monto facturado (`totalesVentas` las excluye); el header muestra ambos datos.
 - **Clientas con deuda no se eliminan**: el guard vive en la action (autoridad) y la UI

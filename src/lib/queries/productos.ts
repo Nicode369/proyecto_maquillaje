@@ -6,10 +6,12 @@ export interface FiltroProductos {
   categoria?: string;
   stockBajo?: boolean;
   inactivos?: boolean;
+  limit?: number;
+  offset?: number;
 }
 
 export async function listProductos(filtro: FiltroProductos = {}): Promise<Producto[]> {
-  const { q, categoria, stockBajo, inactivos } = filtro;
+  const { q, categoria, stockBajo, inactivos, limit, offset } = filtro;
   const rows = await sql`
     SELECT
       id,
@@ -32,8 +34,26 @@ export async function listProductos(filtro: FiltroProductos = {}): Promise<Produ
         OR nombre ILIKE '%' || ${q ?? null} || '%'
         OR marca ILIKE '%' || ${q ?? null} || '%'
       )
-    ORDER BY nombre ASC`;
+    ORDER BY nombre ASC, id ASC
+    LIMIT ${limit ?? 1_000_000}
+    OFFSET ${offset ?? 0}`;
   return rows as unknown as Producto[];
+}
+
+export async function contarProductos(filtro: FiltroProductos = {}): Promise<number> {
+  const { q, categoria, stockBajo, inactivos } = filtro;
+  const [row] = await sql`
+    SELECT COUNT(*)::int AS n
+    FROM productos
+    WHERE (${inactivos ?? false} OR activo)
+      AND (${categoria ?? null}::text IS NULL OR categoria = ${categoria ?? null})
+      AND (${stockBajo ?? false} = false OR stock <= stock_minimo)
+      AND (
+        ${q ?? null}::text IS NULL
+        OR nombre ILIKE '%' || ${q ?? null} || '%'
+        OR marca ILIKE '%' || ${q ?? null} || '%'
+      )`;
+  return row.n;
 }
 
 export async function getProducto(id: string): Promise<Producto | null> {
@@ -158,13 +178,14 @@ export interface ProductoVenta {
   id: string;
   nombre: string;
   marca: string | null;
+  categoria: string;
   stock: number;
   precio_venta: number;
 }
 
 export async function listProductosParaVenta(): Promise<ProductoVenta[]> {
   const rows = await sql`
-    SELECT id, nombre, marca, stock, precio_venta::float8 AS precio_venta
+    SELECT id, nombre, marca, categoria, stock, precio_venta::float8 AS precio_venta
     FROM productos
     WHERE activo
     ORDER BY nombre ASC`;
