@@ -29,3 +29,7 @@ backups/
 # jetbrains setting folder
 .idea/
 .neon
+
+# entorno local (nunca al repo)
+.env.local
+.env*.local

@@ -1,7 +1,29 @@
 # Memoria — estado actual del proyecto
 
-> Última actualización: 2026-10-22 — integridad de datos (stock/abonos/fechas y
-> errores 400/404/409), e2e en verde (0 fallos) y DB vacía.
+> Última actualización: 2026-10-24 — incidente de producción/demo resuelto:
+> faltaba la columna `ventas.hora_registro` en ambas bases y el modo demo había
+> quedado forzado en el código. Ver "Incidente 2026-10-24".
+
+## Incidente 2026-10-24 (producción y demo caídos)
+
+- **Síntoma**: `/` y `/ventas` devolvían 500; el resto de páginas respondía 200.
+  El login de producción mostraba "Entrar al demo" (acceso sin contraseña).
+- **Causa 1**: el commit `dd5b2e2` agregó `ventas.hora_registro` al esquema y a
+  las consultas, pero la migración no se aplicó a las bases. Las consultas
+  fallaban con `column v.hora_registro does not exist`.
+- **Causa 2**: tras el debug del modo demo, el commit `63468e2` dejó
+  `src/lib/demo.ts` con `ES_DEMO = true` fijo; los "reverts" posteriores no lo
+  restauraron. Producción quedó abierta (login demo) y con banner/botón de demo.
+- **Fix**: se aplicó `ALTER TABLE ventas ADD COLUMN IF NOT EXISTS hora_registro time`
+  a producción y demo; se restauró la detección por `DEMO_MODE` (con respaldo
+  `DEMO_RESET_DATABASE_URL`), se quitó el debug (`console.log`, barra visible y
+  `/api/debug-demo`) y `DEMO_MODE` volvió a `default: false`.
+- **Hora de venta**: `createVenta` guarda `(now() AT TIME ZONE 'America/Bogota')::time`
+  y `formatHora` acepta el formato `HH:MM:SS` de Postgres.
+- **Pendiente de seguridad**: `.env.local` estaba *trackeado* en el repo público
+  con la URL/contraseña de la base demo y el secreto de sesión demo. Se sacó del
+  índice y se agregó a `.gitignore`, pero **sigue en el historial**: rotar la
+  contraseña del rol de la base demo en Neon (y el `SESSION_SECRET` demo).
 
 ## Entrega
 

@@ -53,12 +53,18 @@ export function formatFechaCorta(date: Date | string): string {
 
 export function formatHora(date: Date | string | null | undefined): string {
   if (!date) return '';
+  // `ventas.hora_registro` es `time`: Postgres lo entrega como "HH:MM:SS".
+  if (typeof date === 'string') {
+    const hora = date.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+    if (hora) return `${hora[1].padStart(2, '0')}:${hora[2]}`;
+  }
   const d = date instanceof Date ? date : new Date(date);
   if (Number.isNaN(d.getTime())) return '';
   return new Intl.DateTimeFormat('es-CO', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
+    timeZone: 'America/Bogota',
   }).format(d);
 }
 

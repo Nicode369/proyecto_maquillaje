@@ -233,7 +233,7 @@ export async function createVenta(data: {
   const statementList = [
     sql`
       INSERT INTO ventas (id, cliente_id, fecha, metodo_pago, descuento, total, notas, credito, hora_registro)
-      VALUES (${ventaId}, ${data.clienteId}, ${data.fecha}, ${data.metodoPago}, ${data.descuento}, ${total}, ${data.notas}, ${data.credito}, CURRENT_TIME)`,
+      VALUES (${ventaId}, ${data.clienteId}, ${data.fecha}, ${data.metodoPago}, ${data.descuento}, ${total}, ${data.notas}, ${data.credito}, (now() AT TIME ZONE 'America/Bogota')::time)`,
     ...data.items.map(
       (item) => sql`
         INSERT INTO venta_items (venta_id, producto_id, descripcion, cantidad, precio_unitario, subtotal)
