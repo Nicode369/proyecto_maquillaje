@@ -7,6 +7,7 @@ import { listClientes } from '../lib/queries/clientes';
 import {
   anularVenta,
   createVenta,
+  eliminarVenta,
   getVenta,
   reactivarVenta,
   registrarAbono,
@@ -107,6 +108,36 @@ export const ventas = {
       }
       await anularVenta(input.id);
       return { ok: true };
+    },
+  }),
+
+  eliminar: defineAction({
+    accept: 'form',
+    input: z.object({ id: z.uuid('Identificador no válido') }),
+    handler: async (input, context) => {
+      await exigirSesion(context);
+      const venta = await getVenta(input.id);
+      if (!venta) fallo('La venta ya no existe.', 'NOT_FOUND');
+      if (venta.abonos.length > 0) {
+        fallo(
+          'Esta venta tiene abonos registrados y no se puede eliminar: anúlala para conservar el historial de pagos.',
+          'CONFLICT',
+        );
+      }
+      const eliminada = await eliminarVenta(input.id);
+      if (!eliminada) {
+        // Carrera: pudo entrar un abono (o borrarse la venta) desde el chequeo.
+        const actual = await getVenta(input.id);
+        if (actual) {
+          fallo(
+            'Esta venta tiene abonos registrados y no se puede eliminar: anúlala para conservar el historial de pagos.',
+            'CONFLICT',
+          );
+        }
+        fallo('La venta ya no existe.', 'NOT_FOUND');
+      }
+      // Al anular ya se había devuelto el stock; borrar no lo suma dos veces.
+      return { ok: true, stockRestaurado: !venta.anulada };
     },
   }),
 

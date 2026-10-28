@@ -69,11 +69,16 @@ Para no re-descubrir por qué el código es así. Stack/convenciones básicas en
 - **Reglas de negocio**: a crédito exige clienta (deuda anónima no tiene sentido);
   anular una venta con abonos queda **bloqueada** (hubo plata real de por medio);
   `registrarAbono` valida `monto ≤ saldo` en el servidor.
-- **Anular vs borrar** (2026-10-20): NO hay borrado físico de ventas. "Anular" marca
+- **Anular vs borrar** (2026-10-20, ampliado 2026-10-28): el borrado físico de
+  ventas ya existe, pero **no reemplaza a "Anular"**. "Anular" marca
   `anulada=true` (restaura stock, sale de KPIs) y deja constancia en el historial;
   "Reactivar" deshace la anulación (re-descuenta stock con guard de disponibilidad).
-  Motivo: panel contable → trazabilidad > borrado irreversible; un botón de borrar
-  junto a anular confunde a la usuaria.
+  "Eliminar" (icono de basura) borra la venta definitivamente y **restaura el stock
+  en la misma sentencia atómica**: si ya estaba anulada no vuelve a sumar inventario
+  (evita la doble restauración) y se bloquea cuando hay abonos (plata real cobrada).
+  Motivo: la usuaria pidió poder limpiar ventas cargadas por error sin dejar basura
+  en el historial; "Anular" sigue siendo la vía contable y reversible. Ambos botones
+  piden confirmación y dejan un toast con el resultado.
 - **Ingresos = caja** (corregido 2026-10-20): el KPI Ingresos y la serie mensual suman
   **solo lo cobrado**: ventas de contado (total, en su fecha) **+ cada abono** (en la
   fecha del abono). Una venta fiada NO suma ingreso al crearse; suma cuando cobra.

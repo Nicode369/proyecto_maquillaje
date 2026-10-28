@@ -1,6 +1,6 @@
 ---
 import { actions, isInputError } from 'astro:actions';
-import { Ban, ArrowLeft, Printer, RotateCcw } from '@lucide/astro';
+import { Ban, ArrowLeft, Printer, RotateCcw, Trash } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 import Button from '../../components/ui/Button.astro';
@@ -49,6 +49,20 @@ if (reactivar && !reactivar.error) {
 const errorReactivar =
   reactivar?.error && !isInputError(reactivar.error) ? reactivar.error.message : null;
 
+const eliminar = Astro.getActionResult(actions.ventas.eliminar);
+if (eliminar && !eliminar.error) {
+  ponerFlash(Astro.cookies, {
+    tipo: 'success',
+    texto: eliminar.data?.stockRestaurado
+      ? 'Venta eliminada · el stock de los productos se restauró'
+      : 'Venta eliminada · el stock ya estaba restaurado',
+  });
+  return Astro.redirect('/ventas');
+}
+
+const errorEliminar =
+  eliminar?.error && !isInputError(eliminar.error) ? eliminar.error.message : null;
+
 const errAbono = abono?.error;
 const camposAbono = isInputError(errAbono) ? errAbono.fields : {};
 const errorAbono = errAbono && !isInputError(errAbono) ? errAbono.message : null;
@@ -69,6 +83,10 @@ const mensajeAnular =
 
 const mensajeReactivar =
   '¿Reactivar esta venta? El stock de los productos se descontará de nuevo.';
+
+const mensajeEliminar = venta.anulada
+  ? '¿Eliminar esta venta definitivamente? No se puede deshacer.'
+  : '¿Eliminar esta venta definitivamente? No se puede deshacer y se restaurará el stock de los productos.';
 ---
 
 <DashboardLayout title={`Venta · ${formatCOP(venta.total)}`} active="ventas">
@@ -116,6 +134,20 @@ const mensajeReactivar =
         </form>
       )
     }
+    <form method="POST" action={actions.ventas.eliminar}>
+      <input type="hidden" name="id" value={venta.id} />
+      <Button
+        variant="ghost"
+        type="submit"
+        class="text-danger hover:bg-danger/10 hover:text-danger"
+        aria-label="Eliminar venta"
+        data-confirm={mensajeEliminar}
+        data-confirm-titulo="Eliminar venta"
+        data-confirm-ok="Eliminar"
+      >
+        <Trash size={15} /> Eliminar
+      </Button>
+    </form>
   </PageHeader>
 
   {
@@ -130,6 +162,14 @@ const mensajeReactivar =
     errorReactivar && (
       <Alert variant="danger" class="mt-4">
         {errorReactivar}
+      </Alert>
+    )
+  }
+
+  {
+    errorEliminar && (
+      <Alert variant="danger" class="mt-4">
+        {errorEliminar}
       </Alert>
     )
   }

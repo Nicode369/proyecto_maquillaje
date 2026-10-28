@@ -67,6 +67,19 @@
   versionadas `.env.example` y `.env.demo.example`; `.env.local` queda solo para
   overrides de la máquina y fuera de git.
 
+## Eliminar venta (2026-10-28)
+
+- **Icono de basura en ventas** (lista y detalle): borrado físico de la venta con
+  confirmación y toast (`Venta eliminada · el stock de los productos se restauró`).
+- La eliminación es **atómica** (`eliminarVenta`): restaura stock y borra en una sola
+  sentencia, así que no toca inventario si la venta tiene abonos o ya no existe.
+- **Venta anulada**: el stock ya se había restaurado al anular; borrarla no lo suma
+  dos veces (toast: "el stock ya estaba restaurado").
+- **Bloqueada si hay abonos** (409, igual que anular): hubo plata real de por medio.
+- "Anular"/"Reactivar" siguen disponibles: son la vía contable y reversible.
+- `venta_items` y `abonos` caen por `ON DELETE CASCADE`; el link a `productos` queda
+  en `SET NULL` como siempre.
+
 ## Entrega
 
 - **DB en 0/0/0/0/0** (TRUNCATE de las 5 tablas, 2026-10-20). La amiga empieza vacía:

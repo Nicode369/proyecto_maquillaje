@@ -1,6 +1,6 @@
 ---
 import { actions, isInputError } from 'astro:actions';
-import { Plus, Ban, FileDown } from '@lucide/astro';
+import { Plus, Ban, FileDown, Trash } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 import LimpiarFiltros from '../../components/LimpiarFiltros.astro';
@@ -25,19 +25,34 @@ const paginaSolicitada = Math.max(
   Number.parseInt(Astro.url.searchParams.get('pagina') ?? '1', 10) || 1,
 );
 
-const anular = Astro.getActionResult(actions.ventas.anular);
-if (anular && !anular.error) {
+function urlLista(): string {
   const params = new URLSearchParams();
   if (mes) params.set('mes', mes);
   if (clienteId) params.set('cliente', clienteId);
   if (q) params.set('q', q);
   if (paginaSolicitada > 1) params.set('pagina', String(paginaSolicitada));
   const qs = params.toString();
+  return `/ventas${qs ? `?${qs}` : ''}`;
+}
+
+const anular = Astro.getActionResult(actions.ventas.anular);
+if (anular && !anular.error) {
   ponerFlash(Astro.cookies, {
     tipo: 'success',
     texto: 'Venta anulada · el stock se restauró',
   });
-  return Astro.redirect(`/ventas${qs ? `?${qs}` : ''}`);
+  return Astro.redirect(urlLista());
+}
+
+const eliminar = Astro.getActionResult(actions.ventas.eliminar);
+if (eliminar && !eliminar.error) {
+  ponerFlash(Astro.cookies, {
+    tipo: 'success',
+    texto: eliminar.data?.stockRestaurado
+      ? 'Venta eliminada · el stock de los productos se restauró'
+      : 'Venta eliminada · el stock ya estaba restaurado',
+  });
+  return Astro.redirect(urlLista());
 }
 
 const [totales, totalRegistros, clientas] = await Promise.all([
@@ -81,6 +96,10 @@ const siguienteHref = pagina < totalPaginas ? hrefPagina(pagina + 1) : null;
 const errAnular = anular?.error;
 const errorAnular = errAnular && !isInputError(errAnular) ? errAnular.message : null;
 
+const errEliminar = eliminar?.error;
+const errorEliminar =
+  errEliminar && !isInputError(errEliminar) ? errEliminar.message : null;
+
 const metodos: Record<string, string> = {
   efectivo: 'Efectivo',
   nequi: 'Nequi',
@@ -92,6 +111,9 @@ const metodos: Record<string, string> = {
 
 const mensajeAnular =
   '¿Anular esta venta? El stock de los productos se restaurará.';
+
+const mensajeEliminar =
+  '¿Eliminar esta venta definitivamente? No se puede deshacer y se restaurará el stock de los productos.';
 ---
 
 <DashboardLayout title="Ventas" active="ventas">
@@ -154,6 +176,14 @@ const mensajeAnular =
     errorAnular && (
       <Alert variant="danger" class="mt-4">
         {errorAnular}
+      </Alert>
+    )
+  }
+
+  {
+    errorEliminar && (
+      <Alert variant="danger" class="mt-4">
+        {errorEliminar}
       </Alert>
     )
   }
@@ -274,6 +304,22 @@ const mensajeAnular =
                           </Button>
                         </form>
                       )}
+                      <form method="POST" action={actions.ventas.eliminar}>
+                        <input type="hidden" name="id" value={v.id} />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          type="submit"
+                          class="text-danger hover:bg-danger/10 hover:text-danger"
+                          aria-label="Eliminar venta"
+                          title="Eliminar venta"
+                          data-confirm={mensajeEliminar}
+                          data-confirm-titulo="Eliminar venta"
+                          data-confirm-ok="Eliminar"
+                        >
+                          <Trash size={14} />
+                        </Button>
+                      </form>
                     </div>
                   </td>
                 </tr>
@@ -338,6 +384,22 @@ const mensajeAnular =
                     </Button>
                   </form>
                 )}
+                <form method="POST" action={actions.ventas.eliminar} class="shrink-0">
+                  <input type="hidden" name="id" value={v.id} />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    type="submit"
+                    class="text-danger hover:bg-danger/10 hover:text-danger"
+                    aria-label="Eliminar venta"
+                    title="Eliminar venta"
+                    data-confirm={mensajeEliminar}
+                    data-confirm-titulo="Eliminar venta"
+                    data-confirm-ok="Eliminar"
+                  >
+                    <Trash size={14} />
+                  </Button>
+                </form>
               </li>
             ))}
           </ul>

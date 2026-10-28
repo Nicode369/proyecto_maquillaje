@@ -289,6 +289,46 @@ export async function anularVenta(id: string): Promise<void> {
     WHERE p.id = i.producto_id`;
 }
 
+/**
+ * Borrado físico de una venta: restaura el stock de sus ítems y luego la
+ * elimina (venta_items y abonos caen por CASCADE).
+ *
+ * Reglas:
+ * - Nunca se borra una venta con abonos: fue plata real cobrada.
+ * - Si la venta ya estaba anulada, el stock ya se había restaurado al anular:
+ *   borrarla no vuelve a sumar inventario (evita doble restauración).
+ * - Stock, verificación y borrado ocurren en una sola sentencia: si la venta
+ *   tiene abonos o ya no existe, no se toca el inventario.
+ *
+ * Devuelve `true` solo si la venta se eliminó.
+ */
+export async function eliminarVenta(id: string): Promise<boolean> {
+  const filas = (await sql`
+    WITH objetivo AS (
+      SELECT v.id, v.anulada
+      FROM ventas v
+      WHERE v.id = ${id}
+        AND NOT EXISTS (SELECT 1 FROM abonos a WHERE a.venta_id = v.id)
+    ),
+    restaurado AS (
+      UPDATE productos p
+      SET stock = stock + i.total
+      FROM (
+        SELECT vi.producto_id, SUM(vi.cantidad)::int AS total
+        FROM venta_items vi
+        INNER JOIN objetivo o ON o.id = vi.venta_id
+        WHERE vi.producto_id IS NOT NULL AND NOT o.anulada
+        GROUP BY vi.producto_id
+      ) i
+      WHERE p.id = i.producto_id
+    )
+    DELETE FROM ventas v
+    USING objetivo o
+    WHERE v.id = o.id
+    RETURNING v.id`) as unknown as { id: string }[];
+  return filas.length > 0;
+}
+
 export async function reactivarVenta(id: string): Promise<void> {
   const [venta] = (await sql`
     SELECT anulada FROM ventas WHERE id = ${id}`) as unknown as {

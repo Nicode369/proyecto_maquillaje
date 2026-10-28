@@ -154,6 +154,27 @@ c=$(curl -s -b $J -o /dev/null -w "%{http_code}" -X POST "$BASE/ventas/$VID2?_ac
 c=$(curl -s -b $J -o $D/anular-credito.txt -w "%{http_code}" -X POST "$BASE/ventas/$VID2?_action=ventas.anular" \
   -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "id=$VID2")
 grep -qi "abonos" $D/anular-credito.txt && pass "anular con abonos → bloqueada" || fail "anular con abonos no bloqueada ($c)"
+c=$(curl -s -b $J -o $D/eliminar-credito.txt -w "%{http_code}" -X POST "$BASE/ventas/$VID2?_action=ventas.eliminar" \
+  -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "id=$VID2")
+grep -qi "abonos" $D/eliminar-credito.txt && pass "eliminar con abonos → bloqueada" || fail "eliminar con abonos no bloqueada ($c)"
+
+# --- Eliminar venta (borrado físico) → stock restaurado y 404 ---
+c=$(curl -s -b $J -o $D/crear-vd.txt -w "%{http_code}" -X POST "$BASE/ventas/nueva?_action=ventas.crear" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "fecha=$FECHA" --data-urlencode "cliente_id=" --data-urlencode "metodo_pago=Efectivo" \
+  --data-urlencode "descuento=0" --data-urlencode "notas=" \
+  --data-urlencode "items_json=[{\"producto_id\":\"$PID\",\"descripcion\":\"E2E Producto Temp · MarcaX\",\"cantidad\":1,\"precio_unitario\":20000}]")
+case $c in 200|302) pass "ventas.crear (para eliminar) → $c";; *) fail "ventas.crear (para eliminar) → $c";; esac
+VID3=$(curl -s -b $J "$BASE/ventas" | grep -oE '/ventas/[0-9a-f-]{36}' | head -1 | sed 's#/ventas/##')
+curl -s -b $J -o $D/prod-editar.html "$BASE/productos/$PID/editar"
+S=$(stock); [ "$S" = "4" ] && pass "stock descontado 5 → 4" || fail "stock esperaba 4, obtuve $S"
+c=$(curl -s -b $J -o /dev/null -w "%{http_code}" -X POST "$BASE/ventas/$VID3?_action=ventas.eliminar" \
+  -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "id=$VID3")
+case $c in 200|302) pass "ventas.eliminar → $c";; *) fail "ventas.eliminar → $c";; esac
+curl -s -b $J -o $D/prod-editar.html "$BASE/productos/$PID/editar"
+S=$(stock); [ "$S" = "5" ] && pass "stock restaurado 4 → 5" || fail "stock esperaba 5, obtuve $S"
+c=$(curl -s -b $J -o /dev/null -w "%{http_code}" "$BASE/ventas/$VID3")
+[ "$c" = "404" ] && pass "venta eliminada → detalle 404" || fail "detalle de venta eliminada → $c (esperado 404)"
 
 # --- CRUD gasto ---
 c=$(curl -s -b $J -o $D/crear-g.txt -w "%{http_code}" -X POST "$BASE/gastos/nuevo?_action=gastos.crear" \

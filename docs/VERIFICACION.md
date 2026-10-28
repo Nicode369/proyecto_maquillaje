@@ -31,8 +31,8 @@ bash scripts/e2e.sh
   `Arriendo`) y el de la gráfica emiten **AVISO**, no FAIL, si no hay datos.
 - El check de KPIs compara **por diferencia** (línea base antes del abono → después),
   así que no falla aunque la base ya tenga datos reales.
-- Errores de negocio esperados: abono mayor al saldo → **409**, anular venta con
-  abonos → **409**, clienta con saldo → **409**, fecha imposible (`2026-02-31`) → **400**
+- Errores de negocio esperados: abono mayor al saldo → **409**, anular/eliminar venta
+  con abonos → **409**, clienta con saldo → **409**, fecha imposible (`2026-02-31`) → **400**
   (nunca 500). Si aparece un 500, revisar `astro dev logs`.
 - Si un cambio en `src/lib/` no se refleja, reiniciar el dev server (`astro dev stop` +
   `astro dev --background`): el hot-reload puede dejar módulos cacheados.
