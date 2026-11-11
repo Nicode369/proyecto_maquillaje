@@ -205,8 +205,8 @@ const stockBajo = await countStockBajo();
     });
 
     // Filtro en vivo: mientras se escribe, se ocultan las filas/tarjetas que no
-    // coinciden en la página actual. Enter envía el formulario para buscar en
-    // todas las páginas.
+    // coinciden en la página actual y, tras una pausa breve, se envía el
+    // formulario para buscar en todas las páginas. Enter envía de inmediato.
     const normalizar = (texto: string) =>
       texto
         .normalize('NFD')
@@ -214,10 +214,22 @@ const stockBajo = await countStockBajo();
         .toLowerCase()
         .trim();
 
+    const focoAuto = Number(sessionStorage.getItem('busqueda-auto'));
+    if (focoAuto) {
+      sessionStorage.removeItem('busqueda-auto');
+      const inputActivo =
+        Date.now() - focoAuto < 5000
+          ? document.querySelector<HTMLInputElement>('[data-filtro-vivo]')
+          : null;
+      if (inputActivo) {
+        const fin = inputActivo.value.length;
+        inputActivo.focus();
+        inputActivo.setSelectionRange(fin, fin);
+      }
+    }
+
     document.querySelectorAll<HTMLInputElement>('[data-filtro-vivo]').forEach((input) => {
       const items = Array.from(document.querySelectorAll<HTMLElement>('[data-filtrable]'));
-      if (items.length === 0) return;
-
       const grupos = Array.from(document.querySelectorAll<HTMLElement>('[data-filtro-grupo]'));
       const vacio = document.querySelector<HTMLElement>('[data-filtro-vacio]');
 
@@ -238,12 +250,51 @@ const stockBajo = await countStockBajo();
         if (vacio) vacio.hidden = visibles > 0;
       };
 
-      input.addEventListener('input', aplicar);
-      input.addEventListener('search', aplicar);
+      let temporizador: number | undefined;
+      let ultimoEnviado = normalizar(input.value);
+      let componiendo = false;
+
+      const enviar = (forzar = false) => {
+        const form = input.form;
+        if (!form) return;
+        const actual = normalizar(input.value);
+        if (!forzar && actual === ultimoEnviado) return;
+        ultimoEnviado = actual;
+        sessionStorage.setItem('busqueda-auto', String(Date.now()));
+        form.requestSubmit();
+      };
+
+      const programar = () => {
+        window.clearTimeout(temporizador);
+        temporizador = window.setTimeout(() => enviar(), 400);
+      };
+
+      input.addEventListener('compositionstart', () => {
+        componiendo = true;
+      });
+
+      input.addEventListener('compositionend', () => {
+        componiendo = false;
+        aplicar();
+        programar();
+      });
+
+      input.addEventListener('input', () => {
+        aplicar();
+        if (!componiendo) programar();
+      });
+
+      input.addEventListener('search', () => {
+        aplicar();
+        window.clearTimeout(temporizador);
+        enviar();
+      });
+
       input.addEventListener('keydown', (evento) => {
         if (evento.key === 'Enter') {
           evento.preventDefault();
-          input.form?.requestSubmit();
+          window.clearTimeout(temporizador);
+          enviar(true);
         }
       });
     });
