@@ -86,6 +86,7 @@ export async function countStockBajo(): Promise<number> {
 export interface ResumenStock {
   unidades: number;
   invertido: number;
+  venta: number;
   ganancia: number;
 }
 
@@ -94,6 +95,7 @@ export async function resumenStockActivo(): Promise<ResumenStock> {
     SELECT
       COALESCE(SUM(stock), 0)::int AS unidades,
       COALESCE(SUM(stock * precio_compra), 0)::float8 AS invertido,
+      COALESCE(SUM(stock * precio_venta), 0)::float8 AS venta,
       COALESCE(SUM(stock * (precio_venta - precio_compra)), 0)::float8 AS ganancia
     FROM productos
     WHERE activo`;

@@ -116,9 +116,9 @@ const mensajeConfirmar =
     <Button href="/productos/nuevo"><Plus size={15} /> Nuevo producto</Button>
   </PageHeader>
 
-  {/* Resumen del stock: unidades, dinero invertido y ganancia esperada */}
+  {/* Resumen del stock: unidades, inversión, venta potencial y ganancia esperada */}
   <div
-    class="mt-6 grid grid-cols-1 divide-y divide-hairline overflow-hidden rounded-xl border border-hairline bg-surface sm:grid-cols-3 sm:divide-x sm:divide-y-0"
+    class="mt-6 grid grid-cols-1 divide-y divide-hairline overflow-hidden rounded-xl border border-hairline bg-surface sm:grid-cols-4 sm:divide-x sm:divide-y-0"
   >
     <div class="p-5">
       <p class="text-xs tracking-wide text-ink-muted uppercase">Unidades en stock</p>
@@ -130,14 +130,24 @@ const mensajeConfirmar =
     <div class="p-5">
       <p class="text-xs tracking-wide text-ink-muted uppercase">Invertido en mercancía</p>
       <p class="display-number mt-1 text-2xl text-ink">{formatCOP(stock.invertido)}</p>
-      <p class="mt-1 text-[12px] text-ink-muted">a precio de compra</p>
+      <p class="mt-1 text-[12px] text-ink-muted">lo que pagaste por el stock</p>
+    </div>
+    <div class="p-5">
+      <p class="text-xs tracking-wide text-ink-muted uppercase">Venta potencial</p>
+      <p class="display-number mt-1 text-2xl text-ink">{formatCOP(stock.venta)}</p>
+      <p class="mt-1 text-[12px] text-ink-muted">invertido + ganancia</p>
     </div>
     <div class="p-5">
       <p class="text-xs tracking-wide text-ink-muted uppercase">Ganancia potencial</p>
       <p class="display-number mt-1 text-2xl text-wine">{formatCOP(stock.ganancia)}</p>
-      <p class="mt-1 text-[12px] text-ink-muted">si vendes todo el stock</p>
+      <p class="mt-1 text-[12px] text-ink-muted">venta − costo</p>
     </div>
   </div>
+
+  <p class="mt-2 text-xs text-ink-muted">
+    La venta potencial ya incluye lo invertido: al vender todo recuperas la inversión y la
+    ganancia es la diferencia. No se suman aparte.
+  </p>
 
   <form
     method="GET"
