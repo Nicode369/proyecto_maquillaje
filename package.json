@@ -14,6 +14,7 @@
     "check": "astro check",
     "db:init": "node --env-file-if-exists=.env scripts/db-init.ts",
     "db:seed": "node --env-file-if-exists=.env scripts/db-seed.ts",
+    "db:import-productos": "node --env-file-if-exists=.env scripts/import-productos.ts",
     "db:reset": "node --env-file-if-exists=.env scripts/reset-db.mjs",
     "db:clean-e2e": "node --env-file-if-exists=.env scripts/clean-e2e.mjs",
     "db:backup": "node --env-file-if-exists=.env scripts/db-backup.mjs",
