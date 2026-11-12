@@ -1,7 +1,8 @@
 # Memoria — estado actual del proyecto
 
-> Última actualización: 2026-11-11 — logo J&M Beauty en producción (login, sidebar
-> y topbar) con WebP optimizado; el demo conserva su flor y “Demo Studio”. Antes:
+> Última actualización: 2026-11-11 — logo J&M Beauty en producción: logo completo
+> en login y monograma compacto en sidebar/topbar; el demo conserva su flor y
+> “Demo Studio”. Antes:
 > importación de mercancía pegando una lista (IA/Excel), con previsualización y
 > gasto opcional. También: incidente de producción/demo resuelto, entornos separados
 > y `.env.local` eliminado del historial (queda rotar las credenciales demo). Ver
@@ -164,9 +165,13 @@
 - El logo de la amiga (`LogoJ&M.png`) se guarda como fuente en
   `src/assets/marca/logo-jm.png`; las versiones que se sirven son WebP de 480/768/1200 px
   en `public/marca/` (49/99/207 KB). El PNG original no se referencia.
-- Producción muestra J&M Beauty en login, sidebar y topbar móvil; el nombre de marca
-  pasó a `J&M Beauty` (default de `BRAND_NAME`), así que recibos, respaldo JSON y
-  exportaciones también lo usan. `.env.example` actualizado.
+- Para sidebar y topbar móvil se usa un recorte compacto del monograma
+  `logo-jm-mark-256/512.webp` (96 px en sidebar y 28 px de alto en topbar). El logo
+  completo queda reservado para el login, centrado en el panel espresso.
+- Se retiró el subtítulo “Maquillaje” debajo del logo en sidebar/login; “Beauty” ya
+  comunica la categoría.
+- El nombre de marca pasó a `J&M Beauty` (default de `BRAND_NAME`), así que recibos,
+  respaldo JSON y exportaciones también lo usan. `.env.example` actualizado.
 - El demo **no** cambia: sigue con la flor `/logo.svg` y “Demo Studio”
   (`BRAND_NAME` en `.env.demo`); los condicionales usan `ES_DEMO`.
 - Placeholders de productos, estados vacíos, favicon y OG siguen con la flor (decisión

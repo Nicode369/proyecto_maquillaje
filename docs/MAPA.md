@@ -83,7 +83,7 @@ scripts/
 └── db-restore.mjs           Restaura un JSON con --reemplazar (transacción + TRUNCATE)
 ```
 
-Assets: `public/marca/logo-jm*.webp` (logo J&M 480/768/1200; la fuente está en
-`src/assets/marca/logo-jm.png`), `public/logo.svg` (flor con degradado para demo y
+Assets: `public/marca/logo-jm*.webp` (logo J&M 480/768/1200 y monograma mark-256/512;
+la fuente está en `src/assets/marca/logo-jm.png`), `public/logo.svg` (flor con degradado para demo y
 placeholders), `public/favicon.svg`, `public/favicon.ico`, `public/og-image.jpg`
 (1200×630 para WhatsApp/redes), `public/robots.txt` (Disallow: /).

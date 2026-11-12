@@ -138,9 +138,9 @@ a `/` el middleware redirige sin setear cookie).
 
 ## 9. Logo de marca (producción vs demo)
 
-- `npm run dev` (sin `DEMO_MODE`): `/login` debe mostrar el logo J&M (WebP), al igual
-  que el sidebar y el topbar móvil; el nombre de recibos/respaldo debe ser
-  `J&M Beauty`.
+- `npm run dev` (sin `DEMO_MODE`): `/login` debe mostrar el logo completo J&M (WebP)
+  centrado; sidebar y topbar móvil usan el monograma. No debe aparecer el subtítulo
+  “Maquillaje”. El nombre de recibos/respaldo debe ser `J&M Beauty`.
 - `npm run dev:demo`: debe seguir mostrando la flor `/logo.svg` y `Demo Studio`; no
   debe cargar ningún `/marca/logo-jm-*.webp`.
 - Revisar que el logo no cause layout shift (dimensiones explícitas) y que se vea bien

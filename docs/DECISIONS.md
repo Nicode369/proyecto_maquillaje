@@ -189,10 +189,11 @@ Otras reglas de diseño:
 
 ## Marca y tipografía
 
-- **Producción (J&M Beauty)**: `Marca.astro` muestra el logo
-  `public/marca/logo-jm-*.webp` con `srcset`; variante `sidebar` (~140 px) y `auth`
-  (~200–220 px). El PNG original queda como fuente en `src/assets/marca/logo-jm.png`
-  y no se sirve.
+- **Producción (J&M Beauty)**: `Marca.astro` muestra el logo completo
+  `public/marca/logo-jm-*.webp` con `srcset` en login (`auth`, 200–220 px) y el
+  monograma `logo-jm-mark-256/512.webp` en sidebar (96 px). El topbar móvil usa el
+  monograma a 28 px de alto. El PNG original queda como fuente en
+  `src/assets/marca/logo-jm.png` y no se sirve.
 - **Demo (Demo Studio)**: `ES_DEMO` mantiene la flor `/logo.svg` + wordmark Fraunces
   (`tono="claro"` sobre espresso); el demo nunca muestra el logo J&M.
 - `getMarca()` usa `BRAND_NAME` (default `J&M Beauty`); `.env.demo` lo sobreescribe a
@@ -201,9 +202,9 @@ Otras reglas de diseño:
 - **Wordmark del demo sobre fondo oscuro**: `tono="claro"` (paper + rose). Sobre
   espresso da 10.9:1 y 5.8:1; la variante tinta daba 1.38:1 y Lighthouse la marcaba
   como inaccesible. El `tono` por defecto sigue siendo tinta para sidebar y login móvil.
-- **Logo J&M**: no usarlo a 24 px como el icono viejo; el detalle se pierde. En el
-  topbar móvil va a 32 px de alto; en sidebar/login, a 140/200–220 px. Se conserva la
-  transparencia y se redondea con `rounded-xl`.
+- **Logo J&M**: el logo completo no se usa a tamaños pequeños; para sidebar/topbar
+  va el monograma recortado (96/28 px de alto). En login, el logo completo a 200–220
+  px. Se conserva la transparencia y se redondea con `rounded-xl`.
 
 ## Login mobile
 
@@ -213,7 +214,7 @@ Otras reglas de diseño:
   pétalos solo mobile (`lg:hidden`) con keyframe
   `deriva` (custom props `--dur/--delay/--dy/--dr/--r0`), entrada `.entrada` 450ms.
   `prefers-reduced-motion` global + explícito en el componente.
-- Textos sobre el gradiente (footer y "Maquillaje" mobile) en `ink/75` — `ink-muted`
+- Textos sobre el gradiente (footer) en `ink/75` — `ink-muted`
   cae a 4.2:1 sobre `#f6d3e0` (detector).
 - El watermark del login se **quitó** (detector: raster invisible = "compliance token");
   la identidad desktop la carga el panel espresso.
