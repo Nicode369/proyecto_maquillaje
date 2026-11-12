@@ -22,7 +22,8 @@ src/
 │   ├── exportar/[tabla].ts  CSV por allowlist (ventas, gastos, abonos, clientas, productos)
 │   ├── ventas/              index (filtros+paginación+badges), nueva (checkbox crédito),
 │   │                        [id] (detalle + abonos + botón recibo), recibo/[id] (print)
-│   ├── productos/           index (KPIs stock + miniaturas + filtros), nuevo, [id]/editar
+│   ├── productos/           index (KPIs stock + miniaturas + filtros), nuevo, importar
+│   │                        (lista pegada), [id]/editar
 │   ├── gastos/              index (filtros+paginación), nuevo, [id]/editar
 │   └── clientas/            index (Debe + borrado bloqueado con saldo), nueva, [id], [id]/editar
 │
@@ -32,7 +33,7 @@ src/
 │   ├── sesion.ts            exigirSesion(): guard de actions (ActionError UNAUTHORIZED)
 │   ├── campos.ts            Esquema zod compartido `fechaISO` (calendario real)
 │   ├── clientes.ts          crear/actualizar/eliminar (bloquea si saldo > 0)
-│   ├── productos.ts         CRUD + campo `imagen` (zod data-URL) + limpiar()
+│   ├── productos.ts         CRUD + campo `imagen` (zod data-URL) + limpiar() + importar()
 │   ├── ventas.ts            crear (transacción, credito) + anular (guard abonos) + reactivar + registrarAbono
 │   └── gastos.ts            CRUD de gastos
 │
@@ -54,13 +55,14 @@ src/
 │   ├── auth.ts              firmarSesion/verificarSesion (HMAC), opcionesCookie, SESSION_COOKIE
 │   ├── flash.ts             Mensajes flash post-redirect (cookie httpOnly 60s) + leerFlash/borrarFlash
 │   ├── format.ts            COP (Intl es-CO sin decimales), fechas es-CO
+│   ├── importar.ts          Parseo de listas pegadas (TSV/CSV/Markdown), normalización y preview
 │   ├── fechas.ts            esFechaISO(): valida fechas reales del calendario
 │   ├── errores.ts           fallo(mensaje, código): ActionError 400/404/409
 │   ├── csv.ts               CSV con BOM, separador ;, CRLF, escape y anti-fórmulas
 │   └── queries/             SQL crudo, uno por módulo:
 │       ├── types.ts         Tipos de filas (+Abono; Venta con credito/saldo; ClienteResumen con saldo)
 │       ├── clientes.ts      CRUD + búsqueda + saldo pendiente por clienta
-│       ├── productos.ts     CRUD + resumenStockActivo() + búsquedas (incluye imagen)
+│       ├── productos.ts     CRUD + resumenStockActivo() + búsquedas (incluye imagen) + importarProductos()
 │       ├── ventas.ts        Lista/filtros + offset/count + abonos export + detalle + create/anular/reactivar/registrarAbono
 │       ├── gastos.ts        CRUD + filtros + offset/count + totales por mes
 │       └── reportes.ts      Datos de la home (KPIs, serie, stock bajo, tops, porCobrar)

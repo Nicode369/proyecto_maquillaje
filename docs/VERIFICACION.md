@@ -123,7 +123,20 @@ a `/` el middleware redirige sin setear cookie).
   (`[data-toast]`), autocerarse a los ~4.5 s y desaparecer con la X. Probar en móvil
   (390x844) y escritorio.
 
-## 8. Commit
+## 8. Importar mercancía desde lista
+
+- En `/productos/importar`, “Copiar prompt” debe copiar el TSV de ejemplo; pegar la
+  lista debe mostrar la vista previa sin llamar al servidor (crear un producto
+  “Nuevo” y otro con nombre existente “Suma +N”).
+- Los errores (cantidad 0, precio inválido o nombre repetido) deben bloquear el botón
+  “Confirmar importación”; con datos válidos, el checkbox de gasto viene marcado.
+- Probar contra el demo: crear un producto, reimportarlo con otra capitalización
+  (suma stock y actualiza precios), desmarcar/marcar el gasto (categoría
+  `Mercancía`, monto = cantidad × costo) y borrar los datos de prueba.
+- Acciones directas: una fila inválida responde 400 y una lista con nombres
+  repetidos 409; ambas sin cambios en la base.
+
+## 9. Commit
 
 ```
 git status --short

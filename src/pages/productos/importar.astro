@@ -1,0 +1,402 @@
+---
+import { actions, isInputError } from 'astro:actions';
+import { ClipboardCopy, FileUp, ListPlus } from '@lucide/astro';
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+import Button from '../../components/ui/Button.astro';
+import Checkbox from '../../components/ui/Checkbox.astro';
+import Alert from '../../components/ui/Alert.astro';
+import Card from '../../components/ui/Card.astro';
+import { ponerFlash } from '../../lib/flash';
+import { formatCOP } from '../../lib/format';
+import { listCategorias, listProductosParaImportar } from '../../lib/queries/productos';
+
+const resultado = Astro.getActionResult(actions.productos.importar);
+if (resultado && !resultado.error) {
+  const { creados, actualizados, unidades, gasto } = resultado.data;
+  const partes: string[] = [];
+  if (creados > 0) partes.push(`${creados} nuevo${creados === 1 ? '' : 's'}`);
+  if (actualizados > 0) partes.push(`${actualizados} actualizado${actualizados === 1 ? '' : 's'}`);
+  partes.push(`${unidades} unidad${unidades === 1 ? '' : 'es'}`);
+  if (gasto > 0) partes.push(`gasto ${formatCOP(gasto)}`);
+  ponerFlash(Astro.cookies, {
+    tipo: 'success',
+    texto: `Importación lista: ${partes.join(' · ')}.`,
+  });
+  return Astro.redirect('/productos');
+}
+
+const err = resultado?.error;
+const errorGenerico = err && !isInputError(err) ? err.message : null;
+const campos = isInputError(err) ? err.fields : {};
+
+let textoPrevio = '';
+let gastoPrevio = true;
+if (Astro.request.method === 'POST') {
+  try {
+    const form = await Astro.request.formData();
+    textoPrevio = String(form.get('texto') ?? '');
+    gastoPrevio = form.get('registrar_gasto') === 'true';
+  } catch {
+    textoPrevio = '';
+  }
+}
+
+const [existentes, categoriasGuardadas] = await Promise.all([
+  listProductosParaImportar(),
+  listCategorias(),
+]);
+
+const categorias = ['Accesorios', 'Maquillaje', 'Cabello', 'Cuidado facial'];
+for (const categoria of categoriasGuardadas) {
+  if (!categorias.some((item) => item.toLowerCase() === categoria.toLowerCase())) {
+    categorias.push(categoria);
+  }
+}
+
+const datosIniciales = JSON.stringify({ existentes, categorias }).replace(/</g, '\\u003c');
+
+const PROMPT_IA = [
+  'Actúa como asistente de inventario. Devuelve SOLO un bloque de código con una tabla TSV (columnas separadas por tabulaciones), sin explicaciones ni texto adicional, usando exactamente este encabezado:',
+  '',
+  '#\tProducto\tCant.\tCompra unit.\tVenta sugerida\tMarca\tCategoría',
+  '',
+  'Reglas:',
+  '- Una fila por producto, numeradas desde 1.',
+  '- Cant. = unidades enteras mayores que 0.',
+  '- Compra unit. y Venta sugerida = pesos colombianos, solo números enteros, sin $, puntos, comas ni espacios.',
+  '- Marca = nombre de la marca o "No identificada".',
+  '- Categoría = Accesorios, Maquillaje, Cabello, Cuidado facial (o una categoría existente).',
+  '- No uses tabulaciones ni saltos de línea dentro de los campos.',
+  '',
+  'Ejemplo:',
+  '1\tBase líquida Master Matte\t3\t32000\t58000\tArgenis\tRostro',
+  '',
+  'Datos de la compra:',
+  '[pegar aquí la factura, lista o texto]',
+].join('\n');
+---
+
+<DashboardLayout title="Importar mercancía" active="productos">
+  <PageHeader
+    title="Importar mercancía"
+    description="Pega una lista generada por IA o copiada de Excel y revisa antes de guardar"
+  >
+    <Button variant="outline" href="/productos">Volver a productos</Button>
+  </PageHeader>
+
+  {
+    errorGenerico && (
+      <Alert variant="danger" class="mt-4">
+        {errorGenerico}
+      </Alert>
+    )
+  }
+
+  <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)]">
+    <form
+      method="POST"
+      action={actions.productos.importar}
+      class="min-w-0 space-y-4"
+      data-importar-form
+    >
+      <Card>
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div class="min-w-0">
+            <h2 class="font-display text-lg text-ink">1. Copia el prompt</h2>
+            <p class="mt-1 text-sm text-ink-muted">
+              Pégalo en ChatGPT, Gemini o la IA que uses junto con los datos de la compra.
+            </p>
+          </div>
+          <Button type="button" variant="outline" size="sm" data-copiar-prompt>
+            <ClipboardCopy size={14} />
+            <span data-copiar-texto>Copiar prompt</span>
+          </Button>
+        </div>
+        <pre
+          id="prompt-ia"
+          class="mt-3 max-h-72 overflow-auto rounded-lg border border-hairline bg-paper/70 p-3 font-mono text-[12px] leading-relaxed whitespace-pre-wrap text-ink">{PROMPT_IA}</pre>
+      </Card>
+
+      <Card>
+        <h2 class="font-display text-lg text-ink">2. Pega la lista</h2>
+        <p class="mt-1 text-sm text-ink-muted">
+          Acepta tabulaciones, CSV, punto y coma o tablas Markdown. Ignora encabezados y bloques de
+          código.
+        </p>
+        <label for="texto" class="mt-3 block text-[13px] font-medium text-ink">
+          Lista de productos
+        </label>
+        <textarea
+          id="texto"
+          name="texto"
+          rows="12"
+          data-importar-texto
+          class="mt-1.5 w-full resize-y rounded-lg border border-ink/15 bg-surface px-3 py-2 font-mono text-[13px] text-ink placeholder:text-ink-muted/60 focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/15"
+          placeholder={`Pega aquí la tabla...\n\n#\tProducto\tCant.\tCompra unit.\tVenta sugerida\tMarca\tCategoría`}
+        >{textoPrevio}</textarea>
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+          <Button type="button" variant="outline" data-analizar>
+            <ListPlus size={15} /> Analizar lista
+          </Button>
+          <span class="text-xs text-ink-muted" data-estado-analisis aria-live="polite"></span>
+        </div>
+        {
+          campos.filas && (
+            <p class="mt-2 text-[13px] text-danger">{campos.filas[0]}</p>
+          )
+        }
+      </Card>
+
+      <section
+        data-preview
+        hidden
+        class="scroll-mt-4 rounded-xl border border-hairline bg-surface p-5"
+        aria-live="polite"
+      >
+        <div class="flex flex-wrap items-start justify-between gap-2">
+          <h2 class="font-display text-lg text-ink">3. Revisa y confirma</h2>
+          <span class="text-xs text-ink-muted" data-resumen-preview></span>
+        </div>
+        <div data-errores-preview class="mt-3"></div>
+        <ul data-filas-preview class="mt-2 divide-y divide-hairline"></ul>
+        <div
+          data-totales-preview
+          class="mt-3 rounded-lg border border-hairline bg-paper/60 px-3 py-2"
+        >
+        </div>
+      </section>
+
+      <div class="space-y-3 rounded-xl border border-hairline bg-surface p-5">
+        <h2 class="font-display text-lg text-ink">4. Confirma</h2>
+        <Checkbox
+          name="registrar_gasto"
+          label="Registrar el total como gasto"
+          hint="Categoría Mercancía y fecha de hoy."
+          checked={gastoPrevio}
+          error={campos.registrar_gasto?.[0]}
+        />
+        <input type="hidden" name="filas" value="" data-filas-json />
+        <div class="flex flex-wrap gap-2 border-t border-hairline pt-4">
+          <Button type="submit" disabled data-confirmar-importacion>
+            <FileUp size={15} /> Confirmar importación
+          </Button>
+          <Button variant="outline" href="/productos">Cancelar</Button>
+        </div>
+      </div>
+    </form>
+
+    <aside class="space-y-4">
+      <Card>
+        <h2 class="font-display text-lg text-ink">Cómo se aplica</h2>
+        <ul class="mt-2 space-y-2 text-sm text-ink-muted">
+          <li>Si el nombre coincide (sin distinguir mayúsculas ni tildes), suma unidades al stock.</li>
+          <li>Si es nuevo, se crea con stock mínimo 1.</li>
+          <li>Actualiza el costo y el precio de venta con los datos de la lista.</li>
+          <li>Todo se guarda en una sola transacción.</li>
+        </ul>
+      </Card>
+      <Alert variant="info" compact>
+        La coincidencia es por nombre (sin mayúsculas, tildes ni espacios repetidos). Revisa la
+        vista previa antes de confirmar.
+      </Alert>
+    </aside>
+  </div>
+
+  <script type="application/json" id="datos-importar" set:html={datosIniciales}></script>
+  <script>
+    import {
+      parsearLista,
+      type DatosImportacion,
+      type ResultadoImportacion,
+    } from '../../lib/importar';
+    import { formatCOP } from '../../lib/format';
+
+    const datosEl = document.getElementById('datos-importar');
+    const datos: DatosImportacion = datosEl?.textContent
+      ? JSON.parse(datosEl.textContent)
+      : { existentes: [], categorias: [] };
+
+    const form = document.querySelector<HTMLFormElement>('[data-importar-form]');
+    const texto = document.querySelector<HTMLTextAreaElement>('[data-importar-texto]');
+    const botonAnalizar = document.querySelector<HTMLButtonElement>('[data-analizar]');
+    const estado = document.querySelector<HTMLElement>('[data-estado-analisis]');
+    const preview = document.querySelector<HTMLElement>('[data-preview]');
+    const lista = document.querySelector<HTMLElement>('[data-filas-preview]');
+    const erroresEl = document.querySelector<HTMLElement>('[data-errores-preview]');
+    const totalesEl = document.querySelector<HTMLElement>('[data-totales-preview]');
+    const resumenEl = document.querySelector<HTMLElement>('[data-resumen-preview]');
+    const hidden = document.querySelector<HTMLInputElement>('[data-filas-json]');
+    const confirmar = document.querySelector<HTMLButtonElement>('[data-confirmar-importacion]');
+    const botonCopiar = document.querySelector<HTMLButtonElement>('[data-copiar-prompt]');
+    const textoCopiar = document.querySelector<HTMLElement>('[data-copiar-texto]');
+    const promptEl = document.getElementById('prompt-ia');
+
+    const crearBadge = (texto: string, tono: 'nuevo' | 'existe' | 'error'): HTMLSpanElement => {
+      const span = document.createElement('span');
+      const estilos = {
+        nuevo: 'bg-sage/10 text-sage',
+        existe: 'bg-wine/10 text-wine',
+        error: 'bg-danger/10 text-danger',
+      };
+      span.className = `inline-flex shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${estilos[tono]}`;
+      span.textContent = texto;
+      return span;
+    };
+
+    const renderizar = (resultado: ResultadoImportacion) => {
+      if (!preview || !lista || !erroresEl || !totalesEl || !resumenEl || !hidden || !confirmar) {
+        return;
+      }
+
+      const validas = resultado.filas.filter((fila) => !fila.error);
+      preview.hidden = false;
+      lista.replaceChildren();
+      erroresEl.replaceChildren();
+      totalesEl.replaceChildren();
+
+      resumenEl.textContent = `${validas.length} fila${validas.length === 1 ? '' : 's'} válida${validas.length === 1 ? '' : 's'} de ${resultado.filas.length}`;
+
+      if (resultado.errores.length > 0) {
+        const titulo = document.createElement('p');
+        titulo.className = 'text-sm font-medium text-danger';
+        titulo.textContent = `Revisa ${resultado.errores.length} problema${resultado.errores.length === 1 ? '' : 's'} antes de continuar:`;
+        erroresEl.append(titulo);
+
+        const ul = document.createElement('ul');
+        ul.className = 'mt-1 space-y-1';
+        for (const error of resultado.errores.slice(0, 50)) {
+          const li = document.createElement('li');
+          li.className = 'text-[13px] text-danger';
+          li.textContent = error.fila > 0 ? `Fila ${error.fila}: ${error.mensaje}` : error.mensaje;
+          ul.append(li);
+        }
+        if (resultado.errores.length > 50) {
+          const li = document.createElement('li');
+          li.className = 'text-[13px] text-danger';
+          li.textContent = `y ${resultado.errores.length - 50} más…`;
+          ul.append(li);
+        }
+        erroresEl.append(ul);
+      }
+
+      for (const fila of resultado.filas) {
+        const item = document.createElement('li');
+        item.className = 'py-3';
+
+        const cabecera = document.createElement('div');
+        cabecera.className = 'flex items-start justify-between gap-3';
+
+        const nombre = document.createElement('p');
+        nombre.className = 'min-w-0 flex-1 text-sm font-medium text-ink';
+        nombre.textContent = fila.nombre;
+        cabecera.append(nombre);
+
+        if (fila.error) {
+          cabecera.append(crearBadge('Con error', 'error'));
+        } else if (fila.estado === 'existe') {
+          cabecera.append(crearBadge(`Suma +${fila.cantidad}`, 'existe'));
+        } else {
+          cabecera.append(crearBadge('Nuevo', 'nuevo'));
+        }
+        item.append(cabecera);
+
+        const detalle = document.createElement('p');
+        detalle.className = 'mt-1 text-xs text-ink-muted';
+        detalle.textContent = `${fila.cantidad} und · compra ${formatCOP(fila.costo)} · venta ${formatCOP(fila.venta)} · ${fila.marca ?? 'Sin marca'} · ${fila.categoria}`;
+        item.append(detalle);
+
+        if (fila.estado === 'existe' && fila.existente) {
+          const stock = document.createElement('p');
+          stock.className = 'mt-1 text-xs text-wine';
+          stock.textContent = `Stock: ${fila.existente.stock} → ${fila.existente.stock + fila.cantidad}${fila.existente.activo ? '' : ' (se reactiva)'}`;
+          item.append(stock);
+        }
+
+        for (const aviso of fila.advertencias) {
+          const p = document.createElement('p');
+          p.className = 'mt-1 text-xs text-ochre';
+          p.textContent = aviso;
+          item.append(p);
+        }
+
+        if (fila.error) {
+          const p = document.createElement('p');
+          p.className = 'mt-1 text-xs text-danger';
+          p.textContent = fila.error;
+          item.append(p);
+        }
+
+        lista.append(item);
+      }
+
+      const totales = resultado.totales;
+      const linea = document.createElement('p');
+      linea.className = 'text-sm text-ink';
+      linea.textContent = `${totales.unidades} unidades · ${formatCOP(totales.invertido)} invertidos · venta potencial ${formatCOP(totales.venta)} · ganancia ${formatCOP(totales.ganancia)}`;
+      totalesEl.append(linea);
+
+      hidden.value = resultado.bloqueado
+        ? ''
+        : JSON.stringify(
+            validas.map(({ nombre, cantidad, costo, venta, marca, categoria }) => ({
+              nombre,
+              cantidad,
+              costo,
+              venta,
+              marca,
+              categoria,
+            })),
+          );
+      confirmar.disabled = resultado.bloqueado;
+      if (estado) {
+        estado.textContent = resultado.bloqueado
+          ? 'Corrige los errores para continuar.'
+          : `${validas.length} fila${validas.length === 1 ? '' : 's'} lista${validas.length === 1 ? '' : 's'} para importar.`;
+      }
+    };
+
+    const analizar = (): ResultadoImportacion | null => {
+      if (!texto) return null;
+      const resultado = parsearLista(texto.value, datos);
+      renderizar(resultado);
+      return resultado;
+    };
+
+    let temporizador: number | undefined;
+    texto?.addEventListener('input', () => {
+      window.clearTimeout(temporizador);
+      temporizador = window.setTimeout(() => analizar(), 350);
+    });
+
+    botonAnalizar?.addEventListener('click', () => {
+      window.clearTimeout(temporizador);
+      analizar();
+    });
+
+    form?.addEventListener('submit', (evento) => {
+      window.clearTimeout(temporizador);
+      const resultado = analizar();
+      if (!resultado || resultado.bloqueado || !hidden) {
+        evento.preventDefault();
+      }
+    });
+
+    botonCopiar?.addEventListener('click', async () => {
+      if (!promptEl) return;
+      try {
+        await navigator.clipboard.writeText(promptEl.textContent ?? '');
+        if (textoCopiar) {
+          textoCopiar.textContent = 'Copiado';
+          window.setTimeout(() => {
+            textoCopiar.textContent = 'Copiar prompt';
+          }, 1500);
+        }
+      } catch {
+        if (textoCopiar) textoCopiar.textContent = 'No se pudo copiar';
+      }
+    });
+
+    if (texto?.value.trim()) analizar();
+  </script>
+</DashboardLayout>

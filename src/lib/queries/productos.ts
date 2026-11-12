@@ -1,4 +1,6 @@
+import type { NeonQueryPromise } from '@neondatabase/serverless';
 import { sql } from '../db';
+import { normalizarNombre, type FilaImportada, type ProductoExistenteImport } from '../importar';
 import type { Producto } from './types';
 
 export interface FiltroProductos {
@@ -192,4 +194,103 @@ export async function listProductosParaVenta(): Promise<ProductoVenta[]> {
     WHERE activo
     ORDER BY nombre ASC`;
   return rows as unknown as ProductoVenta[];
+}
+
+export async function listProductosParaImportar(): Promise<ProductoExistenteImport[]> {
+  const rows = await sql`
+    SELECT
+      id,
+      nombre,
+      stock,
+      precio_compra::float8 AS precio_compra,
+      precio_venta::float8 AS precio_venta,
+      activo
+    FROM productos
+    ORDER BY activo DESC, created_at ASC`;
+  return rows as unknown as ProductoExistenteImport[];
+}
+
+export interface ResultadoImportacionProductos {
+  creados: number;
+  actualizados: number;
+  unidades: number;
+  invertido: number;
+  gasto: number;
+}
+
+type Consulta = NeonQueryPromise<false, false>;
+
+export async function importarProductos(
+  filas: FilaImportada[],
+  registrarGasto: boolean,
+): Promise<ResultadoImportacionProductos> {
+  const existentes = await listProductosParaImportar();
+  const porNombre = new Map<string, ProductoExistenteImport>();
+
+  for (const producto of existentes) {
+    const clave = normalizarNombre(producto.nombre);
+    const previo = porNombre.get(clave);
+    if (!previo || (!previo.activo && producto.activo)) {
+      porNombre.set(clave, producto);
+    }
+  }
+
+  const consultas: Consulta[] = [];
+  let creados = 0;
+  let actualizados = 0;
+  let unidades = 0;
+  let invertido = 0;
+
+  for (const fila of filas) {
+    const existente = porNombre.get(normalizarNombre(fila.nombre));
+    unidades += fila.cantidad;
+    invertido += fila.cantidad * fila.costo;
+
+    if (existente) {
+      consultas.push(sql`
+        UPDATE productos
+        SET stock = stock + ${fila.cantidad},
+            stock_minimo = 1,
+            precio_compra = ${fila.costo},
+            precio_venta = ${fila.venta},
+            activo = true
+        WHERE id = ${existente.id}`);
+      actualizados++;
+    } else {
+      consultas.push(sql`
+        INSERT INTO productos (nombre, marca, categoria, stock, stock_minimo, precio_compra, precio_venta, activo)
+        VALUES (
+          ${fila.nombre},
+          ${fila.marca?.trim() || null},
+          ${fila.categoria},
+          ${fila.cantidad},
+          1,
+          ${fila.costo},
+          ${fila.venta},
+          true
+        )`);
+      creados++;
+    }
+  }
+
+  let gasto = 0;
+  if (registrarGasto && invertido > 0) {
+    gasto = invertido;
+    const productosTexto = filas.length === 1 ? 'producto' : 'productos';
+    const unidadesTexto = unidades === 1 ? 'unidad' : 'unidades';
+    consultas.push(sql`
+      INSERT INTO gastos (fecha, categoria, descripcion, monto)
+      VALUES (
+        (now() AT TIME ZONE 'America/Bogota')::date,
+        'Mercancía',
+        ${`Compra de mercancía (${filas.length} ${productosTexto}, ${unidades} ${unidadesTexto})`},
+        ${invertido}
+      )`);
+  }
+
+  if (consultas.length > 0) {
+    await sql.transaction(consultas);
+  }
+
+  return { creados, actualizados, unidades, invertido, gasto };
 }

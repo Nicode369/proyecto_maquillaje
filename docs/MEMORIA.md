@@ -1,8 +1,10 @@
 # Memoria — estado actual del proyecto
 
-> Última actualización: 2026-10-24 — incidente de producción/demo resuelto,
-> entornos separados y `.env.local` eliminado del historial (queda rotar las
-> credenciales demo). Ver "Incidente 2026-10-24" y "Pulido 2026-10-24".
+> Última actualización: 2026-11-11 — importación de mercancía pegando una lista
+> (IA/Excel), con previsualización y gasto opcional. Antes: incidente de
+> producción/demo resuelto, entornos separados y `.env.local` eliminado del
+> historial (queda rotar las credenciales demo). Ver "Incidente 2026-10-24" y
+> "Pulido 2026-10-24".
 
 ## Incidente 2026-10-24 (producción y demo caídos)
 
@@ -155,6 +157,26 @@
   con teclado, limpiar, servicio, aviso de stock y total sincronizado.
 - e2e: 45/47; los 2 fallos son del login demo (no pide contraseña ni aplica el
   rate limit de 5 intentos), no de la paginación ni del buscador.
+
+## Importar mercancía desde lista (2026-11-11)
+
+- **Página `/productos/importar`** (botón “Importar lista” en Productos): pega una
+  tabla generada por IA o copiada de Excel. Incluye un prompt copiable que pide TSV
+  con `# Producto Cant. Compra unit. Venta sugerida Marca Categoría`.
+- `src/lib/importar.ts` parsea TSV, CSV (`;`/`,`), tablas Markdown y texto con
+  encabezado; limpia precios COP (`$`, puntos, comas), normaliza nombres (sin tildes,
+  mayúsculas ni espacios repetidos), detecta repetidos/errores y calcula totales.
+  La vista previa es client-side (no llama al servidor) y bloquea el envío si hay
+  errores. Máximo 500 filas.
+- `productos.importar` valida y aplica todo en **una transacción**: si el nombre
+  normalizado coincide, suma stock, actualiza precios, deja `stock_minimo = 1` y
+  reactiva; si no, crea con stock mínimo 1. El checkbox “Registrar el total como
+  gasto” (marcado por defecto) crea un gasto `Mercancía` con la fecha de Colombia.
+- Sin cambios de esquema.
+- **Verificado en demo**: creación (stock 3), segunda importación con otra
+  capitalización (stock 5 y precios actualizados), gasto de 10.000
+  (`Compra de mercancía (1 producto, 2 unidades)`), cantidad 0 → 400 y lista
+  repetida → 409; datos de prueba borrados. `astro check` 0/0/0 · `build` Complete.
 
 ## Pendientes (propuestos, esperando decisión — opcionales)
 

@@ -1,6 +1,6 @@
 ---
 import { actions, isInputError } from 'astro:actions';
-import { TriangleAlert, Pencil, Plus, Trash } from '@lucide/astro';
+import { TriangleAlert, Pencil, Plus, Trash, FileUp } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 import LimpiarFiltros from '../../components/LimpiarFiltros.astro';
@@ -113,6 +113,7 @@ const mensajeConfirmar =
         </a>
       )
     }
+    <Button variant="outline" href="/productos/importar"><FileUp size={15} /> Importar lista</Button>
     <Button href="/productos/nuevo"><Plus size={15} /> Nuevo producto</Button>
   </PageHeader>
 

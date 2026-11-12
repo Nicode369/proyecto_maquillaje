@@ -6,8 +6,10 @@ import {
   createProducto,
   deleteProducto,
   getProducto,
+  importarProductos,
   updateProducto,
 } from '../lib/queries/productos';
+import { normalizarNombre } from '../lib/importar';
 
 const esquemaProducto = z.object({
   nombre: z.string().trim().min(2, 'Escribe el nombre del producto').max(120),
@@ -53,6 +55,44 @@ function limpiar(data: z.infer<typeof esquemaProducto>) {
   };
 }
 
+const esquemaFilaImportada = z.object({
+  nombre: z.string().trim().min(2, 'El nombre es demasiado corto').max(120),
+  cantidad: z.coerce
+    .number({ message: 'La cantidad debe ser un número' })
+    .int('La cantidad debe ser un número entero')
+    .min(1, 'La cantidad debe ser mayor a 0')
+    .max(9_999, 'La cantidad es demasiado alta'),
+  costo: z.coerce
+    .number({ message: 'El costo debe ser un número' })
+    .min(0, 'El costo no puede ser negativo'),
+  venta: z.coerce
+    .number({ message: 'La venta debe ser un número' })
+    .min(0, 'La venta no puede ser negativa'),
+  marca: z
+    .string()
+    .trim()
+    .max(80)
+    .nullable()
+    .optional()
+    .transform((valor) => valor || null),
+  categoria: z.string().trim().min(1, 'Falta la categoría').max(40),
+});
+
+const esquemaImportar = z.object({
+  filas: z.preprocess((valor) => {
+    if (typeof valor !== 'string') return valor;
+    try {
+      return JSON.parse(valor);
+    } catch {
+      return valor;
+    }
+  }, z.array(esquemaFilaImportada).min(1, 'No hay filas para importar').max(500, 'Máximo 500 filas')),
+  registrar_gasto: z.preprocess(
+    (valor) => valor === true || valor === 'true' || valor === 'on',
+    z.boolean(),
+  ),
+});
+
 export const productos = {
   crear: defineAction({
     accept: 'form',
@@ -73,6 +113,23 @@ export const productos = {
       if (!existente) fallo('El producto ya no existe.', 'NOT_FOUND');
       await updateProducto(input.id, limpiar(input));
       return { id: input.id };
+    },
+  }),
+
+  importar: defineAction({
+    accept: 'form',
+    input: esquemaImportar,
+    handler: async (input, context) => {
+      await exigirSesion(context);
+      const vistos = new Set<string>();
+      for (const fila of input.filas) {
+        const clave = normalizarNombre(fila.nombre);
+        if (vistos.has(clave)) {
+          fallo(`«${fila.nombre}» está repetido en la lista.`);
+        }
+        vistos.add(clave);
+      }
+      return importarProductos(input.filas, input.registrar_gasto);
     },
   }),
 

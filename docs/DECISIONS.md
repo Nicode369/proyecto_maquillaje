@@ -262,3 +262,26 @@ Otras reglas de diseño:
   .env.local' --prune-empty -- --all` y force-push. Como el secreto ya había sido
   público, además se **rotó** la contraseña del rol demo y el `SESSION_SECRET`
   demo (pendiente actualizar el proyecto demo de Vercel).
+
+## Importar mercancía pegando una lista
+
+- **Formato canónico**: `#	Producto	Cant.	Compra unit.	Venta sugerida	Marca	Categoría`
+  (TSV). Es el que produce la IA con el prompt de la página; el parser además acepta
+  CSV, punto y coma, tablas Markdown y bloques de código, para no depender de una IA.
+- **Pegar en un textarea, no subir archivo**: la amiga ya usa listas generadas en el
+  chat; evita permisos de archivos, tipos MIME y errores de Excel. El texto nunca sale
+  del navegador hasta confirmar.
+- **Coincidencia por nombre normalizado** (minúsculas, sin tildes ni espacios
+  repetidos): decide si suma stock (`stock + cantidad`) o crea un producto. La vista
+  previa muestra “Nuevo” o “Suma +N” y el stock resultante; los nombres repetidos en
+  la lista bloquean la importación.
+- **`stock_minimo = 1` fijo** para lo importado (decisión de la usuaria: no quiere
+  configurar mínimos producto por producto).
+- **Gasto opcional marcado por defecto**: el total invertido se registra como gasto
+  `Mercancía` con fecha de Colombia (`now() AT TIME ZONE 'America/Bogota'`), en la
+  misma transacción que los productos. Se puede desmarcar si la compra ya está
+  registrada.
+- **Una transacción para todo** (`sql.transaction`): si falla un producto o el gasto,
+  no queda stock a medias. Límite de 500 filas por envío.
+- **Sin cambios de esquema**: se reutilizan `productos` y `gastos`; las imágenes de
+  productos existentes se conservan al actualizar.
