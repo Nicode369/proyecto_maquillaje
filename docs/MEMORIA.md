@@ -199,6 +199,13 @@
   (`Compra de mercancía (1 producto, 2 unidades)`), cantidad 0 → 400 y lista
   repetida → 409; datos de prueba borrados. `astro check` 0/0/0 · `build` Complete.
 
+## Reset del demo (2026-11-11)
+
+- El reset automático cada 6 h quedó **desactivado**: `demo-reset.yml` conserva solo
+  `workflow_dispatch`. Se quitó el `schedule` para evitar las notificaciones de GitHub
+  Actions y porque el secreto `DEMO_RESET_DATABASE_URL` no estaba configurado.
+- El demo se restaura manualmente con el botón “Restaurar demo” o `npm run demo:reset`.
+
 ## Pendientes (propuestos, esperando decisión — opcionales)
 
 1. **Sincronizar `DASHBOARD_PASSWORD` local**: Vercel ya tiene la nueva, `.env` no.

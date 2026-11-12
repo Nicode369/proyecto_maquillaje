@@ -27,6 +27,9 @@ Para no re-descubrir por qué el código es así. Stack/convenciones básicas en
   incidente del secreto expuesto).
 - Plantillas versionadas: `.env.example` (producción) y `.env.demo.example`
   (demo). Los archivos reales nunca se commitean.
+- El workflow de reset del demo es **manual** (`workflow_dispatch`), sin `schedule`:
+  se desactivó el cron cada 6 h para evitar notificaciones de GitHub Actions y
+  porque `DEMO_RESET_DATABASE_URL` no está configurado en el repo.
 
 ## Integridad de datos y errores
 
