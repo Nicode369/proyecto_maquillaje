@@ -1,7 +1,7 @@
 # Memoria — estado actual del proyecto
 
-> Última actualización: 2026-11-11 — logo J&M Beauty en producción: logo completo
-> en login y monograma compacto en sidebar/topbar; el demo conserva su flor y
+> Última actualización: 2026-11-11 — logo J&M Beauty completo en producción
+> (login, sidebar y topbar), centrado y sin recortes; el demo conserva su flor y
 > “Demo Studio”. Antes:
 > importación de mercancía pegando una lista (IA/Excel), con previsualización y
 > gasto opcional. También: incidente de producción/demo resuelto, entornos separados
@@ -165,9 +165,9 @@
 - El logo de la amiga (`LogoJ&M.png`) se guarda como fuente en
   `src/assets/marca/logo-jm.png`; las versiones que se sirven son WebP de 480/768/1200 px
   en `public/marca/` (49/99/207 KB). El PNG original no se referencia.
-- Para sidebar y topbar móvil se usa un recorte compacto del monograma
-  `logo-jm-mark-256/512.webp` (96 px en sidebar y 28 px de alto en topbar). El logo
-  completo queda reservado para el login, centrado en el panel espresso.
+- El logo completo se usa en login (200–220 px), sidebar (144 px) y topbar móvil
+  (32 px de alto), siempre centrado y sin recortes. Se eliminó el monograma recortado
+  para no cortar la M ni “Beauty”.
 - Se retiró el subtítulo “Maquillaje” debajo del logo en sidebar/login; “Beauty” ya
   comunica la categoría.
 - El nombre de marca pasó a `J&M Beauty` (default de `BRAND_NAME`), así que recibos,

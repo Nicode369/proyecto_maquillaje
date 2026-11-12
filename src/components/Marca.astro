@@ -20,10 +20,6 @@ const srcset = [
   '/marca/logo-jm-768.webp 768w',
   '/marca/logo-jm-1200.webp 1200w',
 ].join(', ');
-const markSrcset = [
-  '/marca/logo-jm-mark-256.webp 256w',
-  '/marca/logo-jm-mark-512.webp 512w',
-].join(', ');
 ---
 
 {
@@ -48,31 +44,20 @@ const markSrcset = [
     </span>
   ) : (
     <span class:list={['inline-flex items-center', className]}>
-      {variant === 'sidebar' ? (
-        <img
-          src="/marca/logo-jm-mark-256.webp"
-          srcset={markSrcset}
-          sizes="96px"
-          width="512"
-          height="276"
-          alt="J&M Beauty"
-          loading="eager"
-          decoding="async"
-          class="h-auto w-[96px] shrink-0 rounded-xl"
-        />
-      ) : (
-        <img
-          src="/marca/logo-jm-768.webp"
-          srcset={srcset}
-          sizes="(min-width: 1024px) 220px, 200px"
-          width="768"
-          height="512"
-          alt="J&M Beauty"
-          loading="eager"
-          decoding="async"
-          class="h-auto w-[200px] shrink-0 rounded-xl lg:w-[220px]"
-        />
-      )}
+      <img
+        src="/marca/logo-jm-768.webp"
+        srcset={srcset}
+        sizes={variant === 'sidebar' ? '144px' : '(min-width: 1024px) 220px, 200px'}
+        width="768"
+        height="512"
+        alt="J&M Beauty"
+        loading="eager"
+        decoding="async"
+        class:list={[
+          'h-auto shrink-0 rounded-xl',
+          variant === 'sidebar' ? 'w-[144px]' : 'w-[200px] lg:w-[220px]',
+        ]}
+      />
     </span>
   )
 }

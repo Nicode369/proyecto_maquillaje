@@ -193,10 +193,9 @@ Otras reglas de diseño:
 ## Marca y tipografía
 
 - **Producción (J&M Beauty)**: `Marca.astro` muestra el logo completo
-  `public/marca/logo-jm-*.webp` con `srcset` en login (`auth`, 200–220 px) y el
-  monograma `logo-jm-mark-256/512.webp` en sidebar (96 px). El topbar móvil usa el
-  monograma a 28 px de alto. El PNG original queda como fuente en
-  `src/assets/marca/logo-jm.png` y no se sirve.
+  `public/marca/logo-jm-*.webp` con `srcset`: login 200–220 px, sidebar 144 px y
+  topbar móvil 32 px de alto. Se usa completo para no recortar la M ni “Beauty”.
+  El PNG original queda como fuente en `src/assets/marca/logo-jm.png` y no se sirve.
 - **Demo (Demo Studio)**: `ES_DEMO` mantiene la flor `/logo.svg` + wordmark Fraunces
   (`tono="claro"` sobre espresso); el demo nunca muestra el logo J&M.
 - `getMarca()` usa `BRAND_NAME` (default `J&M Beauty`); `.env.demo` lo sobreescribe a
@@ -205,9 +204,9 @@ Otras reglas de diseño:
 - **Wordmark del demo sobre fondo oscuro**: `tono="claro"` (paper + rose). Sobre
   espresso da 10.9:1 y 5.8:1; la variante tinta daba 1.38:1 y Lighthouse la marcaba
   como inaccesible. El `tono` por defecto sigue siendo tinta para sidebar y login móvil.
-- **Logo J&M**: el logo completo no se usa a tamaños pequeños; para sidebar/topbar
-  va el monograma recortado (96/28 px de alto). En login, el logo completo a 200–220
-  px. Se conserva la transparencia y se redondea con `rounded-xl`.
+- **Logo J&M**: se usa completo y centrado en login (200–220 px), sidebar (144 px)
+  y topbar móvil (32 px de alto). El recorte del monograma se descartó porque cortaba
+  la M y “Beauty”. Se conserva la transparencia y se redondea con `rounded-xl`.
 
 ## Login mobile
 
