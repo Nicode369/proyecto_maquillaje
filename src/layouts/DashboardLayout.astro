@@ -56,12 +56,26 @@ const stockBajo = await countStockBajo();
           </svg>
         </button>
 
-        <img
-          src="/logo.svg"
-          alt=""
-          aria-hidden="true"
-          class="h-5 w-5 shrink-0 lg:hidden"
-        />
+        {
+          ES_DEMO ? (
+            <img
+              src="/logo.svg"
+              alt=""
+              aria-hidden="true"
+              class="h-5 w-5 shrink-0 lg:hidden"
+            />
+          ) : (
+            <img
+              src="/marca/logo-jm-480.webp"
+              alt="J&M Beauty"
+              width="480"
+              height="320"
+              loading="eager"
+              decoding="async"
+              class="h-8 w-auto shrink-0 rounded-md lg:hidden"
+            />
+          )
+        }
         <p class="text-[13px] font-medium text-ink">{title}</p>
         <p class="ml-auto hidden text-[13px] text-ink/75 sm:block">{fechaCapitalizada}</p>
       </header>

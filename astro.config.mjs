@@ -23,7 +23,7 @@ export default defineConfig({
         context: 'server',
         access: 'secret',
         optional: true,
-        default: 'Valeria Eslava',
+        default: 'J&M Beauty',
       }),
       DEMO_MODE: envField.boolean({
         context: 'server',

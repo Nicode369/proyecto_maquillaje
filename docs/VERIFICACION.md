@@ -136,7 +136,17 @@ a `/` el middleware redirige sin setear cookie).
 - Acciones directas: una fila inválida responde 400 y una lista con nombres
   repetidos 409; ambas sin cambios en la base.
 
-## 9. Commit
+## 9. Logo de marca (producción vs demo)
+
+- `npm run dev` (sin `DEMO_MODE`): `/login` debe mostrar el logo J&M (WebP), al igual
+  que el sidebar y el topbar móvil; el nombre de recibos/respaldo debe ser
+  `J&M Beauty`.
+- `npm run dev:demo`: debe seguir mostrando la flor `/logo.svg` y `Demo Studio`; no
+  debe cargar ningún `/marca/logo-jm-*.webp`.
+- Revisar que el logo no cause layout shift (dimensiones explícitas) y que se vea bien
+  en 390×844 y escritorio.
+
+## 10. Commit
 
 ```
 git status --short

@@ -1,10 +1,11 @@
 # Memoria — estado actual del proyecto
 
-> Última actualización: 2026-11-11 — importación de mercancía pegando una lista
-> (IA/Excel), con previsualización y gasto opcional. Antes: incidente de
-> producción/demo resuelto, entornos separados y `.env.local` eliminado del
-> historial (queda rotar las credenciales demo). Ver "Incidente 2026-10-24" y
-> "Pulido 2026-10-24".
+> Última actualización: 2026-11-11 — logo J&M Beauty en producción (login, sidebar
+> y topbar) con WebP optimizado; el demo conserva su flor y “Demo Studio”. Antes:
+> importación de mercancía pegando una lista (IA/Excel), con previsualización y
+> gasto opcional. También: incidente de producción/demo resuelto, entornos separados
+> y `.env.local` eliminado del historial (queda rotar las credenciales demo). Ver
+> "Incidente 2026-10-24" y "Pulido 2026-10-24".
 
 ## Incidente 2026-10-24 (producción y demo caídos)
 
@@ -97,8 +98,8 @@
   Chart.js; auth HMAC; filtros con PRG; tablas→tarjetas en móvil.
 - **Neon operativo** (pooler en la app; host directo dio timeout — ver `DECISIONS.md`).
 - **Rediseño femenino**: paleta blush/vino (tokens en `src/styles/global.css`), marca
-  "Valeria Eslava" (wordmark + `public/logo.svg`), navbar blush, login mobile con
-  gradiente + pétalos.
+  inicial "Valeria Eslava" (wordmark + `public/logo.svg`), navbar blush, login mobile
+  con gradiente + pétalos.
 - **Imagen de producto**: resize canvas 800px JPEG, base64 en `productos.imagen`.
 - **Ventas a crédito y abonos** (2026-10-20): checkbox "fiada" (exige clienta), saldo
   calculado en queries, sección de abonos en el detalle (desglose Total → Abonado → Saldo),
@@ -157,6 +158,21 @@
   con teclado, limpiar, servicio, aviso de stock y total sincronizado.
 - e2e: 45/47; los 2 fallos son del login demo (no pide contraseña ni aplica el
   rate limit de 5 intentos), no de la paginación ni del buscador.
+
+## Logo J&M Beauty en producción (2026-11-11)
+
+- El logo de la amiga (`LogoJ&M.png`) se guarda como fuente en
+  `src/assets/marca/logo-jm.png`; las versiones que se sirven son WebP de 480/768/1200 px
+  en `public/marca/` (49/99/207 KB). El PNG original no se referencia.
+- Producción muestra J&M Beauty en login, sidebar y topbar móvil; el nombre de marca
+  pasó a `J&M Beauty` (default de `BRAND_NAME`), así que recibos, respaldo JSON y
+  exportaciones también lo usan. `.env.example` actualizado.
+- El demo **no** cambia: sigue con la flor `/logo.svg` y “Demo Studio”
+  (`BRAND_NAME` en `.env.demo`); los condicionales usan `ES_DEMO`.
+- Placeholders de productos, estados vacíos, favicon y OG siguen con la flor (decisión
+  de alcance: solo login, sidebar y topbar).
+- Verificado: `astro check` 0/0/0 · `build` Complete; producción local sin
+  `DEMO_MODE` muestra J&M y el demo conserva Demo Studio.
 
 ## Importar mercancía desde lista (2026-11-11)
 

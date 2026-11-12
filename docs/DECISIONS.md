@@ -189,13 +189,21 @@ Otras reglas de diseño:
 
 ## Marca y tipografía
 
-- `Valeria.astro`: variante `sidebar` (logo h-6) y `auth` (logo h-9); nombre tinta + "Eslava" granate.
-- Estilo del wordmark: Fraunces itálico con
-  `font-variation-settings: 'opsz' 144, 'wght' 560, 'SOFT' 40, 'WONK' 1`.
-- Títulos de página: `${título} · Valeria Eslava` (en `BaseLayout`/layouts).
-- **Wordmark sobre fondo oscuro**: `tono="claro"` (paper + rose). Sobre espresso da
-  10.9:1 y 5.8:1; la variante tinta daba 1.38:1 y Lighthouse la marcaba como
-  inaccesible. El `tono` por defecto sigue siendo tinta para sidebar y login móvil.
+- **Producción (J&M Beauty)**: `Marca.astro` muestra el logo
+  `public/marca/logo-jm-*.webp` con `srcset`; variante `sidebar` (~140 px) y `auth`
+  (~200–220 px). El PNG original queda como fuente en `src/assets/marca/logo-jm.png`
+  y no se sirve.
+- **Demo (Demo Studio)**: `ES_DEMO` mantiene la flor `/logo.svg` + wordmark Fraunces
+  (`tono="claro"` sobre espresso); el demo nunca muestra el logo J&M.
+- `getMarca()` usa `BRAND_NAME` (default `J&M Beauty`); `.env.demo` lo sobreescribe a
+  `Demo Studio`. De ahí salen recibos, respaldo JSON y exportaciones.
+- Títulos de página: `${título} · Maquillaje` (en `BaseLayout`/layouts).
+- **Wordmark del demo sobre fondo oscuro**: `tono="claro"` (paper + rose). Sobre
+  espresso da 10.9:1 y 5.8:1; la variante tinta daba 1.38:1 y Lighthouse la marcaba
+  como inaccesible. El `tono` por defecto sigue siendo tinta para sidebar y login móvil.
+- **Logo J&M**: no usarlo a 24 px como el icono viejo; el detalle se pierde. En el
+  topbar móvil va a 32 px de alto; en sidebar/login, a 140/200–220 px. Se conserva la
+  transparencia y se redondea con `rounded-xl`.
 
 ## Login mobile
 
