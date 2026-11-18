@@ -14,6 +14,8 @@ export const GET: APIRoute = async ({ params, url }) => {
   const categoria = url.searchParams.get('categoria')?.trim() || undefined;
   const clienteId = url.searchParams.get('cliente')?.trim() || undefined;
   const q = url.searchParams.get('q')?.trim() || undefined;
+  const stockBajo = url.searchParams.get('stock') === 'bajo';
+  const inactivos = url.searchParams.get('inactivos') === '1';
 
   let contenido: string;
 
@@ -114,7 +116,7 @@ export const GET: APIRoute = async ({ params, url }) => {
       ]),
     );
   } else if (tabla === 'productos') {
-    const filas = await listProductos({ inactivos: true });
+    const filas = await listProductos({ q, categoria, stockBajo, inactivos });
     contenido = crearCSV(
       [
         'ID',
@@ -125,8 +127,10 @@ export const GET: APIRoute = async ({ params, url }) => {
         'Stock mínimo',
         'Precio compra',
         'Precio venta',
-        'Activo',
-        'Tiene imagen',
+        'Margen unitario',
+        'Valor costo',
+        'Valor venta',
+        'Estado',
         'Creado',
       ],
       filas.map((p) => [
@@ -138,8 +142,10 @@ export const GET: APIRoute = async ({ params, url }) => {
         p.stock_minimo,
         p.precio_compra,
         p.precio_venta,
-        p.activo ? 'Sí' : 'No',
-        p.imagen ? 'Sí' : 'No',
+        p.precio_venta - p.precio_compra,
+        p.stock * p.precio_compra,
+        p.stock * p.precio_venta,
+        p.activo ? 'Activo' : 'Inactivo',
         p.created_at,
       ]),
     );

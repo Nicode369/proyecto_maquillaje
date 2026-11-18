@@ -1,6 +1,6 @@
 ---
 import { actions, isInputError } from 'astro:actions';
-import { TriangleAlert, Pencil, Plus, Trash, FileUp } from '@lucide/astro';
+import { TriangleAlert, Pencil, Plus, Trash, FileDown, FileUp } from '@lucide/astro';
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 import LimpiarFiltros from '../../components/LimpiarFiltros.astro';
@@ -79,6 +79,8 @@ if (categoria) filtros.set('categoria', categoria);
 if (soloStockBajo) filtros.set('stock', 'bajo');
 if (verInactivos) filtros.set('inactivos', '1');
 
+const exportHref = `/exportar/productos${filtros.size ? `?${filtros}` : ''}`;
+
 function hrefPagina(numero: number): string {
   const params = new URLSearchParams(filtros);
   if (numero > 1) params.set('pagina', String(numero));
@@ -113,6 +115,7 @@ const mensajeConfirmar =
         </a>
       )
     }
+    <Button variant="outline" href={exportHref}><FileDown size={15} /> Exportar CSV</Button>
     <Button variant="outline" href="/productos/importar"><FileUp size={15} /> Importar lista</Button>
     <Button href="/productos/nuevo"><Plus size={15} /> Nuevo producto</Button>
   </PageHeader>

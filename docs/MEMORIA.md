@@ -59,6 +59,10 @@
   a la página 1. Se muestra `Mostrando X–Y de Z`; las imágenes de producto usan
   `loading="lazy"` y `decoding="async"`. El texto filtra la página al instante y
   Enter busca en todas (aviso cuando hay más de 24).
+- **Exportar inventario**: botón “Exportar CSV” en Productos que descarga el
+  inventario con los filtros activos (`q`, `categoria`, `stock`, `inactivos`);
+  incluye stock, precios, margen, valor costo/venta y estado. Sin filtros exporta
+  todo. Formato CSV `;` + BOM, listo para Excel.
 - **Buscador de productos en “Nueva venta”**: se reemplazó el `<select>` por un
   combobox con búsqueda sin acentos por nombre, marca o categoría. Muestra hasta
   50 resultados (con aviso si hay más), navegación con flechas/Enter/Escape,
