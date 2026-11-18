@@ -119,7 +119,6 @@ export const GET: APIRoute = async ({ params, url }) => {
     const filas = await listProductos({ q, categoria, stockBajo, inactivos });
     contenido = crearCSV(
       [
-        'ID',
         'Nombre',
         'Marca',
         'Categoría',
@@ -130,11 +129,8 @@ export const GET: APIRoute = async ({ params, url }) => {
         'Margen unitario',
         'Valor costo',
         'Valor venta',
-        'Estado',
-        'Creado',
       ],
       filas.map((p) => [
-        p.id,
         p.nombre,
         p.marca ?? '',
         p.categoria,
@@ -145,8 +141,6 @@ export const GET: APIRoute = async ({ params, url }) => {
         p.precio_venta - p.precio_compra,
         p.stock * p.precio_compra,
         p.stock * p.precio_venta,
-        p.activo ? 'Activo' : 'Inactivo',
-        p.created_at,
       ]),
     );
   } else {
